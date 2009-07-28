@@ -22,7 +22,7 @@
 
 package org.juicekit.visual.controls {
   import flare.scale.ScaleType;
-  import flare.util.palette.ColorPalette;
+  import org.juicekit.flare.util.palette.ColorPalette;
   import flare.vis.data.Data;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
@@ -42,6 +42,18 @@ package org.juicekit.visual.controls {
 
 
   include "../styles/metadata/TextStyles.as";
+
+
+  /**
+   * Determines the color palette to use
+   * Possible values are <code>"hot"</code>, <code>"cool"</code>,
+   * <code>"summer"</code>, <code>"winter"</code>, <code>"spring"</code>
+   * <code>"autumn"</code>, <code>"bone"</code>, <code>"copper"</code>
+   * or <code>"pink"</code>.
+   *
+   * @default "spectral"
+   */
+  [Style(name="palette", type="String", enumeration="hot,cool,summer,winter,spring,autumn,bone,copper,pink", inherit="yes")]
 
   /**
    * Determines the vertical position of text within the cell.
@@ -125,6 +137,8 @@ package org.juicekit.visual.controls {
    */
   [Style(name="maxEncodedColor", type="uint", format="Color", inherit="no")]
 
+
+
   /**
    * The TreeMapControl class visualizes large hierarchical data sets.
    * Data properties are used to encode both the rectangles' size and color.
@@ -136,6 +150,7 @@ package org.juicekit.visual.controls {
 
     // Invoke the class constructor to initialize the CSS defaults.
     classConstructor();
+
 
     private static function classConstructor():void {
       CSSUtil.setDefaultsFor("TreeMapControl",
@@ -171,10 +186,10 @@ package org.juicekit.visual.controls {
                                    , "fontStyle"
                                    , "fontWeight"
                                    , "textAlign"
-                                   , "textPosition"
-                                   ];
+                                   , "textPosition"];
       return textStyleProps.indexOf(styleProp) !== -1;
     }
+
 
     /**
      * Is property name used for visualization layout styling?
@@ -183,11 +198,11 @@ package org.juicekit.visual.controls {
       const paletteStyleProps:Array = [ "minEncodedColor"
                                       , "midEncodedColor"
                                       , "maxEncodedColor"
+                                      , "palette"
                                       , "encodedColorAlpha"
                                       , "strokeAlphas"
                                       , "strokeColors"
-                                      , "strokeThicknesses"
-                                      ];
+                                      , "strokeThicknesses"];
       return paletteStyleProps.indexOf(styleProp) !== -1;
     }
 
@@ -213,8 +228,7 @@ package org.juicekit.visual.controls {
       if (!allStyles) {
         if (isTextStyle(styleProp)) {
           _labelStyleChanged = true;
-        }
-        else if (isLayoutStyle(styleProp)) {
+        } else if (isLayoutStyle(styleProp)) {
           _layoutStyleChanged = true;
         }
       }
@@ -231,7 +245,18 @@ package org.juicekit.visual.controls {
       const minColor:uint = getStyle("minEncodedColor") | alphaBits;
       const midColor:uint = getStyle("midEncodedColor") | alphaBits;
       const maxColor:uint = getStyle("maxEncodedColor") | alphaBits;
-      return ColorPalette.diverging(minColor, midColor, maxColor);
+      if (getStyle("palette") == undefined) {
+        return ColorPalette.diverging(minColor, midColor, maxColor);
+      } else {
+        return ColorPalette.getPaletteByName(getStyle("palette"));
+      }
+    }
+
+    /**
+     * Disable color scale updates, for instance when drilling through the treemap
+     */
+    public function getColorEncoder():ColorEncoder {
+      return vis.operators.getOperatorAt(OP_IX_COLOR) as ColorEncoder;
     }
 
 
@@ -292,8 +317,7 @@ package org.juicekit.visual.controls {
 
             lfr = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
             labels.labelFormatter = lfr;
-          }
-          else if (_labelDepthUpdated) {
+          } else if (_labelDepthUpdated) {
             _labelDepthUpdated = false;
             lfr = labels.labelFormatter as PLabelFormatter;
             lfr.minLabelDepth = _minLabelDepth;
@@ -339,6 +363,7 @@ package org.juicekit.visual.controls {
      */
     private var dataRootChanged:Boolean = false;
 
+
     /**
      * Sets the a data set's <code>root</code> reference to the
      * <code>nodeSprite</code> parameter.
@@ -365,11 +390,11 @@ package org.juicekit.visual.controls {
         dataRootChanged = true;
         invalidateProperties();
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
-      }
-      else {
+      } else {
         throw new ArgumentError("A visualization must already have data to manipulate the root.");
       }
     }
+
 
     /**
      * @private
@@ -398,6 +423,7 @@ package org.juicekit.visual.controls {
      */
     private var newDataLoaded:Boolean = false;
 
+
     /**
      * Sets the data value to a <code>Tree</code> data
      * object used for rendering the size and color attributes
@@ -415,6 +441,7 @@ package org.juicekit.visual.controls {
       }
     }
 
+
     /**
      * @private
      */
@@ -429,6 +456,7 @@ package org.juicekit.visual.controls {
     private var _colorEncodingField:String = "color";
     private var _colorEncodingUpdated:Boolean = false;
 
+
     /**
      * Specifies a data <code>Object</code> property's name used
      * to encode a treemap rectangle's color.
@@ -442,6 +470,7 @@ package org.juicekit.visual.controls {
       _colorEncodingUpdated = true;
       invalidateProperties();
     }
+
 
     /**
      * @private
@@ -478,7 +507,7 @@ package org.juicekit.visual.controls {
     }
 
 
-   /**
+    /**
      * Forces the color mapping range to be determined by the minimum
      * and maximum <code>data</code> values. This is the default algorithm for
      * <code>TreeMapControl</code> instances.
@@ -497,6 +526,7 @@ package org.juicekit.visual.controls {
     private var _sizeEncodingField:String = "size";
     private var _sizeEncodingUpdated:Boolean = false;
 
+
     /**
      * Specifies a data <code>Object</code> property's name used
      * to encode a treemap rectangle's visual size.
@@ -510,6 +540,7 @@ package org.juicekit.visual.controls {
       _sizeEncodingUpdated = true;
       invalidateProperties();
     }
+
 
     /**
      * @private
@@ -525,6 +556,7 @@ package org.juicekit.visual.controls {
     private var _labelEncodingField:String = "label";
     private var _labelEncodingUpdated:Boolean = false;
 
+
     /**
      * Specifies a data <code>Object</code> property's name used
      * to encode a treemap rectangle's label.
@@ -538,6 +570,7 @@ package org.juicekit.visual.controls {
       _labelEncodingUpdated = true;
       invalidateProperties();
     }
+
 
     /**
      * @private
@@ -554,6 +587,7 @@ package org.juicekit.visual.controls {
      */
     private var _minLabelDepth:int = -1;
 
+
     /**
      * Sets the minimum hierarchy depth that labels will be applied
      * to the visualization's rectangles. The default is <code>-1</code>
@@ -569,6 +603,7 @@ package org.juicekit.visual.controls {
       invalidateProperties();
     }
 
+
     /**
      * @private
      */
@@ -581,6 +616,7 @@ package org.juicekit.visual.controls {
      * Stores the maxLabelDepth property.
      */
     private var _maxLabelDepth:int = -1;
+
 
     /**
      * Sets the maximum hierarchy depth that labels will be applied
@@ -597,6 +633,7 @@ package org.juicekit.visual.controls {
       invalidateProperties();
     }
 
+
     /**
      * @private
      */
@@ -612,6 +649,7 @@ package org.juicekit.visual.controls {
      */
     private var _truncateToFit:Boolean = false;
 
+
     /**
      * Specifies whether label strings should be truncated to fit within its
      * rectangle's width.
@@ -625,6 +663,7 @@ package org.juicekit.visual.controls {
       _truncatePropertyChanged = true;
       invalidateProperties();
     }
+
 
     /**
      * @private
@@ -661,7 +700,7 @@ package org.juicekit.visual.controls {
      */
     private static function computeARGB(rgbColors:Array, alphas:Array, depth:uint):uint {
       const alphaBits:uint = numToAlphaBits(alphas[Math.min(alphas.length - 1, depth)]);
-      const rgbColor:uint = rgbColors[Math.min(rgbColors.length -1 , depth)];
+      const rgbColor:uint = rgbColors[Math.min(rgbColors.length - 1, depth)];
       return rgbColor | alphaBits;
     }
 
@@ -691,7 +730,7 @@ package org.juicekit.visual.controls {
             n.lineColor = computeARGB(colors, alphas, n.depth);
           }
         }
-      );
+        );
     }
 
 
@@ -699,10 +738,10 @@ package org.juicekit.visual.controls {
      * Create a brightness filter to highlight the current
      * mouse cursor position on an treemap instance.
      */
-    private static const brightnessMatrix:Array = [ 1, 0, 0, 0, 30,
-                                                    0, 1, 0, 0, 30,
-                                                    0, 0, 1, 0, 30,
-                                                    0, 0, 0, 1,  0 ];
+    private static const brightnessMatrix:Array = [1, 0, 0, 0, 30,
+                                                   0, 1, 0, 0, 30,
+                                                   0, 0, 1, 0, 30,
+                                                   0, 0, 0, 1, 0];
     private static const brightnessFilter:ColorMatrixFilter = new ColorMatrixFilter(brightnessMatrix);
 
     /*
@@ -723,8 +762,7 @@ package org.juicekit.visual.controls {
         if (ns.props.hasOwnProperty(FILTERS_PROP)) {
           ns.filters = ns.props[FILTERS_PROP];
           delete ns.props[FILTERS_PROP];
-        }
-        else if (ns.filters && ns.filters.length > 0) {
+        } else if (ns.filters && ns.filters.length > 0) {
           ns.filters = [];
         }
       }
@@ -743,8 +781,7 @@ package org.juicekit.visual.controls {
           ns.props[FILTERS_PROP] = ns.filters;
           ns.filters.push(brightnessFilter);
           ns.filters = ns.filters;
-        }
-        else {
+        } else {
           ns.filters = [brightnessFilter];
         }
       }
@@ -764,19 +801,21 @@ package org.juicekit.visual.controls {
 
     private function createColorEncoder():ColorEncoder {
       return new ColorEncoder(asFlareProperty(_colorEncodingField)
-                             , Data.NODES
-                             , "fillColor"
-                             , ScaleType.LINEAR
-                             , colorPalette);
+                              , Data.NODES
+                              , "fillColor"
+                              , ScaleType.LINEAR
+                              , colorPalette.toFlareColorPalette());
     }
+
 
     private function createTreeMapLayout():Operator {
       return new TreeMapLayout(asFlareProperty(sizeEncodingField));
     }
 
+
     private function createLabelLayout():Operator {
       const lfr:PLabelFormatter = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
-      return new Labels(asFlareProperty(_labelEncodingField), Data.NODES, lfr);
+      return new Labels(asFlareProperty(_labelEncodingField), Data.NODES, lfr, _truncateToFit);
     }
 
   }
@@ -792,10 +831,12 @@ import flare.vis.data.DataSprite;
 import flare.vis.data.NodeSprite;
 import mx.core.UIComponent;
 
+
 class PLabelFormatter implements ILabelFormatter {
   public var fmt:LabelFormat;
   public var minLabelDepth:int;
   public var maxLabelDepth:int;
+
 
   public function PLabelFormatter(component:UIComponent, minLabelDepth:int, maxLabelDepth:int) {
     this.minLabelDepth = minLabelDepth;
@@ -809,12 +850,12 @@ class PLabelFormatter implements ILabelFormatter {
     const textAlign:String = component.getStyle("textAlign");
     const textPosition:String = component.getStyle("textPosition");
 
-    fmt = new LabelFormat( fontFamily
-                         , fontSize
-                         , fontColor
-                         , fontWeight === "bold"
-                         , fontStyle === "italic"
-                         );
+    fmt = new LabelFormat(fontFamily
+      , fontSize
+      , fontColor
+      , fontWeight === "bold"
+      , fontStyle === "italic"
+      );
     switch (textAlign) {
       case "left":
         fmt.horizontalAnchor = LabelFormat.LEFT;
@@ -839,11 +880,11 @@ class PLabelFormatter implements ILabelFormatter {
     }
   }
 
+
   public function labelFormat(dataSprite:DataSprite):LabelFormat {
     const depth:int = (dataSprite as NodeSprite).depth;
     if ((minLabelDepth === -1 || depth >= minLabelDepth)
-       && (maxLabelDepth === -1 || depth <= maxLabelDepth))
-    {
+      && (maxLabelDepth === -1 || depth <= maxLabelDepth)) {
       return fmt;
     }
     return null;
