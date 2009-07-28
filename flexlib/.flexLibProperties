@@ -12,6 +12,7 @@
 <classEntry path="org.juicekit.flare.vis.label.LabelFormatter"/>
 <classEntry path="org.juicekit.flare.vis.label.Labels"/>
 <classEntry path="org.juicekit.util.collection.AlphanumSort"/>
+<classEntry path="org.juicekit.util.data.GraphUtil"/>
 <classEntry path="org.juicekit.util.helper.Browser"/>
 <classEntry path="org.juicekit.util.helper.CSSUtil"/>
 <classEntry path="org.juicekit.util.helper.Clipboard"/>

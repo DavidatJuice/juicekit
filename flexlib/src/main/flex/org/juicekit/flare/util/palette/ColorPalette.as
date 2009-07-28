@@ -135,7 +135,7 @@ package org.juicekit.flare.util.palette {
      */
     public var nameCache:Object = {};
     
-    private const COLORS_CHANGED = 'colorsChanged';
+    private const COLORS_CHANGED:String = 'colorsChanged';
 
     /**
     * An optional name for the palette
