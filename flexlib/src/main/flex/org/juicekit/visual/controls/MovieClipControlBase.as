@@ -120,7 +120,7 @@ package org.juicekit.visual.controls {
      */
     public function MovieClipControlBase() {
       super();
-
+ 
       // Handle runtime resizing.
       addEventListener(ResizeEvent.RESIZE, onResize);
     }
@@ -310,12 +310,10 @@ package org.juicekit.visual.controls {
 
 
     /**
-     * @private
-     *
      * Encode map colors by applying the colorEncodingFunction
      * to the array of data objects.
      */
-    protected function encodeMap(table:Array):void {
+    public function encodeMap(table:Array):void {
       var sb:SimpleButton;
       var rowObject:Object;
       var colorTransform:ColorTransform;
