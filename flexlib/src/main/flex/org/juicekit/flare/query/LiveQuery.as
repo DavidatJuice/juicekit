@@ -164,17 +164,19 @@ package org.juicekit.flare.query {
 
 
     public function set filterFunctions(v:ArrayCollection):void {
+      var ff:*;
+      
       if (filterFunctions) {
         _filterFunctions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-        for each (var fs:* in filterFunctions) {
-          fs.removeEventListener('filterChanged', acCollectionChange);
+        for each (ff in filterFunctions) {
+          ff.removeEventListener('filterChanged', acCollectionChange);
         }
       }
 
       _filterFunctions = v;
       filterFunctions.addEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-      for each (var fs:* in filterFunctions) {
-        fs.addEventListener('filterChanged', acCollectionChange);
+      for each (ff in filterFunctions) {
+        ff.addEventListener('filterChanged', acCollectionChange);
       }
       acCollectionChange(new Event(REQUIRE_RECALC));
     }
