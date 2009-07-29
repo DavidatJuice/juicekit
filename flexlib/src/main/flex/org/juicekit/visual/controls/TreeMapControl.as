@@ -252,8 +252,26 @@ package org.juicekit.visual.controls {
       }
     }
 
+
     /**
      * Disable color scale updates, for instance when drilling through the treemap
+     */
+    public function freezeColors():void {
+        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
+        colorEncoder.scale.ignoreUpdates = true;
+    }
+
+
+    /**
+     * Enable color scale updates.
+     */
+    public function unfreezeColors():void {
+        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
+        colorEncoder.scale.ignoreUpdates = false;
+    }
+
+    /**
+     * Get the Flare ColorEncoder
      */
     public function getColorEncoder():ColorEncoder {
       return vis.operators.getOperatorAt(OP_IX_COLOR) as ColorEncoder;
