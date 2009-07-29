@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flexLibProperties version="1">
 <includeClasses>
+<classEntry path="org.juicekit.effects.AnimateColor"/>
+<classEntry path="org.juicekit.effects.effectClasses.AnimateColorInstance"/>
 <classEntry path="org.juicekit.events.AutoTextFieldEvent"/>
 <classEntry path="org.juicekit.events.DataMouseEvent"/>
 <classEntry path="org.juicekit.events.InactivityEvent"/>
