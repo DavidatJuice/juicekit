@@ -40,7 +40,7 @@ package org.juicekit.flare.vis.label {
   import flash.text.TextLineMetrics;
 
   import org.juicekit.util.helper.CSSUtil;
-
+  import org.juicekit.flare.util.Colors;
 
   /**
    * A LabelLayout places text labels using a DataSprite data property for
@@ -92,6 +92,20 @@ package org.juicekit.flare.vis.label {
     public function get group():String {
       return _group;
     }
+
+
+    /**
+    * Store the colorStrategy property
+    * 
+    * Possible colorStrategy values are: <code>blackwhite</code> adaptively choose black or 
+    * white depending on the background color, <code>glow</code> apply a white glow around 
+    * letters or <code>none</code> don't apply any effect.
+    * 
+    * The default is glow. In JuiceKit 2.0, this will be changed to blackwhite. 
+    * 
+    * @default 'glow'
+    */
+    public var colorStrategy:String = 'blackwhite';
 
 
     /**
@@ -168,21 +182,26 @@ package org.juicekit.flare.vis.label {
      *
      * @param truncateToFit Specified whether label strings should be
      * truncated to fit within its rectangle's width.
+     * 
+     * @param colorStrategy An optional color strategy to make the labels more
+     * readable against the background.
      */
     public function Labels( source:String
                           , group:String = Data.NODES
                           , labelFormatter:ILabelFormatter = null
                           , truncateToFit:Boolean = false
+                          , colorStrategy:String = 'glow'
                           ) {
       this.source = source;
       this.group = group;
       this.labelFormatter = labelFormatter;
       this.truncateToFit = truncateToFit;
+      this.colorStrategy = colorStrategy;
 
       labelLayer = new Sprite();
       labelLayer.mouseEnabled = false;
       labelLayer.mouseChildren = false;
-      labelLayer.name = "#labelLayer#";
+      labelLayer.name = "#labelLayer#";     
     }
 
 
@@ -316,6 +335,9 @@ package org.juicekit.flare.vis.label {
           else {
             removeLabelFrom(ds);
           }
+          if (colorStrategy == 'blackwhite' && label != null) {
+            label.color = Colors.whiteOrBlack(ds.fillColor);
+          }
         }
         else {
           removeLabelFrom(ds);
@@ -363,7 +385,9 @@ package org.juicekit.flare.vis.label {
       var label:TextSprite = new TextSprite();
       label.textField.selectable = false;
       label.mouseEnabled = false;
-      label.textField.filters = [labelFilter];
+      if (colorStrategy == 'glow') {
+        label.textField.filters = [labelFilter];        
+      }
       label.textField.antiAliasType = AntiAliasType.ADVANCED;
 
       container.addChild(label);

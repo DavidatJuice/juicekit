@@ -55,6 +55,20 @@ package org.juicekit.visual.controls {
    */
   [Style(name="palette", type="String", enumeration="hot,cool,summer,winter,spring,autumn,bone,copper,pink", inherit="yes")]
 
+
+  /**
+   * Possible labelColorStrategy values are: <code>blackwhite</code> adaptively choose black or 
+   * white depending on the background color, <code>glow</code> apply a white glow around 
+   * letters or <code>none</code> don't apply any effect.
+   * 
+   * Deprecation warning: This default will be changed to <code>blackwhite</code> in
+   * JuiceKit 2.0. 
+   * 
+   * @default "glow"
+   */
+  [Style(name="labelColorStrategy", type="String", enumeration="blackwhite,glow,none", inherit="no")]
+
+
   /**
    * Determines the vertical position of text within the cell.
    * Possible values are <code>"top"</code>, <code>"middle"</code>,
@@ -163,6 +177,7 @@ package org.juicekit.visual.controls {
         , minEncodedColor: 0xFF0000
         , midEncodedColor: 0x000000
         , maxEncodedColor: 0x00FF00
+        , labelColorStrategy: 'glow'
         }
       );
     }
@@ -186,7 +201,9 @@ package org.juicekit.visual.controls {
                                    , "fontStyle"
                                    , "fontWeight"
                                    , "textAlign"
-                                   , "textPosition"];
+                                   , "textPosition"
+                                   , "labelColorStrategy"
+                                   ];
       return textStyleProps.indexOf(styleProp) !== -1;
     }
 
@@ -202,7 +219,8 @@ package org.juicekit.visual.controls {
                                       , "encodedColorAlpha"
                                       , "strokeAlphas"
                                       , "strokeColors"
-                                      , "strokeThicknesses"];
+                                      , "strokeThicknesses"
+                                      ];
       return paletteStyleProps.indexOf(styleProp) !== -1;
     }
 
@@ -341,6 +359,7 @@ package org.juicekit.visual.controls {
             lfr.minLabelDepth = _minLabelDepth;
             lfr.maxLabelDepth = _maxLabelDepth;
           }
+          labels.colorStrategy = getStyle('labelColorStrategy');
 
           updateTreemap = true;
         }
@@ -856,7 +875,11 @@ package org.juicekit.visual.controls {
 
     private function createLabelLayout():Operator {
       const lfr:PLabelFormatter = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
-      return new Labels(asFlareProperty(_labelEncodingField), Data.NODES, lfr, _truncateToFit);
+      return new Labels(asFlareProperty(_labelEncodingField), 
+                        Data.NODES, 
+                        lfr, 
+                        _truncateToFit, 
+                        getStyle('labelColorStrategy'));
     }
 
   }
