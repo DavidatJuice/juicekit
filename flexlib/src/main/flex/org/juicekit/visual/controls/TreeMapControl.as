@@ -22,7 +22,6 @@
 
 package org.juicekit.visual.controls {
   import flare.scale.ScaleType;
-  import org.juicekit.flare.util.palette.ColorPalette;
   import flare.vis.data.Data;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
@@ -30,12 +29,13 @@ package org.juicekit.visual.controls {
   import flare.vis.operator.encoder.ColorEncoder;
   import flare.vis.operator.encoder.Encoder;
   import flare.vis.operator.layout.TreeMapLayout;
-
+  
   import flash.events.MouseEvent;
   import flash.filters.ColorMatrixFilter;
   import flash.geom.Rectangle;
-
+  
   import org.juicekit.events.JuiceKitEvent;
+  import org.juicekit.flare.util.palette.ColorPalette;
   import org.juicekit.flare.vis.label.LabelFormat;
   import org.juicekit.flare.vis.label.Labels;
   import org.juicekit.util.helper.CSSUtil;
@@ -380,6 +380,21 @@ package org.juicekit.visual.controls {
      * Holds reference to flag indicating the data root was changed.
      */
     private var dataRootChanged:Boolean = false;
+    
+    
+    /**
+     * Holds the depth of the current data root. Used for to calculate
+     * styling if styleFromDataRoot is true
+     */
+    private var rootDepth:int = 0;
+    
+    
+    /**
+    * Are node line width and line color (strokeColors, strokeThickness, 
+    * strokeAlpha) styling based the depth from the data root
+    * or from the base of the tree.
+    */
+    public var styleFromDataRoot:Boolean = false;
 
 
     /**
@@ -395,6 +410,7 @@ package org.juicekit.visual.controls {
         throw new ArgumentError("NodeSprite must exist within the data tree.");
       }
       if (vis && vis.tree) {
+        rootDepth = nodeSprite.depth;
         const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
 
         vis.tree.nodes.setProperty("visible", false);
@@ -404,9 +420,10 @@ package org.juicekit.visual.controls {
         vis.tree.root = nodeSprite;
         vis.tree.nodes.setProperty("visible", true);
         labels.setLabelVisible(vis.tree.root, true);
-        labels.ignoreRemovals = false;
+        labels.ignoreRemovals = false;        
         dataRootChanged = true;
         invalidateProperties();
+        if (styleFromDataRoot) styleNodes();
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
       } else {
         throw new ArgumentError("A visualization must already have data to manipulate the root.");
@@ -737,15 +754,21 @@ package org.juicekit.visual.controls {
       const lineWidths:Array = getStyle("strokeThicknesses");
       const lastIxLineWidths:uint = lineWidths.length - 1;
 
+      var adjustedDepth:int = 0;
       vis.tree.nodes.visit(
         function(n:NodeSprite):void {
-          n.lineWidth = lineWidths[Math.min(lastIxLineWidths, n.depth)];
+          if (styleFromDataRoot) {
+            adjustedDepth = Math.max(0,n.depth-rootDepth); 
+          } else {
+            adjustedDepth = n.depth;
+          }
+          n.lineWidth = lineWidths[Math.min(lastIxLineWidths, adjustedDepth)];
           // Hide zero-width lines.
           if (n.lineWidth === 0) {
             n.lineAlpha = 0;
           }
           else {
-            n.lineColor = computeARGB(colors, alphas, n.depth);
+            n.lineColor = computeARGB(colors, alphas, adjustedDepth);
           }
         }
         );
