@@ -23,48 +23,47 @@ package org.juicekit.flare.query {
   [Bindable]
   public dynamic class LiveQuery {
     /**
-    * Usable for performance tuning. The number of fetches
-    * of data from <code>result</code>.
+    * The number of accesses of <code>result</code> 
+    * for performance and debugging purposes.
     */
     public var resultFetches:int = 0;
-    
+    // Number of times the result had to be calculated
     
     /**
-    * Usable for performance tuning. The number of times
-    * <code>result</code> had to be recalculated.
+    * The number of times <code>query</code> had to be 
+    * evaluated, for performance and debugging purposes.
     */
     public var resultCalculations:int = 0;
     
-    
     /**
-    * Usable for performance tuning. How many milliseconds
-    * did it take to evaluate the <code>query</code>.
+    * The number of milliseconds it took to evaluate 
+    * <code>query</code> during the most recent eval.
+    * 
+    * @default 'NA'
     */
     public var evalTime:String = 'NA';
 
+
     /**
-    * @private 
-    * 
-    * Does the result need to be recalculated?
+    * A flag that stores if <code>result</code> needs to
+    * be recalculated.
     */
     private var dirty:Boolean = true;
     
-    
-    private const REQUIRE_RECALC:String = 'requireRecalc';
+    private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
 
 
-    //---------------------------------
-    // Result
-    //---------------------------------
+    //----------------------------------
+    // result
+    //----------------------------------
 
     /**
-     * The results of the <code>query</code> evaluated against
-     * the data in <code>dataProvider</code>. <code>result</code>
-     * is evaluated whenver data in <code>dataProvider</code> 
-     * changes.
-     *
+     * The result of <code>query</code> evaled against 
+     * <code>dataProvider.source</code> as an ArrayCollection.
+     * 
+     * <code>result<code> is bindable.
      */
-    [Bindable(event=REQUIRE_RECALC)]
+    [Bindable(event='liveQueryRecalc')]
     public function get result():ArrayCollection {
       resultFetches += 1;
       if (dirty) {
@@ -97,34 +96,20 @@ package org.juicekit.flare.query {
 
       return _result;
     }
-
     private var _result:ArrayCollection = new ArrayCollection();
-
-
-    /**
-     * The source data or the Query has changed.
-     * Signal that result has changed and needs recalculation.
-     */
-    private function acCollectionChange(e:Event):void {
-      dirty = true;
-      dispatchEvent(new Event(REQUIRE_RECALC));
-    }
-
-
-    //---------------------------------
-    // Data provider
-    //---------------------------------
     
     
-    /**
-    * Provides source data to the <code>query</code>.
-    */
+    //----------------------------------
+    // dataProvider
+    //----------------------------------
+
     public function set dataProvider(v:ArrayCollection):void {
       if (dataProvider)
         dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
       _dataProvider = v;
       dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-      acCollectionChange(new Event(REQUIRE_RECALC));
+      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+      var r:ArrayCollection = result;
     }
 
 
@@ -135,18 +120,26 @@ package org.juicekit.flare.query {
     private var _dataProvider:ArrayCollection = null;
 
 
-    //---------------------------------
-    // Query
-    //---------------------------------
-
     /**
-    * A Flare Query that determines how the data in 
-    * <code>dataProvider</code> will be summarized.
-    */
+     * The source data or the Query has changed.
+     * Signal that result has changed and needs recalculation.
+     */
+    private function acCollectionChange(e:Event):void {
+      dirty = true;
+      dispatchEvent(new Event(LIVE_QUERY_RECALC));
+    }
+
+
+    //----------------------------------
+    // dataProvider
+    //----------------------------------
+
     public function set query(q:Query):void {
       _query = q;
-      acCollectionChange(new Event(REQUIRE_RECALC));
+      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+      var r:ArrayCollection = result;
     }
+
 
     public function get query():Query {
       return _query;
@@ -155,42 +148,40 @@ package org.juicekit.flare.query {
     private var _query:Query = null;
 
 
-
-    //---------------------------------
-    // Filter functions
-    //---------------------------------
-
-    private var _filterFunctions:ArrayCollection;
-
+    //----------------------------------
+    // filter functions
+    //----------------------------------
 
     public function set filterFunctions(v:ArrayCollection):void {
-      var ff:*;
-      
+      var fs:*;
       if (filterFunctions) {
         _filterFunctions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-        for each (ff in filterFunctions) {
-          ff.removeEventListener('filterChanged', acCollectionChange);
+        for each (fs in filterFunctions) {
+          fs.removeEventListener('filterChanged', acCollectionChange);
         }
       }
 
       _filterFunctions = v;
       filterFunctions.addEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-      for each (ff in filterFunctions) {
-        ff.addEventListener('filterChanged', acCollectionChange);
+      for each (fs in filterFunctions) {
+        fs.addEventListener('filterChanged', acCollectionChange);
       }
-      acCollectionChange(new Event(REQUIRE_RECALC));
+      acCollectionChange(new Event(LIVE_QUERY_RECALC));
     }
 
 
     public function get filterFunctions():ArrayCollection {
+//      return new ArrayCollection([]);
       return _filterFunctions;
     }
-
+    
+    private var _filterFunctions:ArrayCollection;
 
     /**
     * Constructor
     */
     public function LiveQuery() {
+
     }
 
   }
