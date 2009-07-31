@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+
+  <mx:Script>
+    <![CDATA[
+      import flare.util.Strings;
+      import mx.controls.dataGridClasses.DataGridColumn;
+      import mx.collections.ArrayCollection;
+
+      /**
+       * A DataGrid that automatically creates columns that correspond
+       * to keys in the objects in dataProvider.
+       * 
+       * Columns are formatted automatically.
+       */
+
+      public function labelFunctionFactory(k:String):Function {
+        return function(o:Object, dgc:DataGridColumn):String {
+          if (o[k] is int) {
+            return Strings.format("{0}", o[k]);            
+          } else {
+            return Strings.format("{0:0.000}", o[k]);
+          }
+        }
+      }
+      
+
+      //-----------------------------------
+      // dataProvider
+      //-----------------------------------
+      
+      /**
+      * The data source for the DataGrid. The values in each 
+      * object in dataProvider are formatted appropriately.
+      */
+      [Bindable]
+      public function set dataProvider(v:ArrayCollection):void {
+        _dataProvider = v;
+
+        if (dataProvider != null && dataProvider.length > 0) {
+          var cols:Array = [];
+          var o:Object = dataProvider.getItemAt(0) as Object;
+
+          for (var k:String in o) {
+            var col:DataGridColumn = new DataGridColumn(k);
+            col.labelFunction = labelFunctionFactory(k);
+            cols.push(col);
+          }
+        }
+        grid.columns = cols;
+      }
+
+
+      public function get dataProvider():ArrayCollection {
+        return _dataProvider;
+      }
+
+
+      private var _dataProvider:ArrayCollection = new ArrayCollection([]);
+    ]]>
+  </mx:Script>
+
+  <mx:Style>
+ .autoDataGrid {
+   alternatingItemColors: #ffffff, #ffffff;
+   headerColors: #ffffff, #ffffff;
+ }
+	</mx:Style>
+
+  <mx:VBox width="100%" height="100%">
+    <mx:DataGrid id="grid"
+                 width="100%"
+                 height="100%"
+                 dataProvider="{dataProvider}"
+                 styleName="autoDataGrid">
+    </mx:DataGrid>
+  </mx:VBox>
+
+</mx:Canvas>
