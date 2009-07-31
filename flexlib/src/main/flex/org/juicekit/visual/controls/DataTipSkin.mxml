@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         backgroundColor="0x333333"
+         backgroundAlpha="0.9"
+         color="0xffffff"
+         borderColor="0xeeeeee"
+         cornerRadius="5"
+         borderThickness="2.0"
+         borderStyle="solid"
+         paddingTop="5"
+         paddingBottom="5"
+         paddingRight="10"
+         paddingLeft="10"
+         verticalGap="-2">
+
+  <mx:Text id="tipText" htmlText="" fontFamily="Arial" fontWeight="normal" fontSize="12"/>
+
+  <mx:Script>
+    <![CDATA[
+      import flare.util.Strings;
+      import mx.charts.series.ColumnSeries;
+      import mx.charts.ChartItem;
+      import mx.charts.HitData;
+      
+      override public function set data(value:Object):void {
+        var _hitData:HitData = HitData(value);
+        tipText.htmlText = _hitData.displayText;
+      } //end set data
+    ]]>
+  </mx:Script>
+</mx:VBox>
