@@ -359,7 +359,9 @@ package org.juicekit.flare.util {
         else
           h = 4.0 + gc - rc;
       }
-      return (h / 6.0) % 1.0;
+      h = (h / 6.0) % 1.0
+      if (h < 0) h += 1.0;
+      return h;
     }
 
     /**
@@ -742,8 +744,8 @@ package org.juicekit.flare.util {
         }
       }
 
-      new_h += angle % 1;
-      h = new_h
+      new_h += angle;
+      h = new_h % 1
 
       // Given the new hue, convert back to the actual hue
       for each (tuple in wheel) {
