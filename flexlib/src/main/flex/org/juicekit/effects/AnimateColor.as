@@ -9,10 +9,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -24,55 +24,55 @@
  *
  * Adapted for JuiceKit by Chris Gemignani, Juice Inc.
  */
+package org.juicekit.effects
+{
 
+import mx.effects.AnimateProperty;
+import mx.effects.IEffectInstance;
 
-package org.juicekit.effects {
+import org.juicekit.effects.effectClasses.AnimateColorInstance;	
 
-  import mx.effects.AnimateProperty;
-  import mx.effects.IEffectInstance;
+/**
+ * 
+ */
+public class AnimateColor extends AnimateProperty
+{
 
-  import org.juicekit.effects.effectClasses.AnimateColorInstance;
+	/**
+	 * Constructor
+	 *
+	 * @param target The Object to animate with this effect.
+	 */
+	public function AnimateColor(target:Object = null)
+	{
+		super(target);
+		
+		instanceClass = AnimateColorInstance;
+	}
+	
+	
+	/**
+	 * Interpolation mode can be 'rgb' or 'hsv' 
+	 */
+	public var interpolationMode:String = 'rgb';
+	
+	/**
+	 * @private
+	 */
+	override protected function initInstance(instance:IEffectInstance):void
+	{
+		super.initInstance(instance);
+		
+		var animateColorInstance:AnimateColorInstance = AnimateColorInstance( instance );
 
-
-  /**
-   *
-   */
-  public class AnimateColor extends AnimateProperty {
-
-    /**
-     * Constructor
-     *
-     * @param target The Object to animate with this effect.
-     */
-    public function AnimateColor(target:Object = null) {
-      super(target);
-
-      instanceClass = AnimateColorInstance;
-    }
-
-
-    /**
-     * Interpolation mode can be 'rgb' or 'hsv'
-     */
-    public var interpolationMode:String = 'rgb';
-
-
-    /**
-     * @private
-     */
-    override protected function initInstance(instance:IEffectInstance):void {
-      super.initInstance(instance);
-
-      var animateColorInstance:AnimateColorInstance = AnimateColorInstance(instance);
-
-      animateColorInstance.fromValue = fromValue;
-      animateColorInstance.toValue = toValue;
-      animateColorInstance.property = property;
-      animateColorInstance.isStyle = isStyle;
-      animateColorInstance.roundValue = roundValue;
-      animateColorInstance.easingFunction = easingFunction;
-      animateColorInstance.interpolationMode = interpolationMode
-    }
-
-  } // end class	
+		animateColorInstance.fromValue = fromValue;
+		animateColorInstance.toValue = toValue;
+		animateColorInstance.property = property;
+		animateColorInstance.isStyle = isStyle;
+		animateColorInstance.roundValue = roundValue;
+		animateColorInstance.easingFunction = easingFunction;
+		animateColorInstance.interpolationMode = interpolationMode
+	}
+	
+} // end class	
 } // end package
