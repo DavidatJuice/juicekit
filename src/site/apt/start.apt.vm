@@ -32,7 +32,7 @@ Overview
 
 Requirements
 
-  You need to have the following technologies to download and build the source.
+  You need to have the following tools to download and build the source.
 
   * {{{http://git-scm.com/}Git}}, an open source, distributed version control system
 
@@ -56,7 +56,7 @@ $ git submodule update -i
 
 Building the source
 
-  The following command assumes you are using a Bourne/Bash shell (the default on many operating systems). To build the the library from source, issue the following Maven2 command.
+  The following command assumes you are using a bash shell (the default on many  operating systems). To build the the library from source, issue the following Maven2 command.
 
 +-------------------------------+
 $ MAVEN_OPTS="-Xms64m -Xmx256m" mvn clean install site
