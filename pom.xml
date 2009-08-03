@@ -229,6 +229,13 @@
       <organization>Juice, Inc.</organization>
       <organizationUrl>http://www.juiceanalytics.com</organizationUrl>
     </developer>
+    <developer>
+      <id>sal.uryasev</id>
+      <name>Sal Uryasev</name>
+      <email>sal.uryasev [at] juiceanalytics.com</email>
+      <organization>Juice, Inc.</organization>
+      <organizationUrl>http://www.juiceanalytics.com</organizationUrl>
+    </developer>
   </developers>
 
   <contributors>

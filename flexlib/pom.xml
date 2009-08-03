@@ -43,90 +43,51 @@
         <artifactId>flexmojos-maven-plugin</artifactId>
         <configuration>
           <includeClasses>
-            <classEntry>
-              org.juicekit.events.AutoTextFieldEvent
-            </classEntry>
+            <classEntry>org.juicekit.charts.BarChart</classEntry>
+            <classEntry>org.juicekit.charts.LinearAxis</classEntry>
+            <classEntry>org.juicekit.charts.LineChart</classEntry>
+            <classEntry>org.juicekit.effects.AnimateColor</classEntry>
+            <classEntry>org.juicekit.effects.effectClasses.AnimateColorInstance</classEntry>
+            <classEntry>org.juicekit.events.AutoTextFieldEvent</classEntry>
             <classEntry>org.juicekit.events.DataMouseEvent</classEntry>
             <classEntry>org.juicekit.events.InactivityEvent</classEntry>
-            <classEntry>
-              org.juicekit.events.InactivityMonitor
-            </classEntry>
+            <classEntry>org.juicekit.events.InactivityMonitor</classEntry>
             <classEntry>org.juicekit.events.JuiceKitEvent</classEntry>
-            <classEntry>
-              org.juicekit.util.collection.AlphanumSort
-            </classEntry>
+            <classEntry>org.juicekit.flare.query.LiveQuery</classEntry>
+            <classEntry>org.juicekit.flare.util.Colors</classEntry>
+            <classEntry>org.juicekit.flare.util.palette.ColorPalette</classEntry>
+            <classEntry>org.juicekit.flare.vis.data.TreeMLReader</classEntry>
+            <classEntry>org.juicekit.flare.vis.label.ILabelFormatter</classEntry>
+            <classEntry>org.juicekit.flare.vis.label.LabelFormat</classEntry>
+            <classEntry>org.juicekit.flare.vis.label.LabelFormatter</classEntry>
+            <classEntry>org.juicekit.flare.vis.label.Labels</classEntry>
+            <classEntry>org.juicekit.util.collection.AlphanumSort</classEntry>
+            <classEntry>org.juicekit.util.data.GraphUtil</classEntry>
             <classEntry>org.juicekit.util.helper.Browser</classEntry>
-            <classEntry>org.juicekit.util.helper.CSSUtil</classEntry>
             <classEntry>org.juicekit.util.helper.Clipboard</classEntry>
+            <classEntry>org.juicekit.util.helper.CSSUtil</classEntry>
             <classEntry>org.juicekit.util.helper.Formatter</classEntry>
-            <classEntry>
-              org.juicekit.util.helper.GraphicsUtil
-            </classEntry>
+            <classEntry>org.juicekit.util.helper.GraphicsUtil</classEntry>
             <classEntry>org.juicekit.util.helper.StringUtil</classEntry>
             <classEntry>org.juicekit.util.model.ModelObject</classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.AutoTextField
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.FlareControlBase
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.TreeMapControl
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.TreeMapZoomControl
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.USMapControl
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.MovieClipControlBase
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.controls.DMAMapControl
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.HBarRenderer
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.HLabeledGradient3
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.HPercentRenderer
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.IndexCircleRenderer
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.MaxDataGridColumn
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.NumberRendererBase
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.RendererBase
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.TripleValueRenderer
-            </classEntry>
-            <classEntry>
-              org.juicekit.visual.renderers.FilledRectValueRenderer
-            </classEntry>
-            <classEntry>
-              org.juicekit.flare.vis.data.TreeMLReader
-            </classEntry>
-            <classEntry>
-              org.juicekit.flare.vis.label.ILabelFormatter
-            </classEntry>
-            <classEntry>
-              org.juicekit.flare.vis.label.LabelFormat
-            </classEntry>
-            <classEntry>
-              org.juicekit.flare.vis.label.LabelFormatter
-            </classEntry>
-            <classEntry>
-              org.juicekit.flare.vis.label.Labels
-            </classEntry>
+            <classEntry>org.juicekit.visual.controls.AutoDataGrid</classEntry>
+            <classEntry>org.juicekit.visual.controls.AutoTextField</classEntry>
+            <classEntry>org.juicekit.visual.controls.DataTipSkin</classEntry>
+            <classEntry>org.juicekit.visual.controls.DMAMapControl</classEntry>
+            <classEntry>org.juicekit.visual.controls.FlareControlBase</classEntry>
+            <classEntry>org.juicekit.visual.controls.MovieClipControlBase</classEntry>
+            <classEntry>org.juicekit.visual.controls.TreeMapControl</classEntry>
+            <classEntry>org.juicekit.visual.controls.TreeMapZoomControl</classEntry>
+            <classEntry>org.juicekit.visual.controls.USMapControl</classEntry>
+            <classEntry>org.juicekit.visual.renderers.FilledRectValueRenderer</classEntry>
+            <classEntry>org.juicekit.visual.renderers.HBarRenderer</classEntry>
+            <classEntry>org.juicekit.visual.renderers.HLabeledGradient3</classEntry>
+            <classEntry>org.juicekit.visual.renderers.HPercentRenderer</classEntry>
+            <classEntry>org.juicekit.visual.renderers.IndexCircleRenderer</classEntry>
+            <classEntry>org.juicekit.visual.renderers.MaxDataGridColumn</classEntry>
+            <classEntry>org.juicekit.visual.renderers.NumberRendererBase</classEntry>
+            <classEntry>org.juicekit.visual.renderers.RendererBase</classEntry>
+            <classEntry>org.juicekit.visual.renderers.TripleValueRenderer</classEntry>
           </includeClasses>
         </configuration>
       </plugin>
