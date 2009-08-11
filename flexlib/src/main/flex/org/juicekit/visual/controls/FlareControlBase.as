@@ -137,7 +137,7 @@ package org.juicekit.visual.controls {
     /**
      * Stores reference to the prefuse.flare <code>Visualization</code> context.
      */
-    protected var vis:Visualization = null;
+    public var vis:Visualization = null;
 
 
     /**
