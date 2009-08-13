@@ -347,36 +347,36 @@ package org.juicekit.util.data {
      
      
     /**
-    * Generates a treemap data structure given an array of data objects
+    * <p>Generates a treemap data structure given an array of data objects.</p>
     * 
-    * The tree will be generated with the levels specified
+    * <p>The tree will be generated with the levels specified.</p>
     * 
-    * Consider a case if dataArray is:
+    * <p>Consider a case if dataArray is:</p>
     * 
-    * <code>
+    * <pre><code>
     * 	[{state: 'California': year: '2009', people: 200, avg_income: 600},
     *    {state: 'California': year: '2008', people: 200, avg_income: 400}, 
     * 	 {state: 'Oregon': year: '2009', people: 400, avg_income: 200}]
-    * </code>
+    * </code></pre>
     * 
-    * <code>treeMap(dataArray, ['state', 'year'], ['people'])</code> will generate 
-    * (indentation indicates node tree):
+    * <p><code>treeMap(dataArray, ['state', 'year'], ['people'])</code> will generate 
+    * (indentation indicates node tree):</p>
     * 
-    * <code>
+    * <pre><code>
     * {'name': 'All', 'people': 800}
     *     {'name': 'California', 'people': 400}
     *         {'name': '2009', 'people': 200 }
     *         {'name': '2008', 'people': 200 }
     *     {'name': 'Oregon', 'people': 400 }
     *         {'name': '2009', 'people': 400 }
-    * </code>
+    * </code></pre>
     * 
-    * Note: Metrics will sum by default.
+    * <p>Metrics will sum by default.<p>
     * 
-    * You can perform different calculations on the metrics using flare query
-    * expressions.
+    * <p>You can perform different calculations on the metrics using flare query
+    * expressions.</p>
     * 
-    * <code>
+    * <pre><code>
     * import flare.query.methods.*
     * treeMap(dataArray, ['state', 'year'], 
     *    ['people', 
@@ -388,7 +388,7 @@ package org.juicekit.util.data {
     *         {'name': '2008', 'people': 200, 'avginc': 400}
     *     {'name': 'Oregon', 'people': 400, 'avginc': 200}
     *         {'name': '2009', 'people': 400, 'avginc': 200}
-    * </code>
+    * </code></pre>
     * 
     * @param dataArray the source array containing objects
     * @param fields an array of treemap levels to generate
@@ -459,7 +459,7 @@ package org.juicekit.util.data {
 
 
     /**
-     * Generates a word tree structure from an array of objects
+     * Generates a word tree structure from an array of objects.
      *
      * @param arr the source array
      * @param rootword the word to use as the root of the tree

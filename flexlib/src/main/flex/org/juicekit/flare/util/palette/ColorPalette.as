@@ -22,114 +22,126 @@
 package org.juicekit.flare.util.palette {
 
   /**
-   * This class extends the Flare ColorPalette in four ways.
+   * <p>This class extends Flare ColorPalette.</p>
    * 
-   * First, a large number of predefined color palettes are
+   * <p>First, a large number of predefined color palettes are
    * accessible through <code>getPaletteByName</code> and similar functions.
    * These predefined ColorPalettes are derived from Cynthia
-   * Brewer's Apache-licensed colorbrewer2.org. 
+   * Brewer&#8217;s Apache-licensed colorbrewer2.org. </p>
    * 
-   * Second, ColorPalettes are bindable through <code>colorsAC</code> and
+   * <p>Second, ColorPalettes are bindable through <code>colorsAC</code> and
    * <code>getColorByIndexFromAC</code>. ColorPalettes dispatch the
    * ColorPalette.COLORS_CHANGED event when colors in the palette
-   * change.
+   * change.</p>
    * 
-   * Third, ColorPalettes can be manipulated using all of the
+   * <p>Third, ColorPalettes can be manipulated using all of the
    * manipulation functions in <code>org.juicekit.flare.util.Colors</code>
-   * utility class.
+   * utility class.</p>
    * 
-   * @see org.juicekit.flare.util.Colors
+   * <p>@see org.juicekit.flare.util.Colors</p>
    * 
-   * Fourth, ColorPalettes can be generated from a base color using a 
-   * variety of rules. 
-   *
-   * Derived from the Flare ColorPalette class extended with
+   * <p>Fourth, ColorPalettes can be generated from a base color using a 
+   * variety of rules. </p>
+   * 
+   * <p>Derived from the Flare ColorPalette class extended with
    * elements of the NodeBox colors module
-   * (http://nodebox.net/code/index.php/Colors).
+   * (http://nodebox.net/code/index.php/Colors).</p>
    * 
-   * Predefined color palettes
+   * <h2 id="predefined_color_palettes">Predefined color palettes</h2>
    * 
-   * Sequential (highest intensity at the top)
-   * ===========
-   * copper single strong
-   * gray single strong
-   * bone single strong
-   * hot single strong
-   * winter single
-   * pink single strong
-   * gray single
-   * gist_gray single
-   * gist_heat single
-   * gist_earth single
-   * autumn single weak
-   * summer single weak
+   * <h3 id="sequential_highest_intensity_at_the_top">Sequential (highest intensity at the top)</h3>
    * 
-   * Sequential reversed (highest intensity at the bottom)
-   * ===========
-   * binary single reversed b&w
-   * Blues single reversed
-   * BuGn single reversed
-   * BuPu single reversed
-   * GnBu single reversed
-   * Greens single reversed
-   * Greys single reversed
-   * Oranges single reversed
-   * OrRd single reversed
-   * PuBu single reversed
-   * PuBuGn single reversed
-   * PuRd single reversed
-   * Purples single reversed
-   * RdPu single reversed
-   * Reds single reversed
-   * YlGn single reversed
-   * YlGnBu single reversed
-   * YlOrBr single reversed
-   * YlOrRd single reversed
-   * gist_yarg single reversed
+   * <ul>
+   * <li>copper single strong</li>
+   * <li>gray single strong</li>
+   * <li>bone single strong</li>
+   * <li>hot single strong</li>
+   * <li>winter single</li>
+   * <li>pink single strong</li>
+   * <li>gray single</li>
+   * <li>gist_gray single</li>
+   * <li>gist_heat single</li>
+   * <li>gist_earth single</li>
+   * <li>autumn single weak</li>
+   * <li>summer single weak</li>
+   * </ul>
    * 
-   * Diverging
-   * ===========
-   * spring double?
-   * cool double?
-   * jet double?
-   * PiYG double
-   * PRGn double
-   * PuOr double
-   * RdBu double
-   * RdGy double
-   * RdYlBu double
-   * RdYlGn double
-   * Spectral double
-   * BrBG double
+   * <h3 id="sequential_reversed_highest_intensity_at_the_bottom">Sequential reversed (highest intensity at the bottom)</h3>
    * 
-   * Categorical
-   * ===========
-   * spectral categorical
-   * hsv categorical
-   * prism categorical weird
-   * Accent categorical
-   * Dark2 categorical
-   * Paired categorical in groups
-   * Pastel1 categorical low contrast
-   * Pastel2 categorical low contrast
-   * Set1 categorical
-   * Set2 categorical low contrast
-   * Set3 categorical low contrast
-   * gist_ncar categorical?
-   * gist_rainbow categorical
-   * gist_stern categorical
-   * google categorical fixed length (6)
+   * <ul>
+   * <li>binary single reversed b&amp;w</li>
+   * <li>Blues single reversed</li>
+   * <li>BuGn single reversed</li>
+   * <li>BuPu single reversed</li>
+   * <li>GnBu single reversed</li>
+   * <li>Greens single reversed</li>
+   * <li>Greys single reversed</li>
+   * <li>Oranges single reversed</li>
+   * <li>OrRd single reversed</li>
+   * <li>PuBu single reversed</li>
+   * <li>PuBuGn single reversed</li>
+   * <li>PuRd single reversed</li>
+   * <li>Purples single reversed</li>
+   * <li>RdPu single reversed</li>
+   * <li>Reds single reversed</li>
+   * <li>YlGn single reversed</li>
+   * <li>YlGnBu single reversed</li>
+   * <li>YlOrBr single reversed</li>
+   * <li>YlOrRd single reversed</li>
+   * <li>gist_yarg single reversed</li>
+   * </ul>
    * 
+   * <h3 id="diverging">Diverging</h3>
+   * 
+   * <ul>
+   * <li>spring double?</li>
+   * <li>cool double?</li>
+   * <li>jet double?</li>
+   * <li>PiYG double</li>
+   * <li>PRGn double</li>
+   * <li>PuOr double</li>
+   * <li>RdBu double</li>
+   * <li>RdGy double</li>
+   * <li>RdYlBu double</li>
+   * <li>RdYlGn double</li>
+   * <li>Spectral double</li>
+   * <li>BrBG double</li>
+   * </ul>
+   * 
+   * <h3 id="categorical">Categorical</h3>
+   * 
+   * <ul>
+   * <li>spectral categorical</li>
+   * <li>hsv categorical</li>
+   * <li>prism categorical weird</li>
+   * <li>Accent categorical</li>
+   * <li>Dark2 categorical</li>
+   * <li>Paired categorical in groups</li>
+   * <li>Pastel1 categorical low contrast</li>
+   * <li>Pastel2 categorical low contrast</li>
+   * <li>Set1 categorical</li>
+   * <li>Set2 categorical low contrast</li>
+   * <li>Set3 categorical low contrast</li>
+   * <li>gist_ncar categorical?</li>
+   * <li>gist_rainbow categorical</li>
+   * <li>gist_stern categorical</li>
+   * <li>google categorical fixed length (6)</li>
+   * </ul>
    */
-  import flare.util.palette.ColorPalette;  
+  import flare.util.palette.ColorPalette;
+  
   import flash.events.Event;
+  import flash.events.EventDispatcher;
+  import flash.events.IEventDispatcher;
+  
   import mx.binding.utils.ChangeWatcher;
-  import mx.collections.ArrayCollection;  
+  import mx.collections.ArrayCollection;
+  
   import org.juicekit.flare.util.Colors;
 
 
   [Bindable]
-  public class ColorPalette extends flare.util.palette.ColorPalette {
+  public class ColorPalette extends flare.util.palette.ColorPalette implements IEventDispatcher {
     /**
      * An object containing arrays
      */
