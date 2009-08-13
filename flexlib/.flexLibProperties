@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flexLibProperties version="1">
 <includeClasses>
-<classEntry path="org.juicekit.charts.BarChart"/>
-<classEntry path="org.juicekit.charts.LineChart"/>
-<classEntry path="org.juicekit.charts.LinearAxis"/>
 <classEntry path="org.juicekit.effects.AnimateColor"/>
 <classEntry path="org.juicekit.effects.effectClasses.AnimateColorInstance"/>
 <classEntry path="org.juicekit.events.AutoTextFieldEvent"/>
@@ -31,10 +28,8 @@
 <classEntry path="org.juicekit.visual.controls.AutoDataGrid"/>
 <classEntry path="org.juicekit.visual.controls.AutoTextField"/>
 <classEntry path="org.juicekit.visual.controls.DMAMapControl"/>
-<classEntry path="org.juicekit.visual.controls.DataTipSkin"/>
 <classEntry path="org.juicekit.visual.controls.FlareControlBase"/>
 <classEntry path="org.juicekit.visual.controls.MovieClipControlBase"/>
-<classEntry path="org.juicekit.visual.controls.Styler"/>
 <classEntry path="org.juicekit.visual.controls.TreeMapControl"/>
 <classEntry path="org.juicekit.visual.controls.TreeMapZoomControl"/>
 <classEntry path="org.juicekit.visual.controls.USMapControl"/>

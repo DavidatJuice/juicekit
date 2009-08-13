@@ -43,9 +43,6 @@
         <artifactId>flexmojos-maven-plugin</artifactId>
         <configuration>
           <includeClasses>
-            <classEntry>org.juicekit.charts.BarChart</classEntry>
-            <classEntry>org.juicekit.charts.LinearAxis</classEntry>
-            <classEntry>org.juicekit.charts.LineChart</classEntry>
             <classEntry>org.juicekit.effects.AnimateColor</classEntry>
             <classEntry>org.juicekit.effects.effectClasses.AnimateColorInstance</classEntry>
             <classEntry>org.juicekit.events.AutoTextFieldEvent</classEntry>
@@ -72,7 +69,6 @@
             <classEntry>org.juicekit.util.model.ModelObject</classEntry>
             <classEntry>org.juicekit.visual.controls.AutoDataGrid</classEntry>
             <classEntry>org.juicekit.visual.controls.AutoTextField</classEntry>
-            <classEntry>org.juicekit.visual.controls.DataTipSkin</classEntry>
             <classEntry>org.juicekit.visual.controls.DMAMapControl</classEntry>
             <classEntry>org.juicekit.visual.controls.FlareControlBase</classEntry>
             <classEntry>org.juicekit.visual.controls.MovieClipControlBase</classEntry>
