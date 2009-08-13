@@ -175,6 +175,33 @@ package org.juicekit.flare.util.palette {
       _keyframes = keyframes;
     }
 
+    //--------------Support for IEventDispatcher--------------
+    //http://flexdiary.blogspot.com/2008/11/implementing-ieventdispatcher.html
+
+    private var _ed:EventDispatcher = new EventDispatcher();
+
+    public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
+      _ed.addEventListener(type, listener, useCapture, priority, useWeakReference);
+    }
+
+    public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void {
+      _ed.removeEventListener(type, listener, useCapture);
+    }
+
+    public function dispatchEvent(event:Event):Boolean {
+      return _ed.dispatchEvent(event);
+    }
+
+    public function hasEventListener(type:String):Boolean {
+      return _ed.hasEventListener(type);
+    }
+
+    public function willTrigger(type:String):Boolean {
+      return _ed.willTrigger(type);
+    }    
+
+    //--------
+
     private function colorsChangedListener(e:Event):void {
       colorsAC.source = values;
       dispatchEvent(new Event(COLORS_CHANGED));
