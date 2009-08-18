@@ -21,6 +21,8 @@
 
 
 package org.juicekit.util.helper {
+  import flare.util.Strings;
+  
   import mx.collections.ArrayCollection;
   import mx.controls.dataGridClasses.DataGridColumn;
   import mx.formatters.NumberBaseRoundType;
@@ -33,7 +35,44 @@ package org.juicekit.util.helper {
    *
    * @author Jon Buffington
    */
-  public final class Formatter {
+  public class Formatter {
+    
+
+    /**
+    * <p>Creates a labeling function used by a DataGridColumn instance 
+    * using Strings.format conventions. This follows the String formatting
+    * conventions of the .NET framework. An overview can be found 
+    * <a href="http://msdn2.microsoft.com/en-us/library/fbxft59x.aspx">here</a>.
+    * This formatting convention is very similar to Microsoft Excel custom formats.</p>
+    * 
+    * @param fmt a formatting string. The formatting string will be receive only
+    * a single argument <code>item[column.dataField]</code> where item is the object
+    * representing the current row of the DataGrid and column represents the current
+    * column. <code>fmt</code> can take two forms. Form one: a simple picture like "0.00".
+    * In this case fmt will be wrapped in '{0:'+fmt+'}'. Form two: a complete formatting
+    * string like '{0:0.00} widgets'. 
+    * @return A formatting function sui
+    * 
+    * @see flare.util.Strings
+    */  
+    public static function dataGridLabelFunction(fmt:String):Function {
+      var fn:Function = null;
+      // if the string is a simple picture, it will not contain
+      // {, }, or :
+      if (fmt.indexOf('{') == -1 &&
+          fmt.indexOf('}') == -1 &&
+          fmt.indexOf(':') == -1) {
+        fn = function (item:Object, column:DataGridColumn):String {
+          return Strings.format('{0:' + fmt + '}', item[column.dataField]);
+        }
+      } else {
+        // the format string is of the form 'This is the {0:0.00} value'
+        fn = function (item:Object, column:DataGridColumn):String {
+          return Strings.format(fmt, item[column.dataField]);
+        }
+      }
+      return fn;
+    }
 
 
     /**
@@ -51,6 +90,8 @@ package org.juicekit.util.helper {
      * <p>Where <code>item</code> contains the DataGrid item (row) object,
      * and <code>column</code> specifies the DataGrid column.</p>
      */
+     
+    [Deprecated(replacement="Formatter.dataGridLabelFunction")]
     public static function numberLabeler(precision:int, aux:Function = null):Function {
       var nf:NumberFormatter = new NumberFormatter();
       nf.precision = precision;
