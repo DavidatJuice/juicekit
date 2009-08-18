@@ -270,23 +270,61 @@ package org.juicekit.visual.controls {
       }
     }
 
-
-    /**
-     * Disable color scale updates, for instance when drilling through the treemap
-     */
-    public function freezeColors():void {
-        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
-        colorEncoder.scale.ignoreUpdates = true;
+    
+    /** 
+    * Disable color scale updates, for instance when drilling
+    * through the treemap
+    */
+    public function set freezeColors(v:Boolean):void {
+      _freezeColorRequest = v;
+      _doFreezeColors(v);
+    }
+    
+    
+    public function get freezeColors():Boolean {
+      const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
+      return colorEncoder.scale.ignoreUpdates;
     }
 
 
-    /**
-     * Enable color scale updates.
-     */
-    public function unfreezeColors():void {
-        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
-        colorEncoder.scale.ignoreUpdates = false;
+    private function _doFreezeColors(v:Boolean):void {
+      const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
+      colorEncoder.scale.ignoreUpdates = v;
     }
+    
+    /**
+    * Have the colors been frozen at the developers request?
+    * 
+    * @default null, the user has not specified a desired 
+    * freezeColors state
+    */
+    private var _freezeColorRequest:Object = null;
+    
+    
+    /**
+    * Freeze the color range when the data root changes. 
+    * 
+    * If true, colors will be frozen when the data root changes.
+    * 
+    * If false, colors will be unfrozen and the color scale
+    * will be recalculated when the data root changes.
+    * 
+    * @default true
+    */
+    public var freezeColorsOnDataRootChange:Boolean = true;
+
+    /**
+    * Recalculate the color range when the data changes. 
+    * 
+    * If true, colors will be frozen when the data changes.
+    * 
+    * If false, the color scale will be recalculated
+    * when the data changes.
+    * 
+    * @default false
+    */
+    public var freezeColorsOnDataChange:Boolean = false;
+
 
     /**
      * Get the Flare ColorEncoder
@@ -431,6 +469,12 @@ package org.juicekit.visual.controls {
       if (vis && vis.tree) {
         rootDepth = nodeSprite.depth;
         const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
+        
+        // if data has already been set and the developer has not
+        // requested a _freezeColor state
+        if (vis.data != null && _freezeColorRequest == null) {
+          _doFreezeColors(freezeColorsOnDataRootChange);      
+        }
 
         vis.tree.nodes.setProperty("visible", false);
         labels.setLabelVisible(vis.tree.root, false);
@@ -489,6 +533,11 @@ package org.juicekit.visual.controls {
       value = value is Tree ? value : null;
       newDataLoaded = value !== this.data;
       if (newDataLoaded) {
+        // if data has already been set and the developer has not
+        // requested a _freezeColor state
+        if (vis.data != null && _freezeColorRequest == null) {
+          _doFreezeColors(freezeColorsOnDataChange);      
+        }
         vis.data = value as Tree;
         super.data = value;
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
