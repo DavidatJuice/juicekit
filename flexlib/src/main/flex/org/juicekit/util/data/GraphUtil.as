@@ -333,8 +333,8 @@ package org.juicekit.util.data {
       }
       // If we did not find anything, create a node
       var c:NodeSprite = tree.addChild(n);
-      // TreeMap requires the shape attribute of nodes be BLOCK
-      c.shape = Shapes.BLOCK;
+      // TreeMap requires the shape attribute of nodes be TREEMAPBLOCK
+      c.shape = Shapes.TREEMAPBLOCK;
       c.data = o;
       c.data['name'] = o[name];
       if (levels.length > 0) {
@@ -407,8 +407,8 @@ package org.juicekit.util.data {
       var o:Object;
       var tree:Tree = new Tree();
       var rootNode:NodeSprite = tree.addRoot();
-      // All TreeMap nodes must have Shapes.BLOCK
-      rootNode.shape = Shapes.BLOCK;
+      // All TreeMap nodes must have Shapes.TREEMAPBLOCK
+      rootNode.shape = Shapes.TREEMAPBLOCK;
       rootNode.data['name'] = 'All';
       
       var _metrics:Array = [];
