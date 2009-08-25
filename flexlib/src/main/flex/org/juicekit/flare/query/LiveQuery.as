@@ -74,7 +74,7 @@ package org.juicekit.flare.query {
             if (filterFunctions) {
               query.where(function(o:Object):Boolean {
                   for each (var fs:* in filterFunctions) {
-                    if (!fs.filterFunction(o))return false;
+                    if (!fs.filterFunction(o)) return false;
                   }
                   return true;
                 });
@@ -131,7 +131,7 @@ package org.juicekit.flare.query {
 
 
     //----------------------------------
-    // dataProvider
+    // query
     //----------------------------------
 
     public function set query(q:Query):void {
@@ -152,6 +152,11 @@ package org.juicekit.flare.query {
     // filter functions
     //----------------------------------
 
+    /**
+    * 
+    * @param v an ArrayCollection of functions with signature
+    * <code></code>
+    */
     public function set filterFunctions(v:ArrayCollection):void {
       var fs:*;
       if (filterFunctions) {
@@ -171,7 +176,6 @@ package org.juicekit.flare.query {
 
 
     public function get filterFunctions():ArrayCollection {
-//      return new ArrayCollection([]);
       return _filterFunctions;
     }
     
