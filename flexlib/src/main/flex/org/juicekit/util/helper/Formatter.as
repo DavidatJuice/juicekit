@@ -51,19 +51,27 @@ package org.juicekit.util.helper {
     * column. <code>fmt</code> can take two forms. Form one: a simple picture like "0.00".
     * In this case fmt will be wrapped in '{0:'+fmt+'}'. Form two: a complete formatting
     * string like '{0:0.00} widgets'. 
-    * @return A formatting function sui
+    * @param formatField an optional field that contains a formatting string. This 
+    * will be evaluated using the same rules as <code>fmt</code>.
+    * @return A formatting function suitable for use as a DataGrid.labelFunction
     * 
     * @see flare.util.Strings
     */  
-    public static function dataGridLabelFunction(fmt:String):Function {
+    public static function dataGridLabelFunction(fmt:String, formatField:String=''):Function {
       var fn:Function = null;
       // if the string is a simple picture, it will not contain
       // {, }, or :
       if (fmt.indexOf('{') == -1 &&
           fmt.indexOf('}') == -1 &&
           fmt.indexOf(':') == -1) {
-        fn = function (item:Object, column:DataGridColumn):String {
-          return Strings.format('{0:' + fmt + '}', item[column.dataField]);
+        if (fmt.length > 0) {
+          fn = function (item:Object, column:DataGridColumn):String {
+            return Strings.format('{0:' + fmt + '}', item[column.dataField]);
+          }
+        } else {
+          fn = function (item:Object, column:DataGridColumn):String {
+            return Strings.format('{0}', item[column.dataField]);
+          }
         }
       } else {
         // the format string is of the form 'This is the {0:0.00} value'
@@ -71,8 +79,22 @@ package org.juicekit.util.helper {
           return Strings.format(fmt, item[column.dataField]);
         }
       }
+
+      // If a format field has been specified
+      if (formatField.length > 0) {
+        return function (item:Object, column:DataGridColumn):String {
+          if (item.hasOwnProperty(formatField)) {
+            fmt = item[formatField].toString();
+            return dataGridLabelFunction(fmt)(item, column) as String
+          } else {
+            return fn(item, column) as String;        
+          }
+        }
+      }
+      
       return fn;
     }
+
 
 
     /**
