@@ -21,13 +21,18 @@
 
 
 package org.juicekit.visual.controls {
+  import flare.animate.TransitionEvent;
+  import flare.animate.Transitioner;
   import flare.scale.ScaleType;
   import flare.vis.data.Data;
+  import flare.vis.data.DataList;
+  import flare.vis.data.DataSprite;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
   import flare.vis.operator.Operator;
   import flare.vis.operator.encoder.ColorEncoder;
   import flare.vis.operator.encoder.Encoder;
+  import flare.vis.operator.encoder.PropertyEncoder;
   import flare.vis.operator.layout.TreeMapLayout;
   
   import flash.events.MouseEvent;
@@ -188,6 +193,9 @@ package org.juicekit.visual.controls {
      */
     public function TreeMapControl() {
       super();
+//      this.addEventListener(TransitionEvent.END, function(e:TransitionEvent):void {
+//      	if (vis != null) vis.update(new Transitioner(0.5));
+//      });
     }
 
 
@@ -542,6 +550,14 @@ package org.juicekit.visual.controls {
         super.data = value;
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
       }
+        var leaves:DataList = new DataList('leaves');
+        var branches:DataList = new DataList('branches');
+        vis.data.nodes.visit(function(d:DataSprite):void {
+          if ((d as NodeSprite).childDegree == 0) leaves.add(d);
+          else branches.add(d)
+        });
+        vis.data.addGroup('leaves', leaves);
+        vis.data.addGroup('branches', branches);
     }
 
 
@@ -641,6 +657,7 @@ package org.juicekit.visual.controls {
     public function set sizeEncodingField(propertyName:String):void {
       _sizeEncodingField = propertyName;
       _sizeEncodingUpdated = true;
+      _colorEncodingUpdated = true;
       invalidateProperties();
     }
 
@@ -790,9 +807,11 @@ package org.juicekit.visual.controls {
       vis.bounds = new Rectangle(0, 0, 0, 0);
 
       // Initialize rendering pipeline
+      
       vis.operators.add(createColorEncoder());
       vis.operators.add(createTreeMapLayout());
       vis.operators.add(createLabelLayout());
+      vis.operators.add(new PropertyEncoder({fillAlpha: 0.01}, 'branches'));
 
       super.initVisualization();
     }
@@ -885,7 +904,7 @@ package org.juicekit.visual.controls {
       super.onMouseOver(event);
 
       const ns:NodeSprite = event.target as NodeSprite;
-      if (ns !== null && highlightRollOver) {
+      if (ns !== null && ns.childDegree==0 && highlightRollOver) {
         if (ns.filters && ns.filters.length > 0) {
           ns.props[FILTERS_PROP] = ns.filters;
           ns.filters.push(brightnessFilter);
@@ -907,15 +926,13 @@ package org.juicekit.visual.controls {
      */
     public var highlightRollOver:Boolean = true;
 
-
     private function createColorEncoder():ColorEncoder {
       return new ColorEncoder(asFlareProperty(_colorEncodingField)
-                              , Data.NODES
+                              , 'leaves' //Data.NODES
                               , "fillColor"
                               , ScaleType.LINEAR
                               , colorPalette.toFlareColorPalette());
     }
-
 
     private function createTreeMapLayout():Operator {
       return new TreeMapLayout(asFlareProperty(sizeEncodingField));
