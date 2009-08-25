@@ -22,14 +22,14 @@
 
 package org.juicekit.visual.renderers {
 
-  import org.juicekit.util.helper.CSSUtil;
-
   import flash.display.Graphics;
   import flash.text.TextLineMetrics;
-
+  
   import mx.controls.DataGrid;
   import mx.controls.dataGridClasses.DataGridColumn;
   import mx.core.UITextField;
+  
+  import org.juicekit.util.helper.CSSUtil;
 
 
   //--------------------------------------
@@ -215,6 +215,7 @@ package org.juicekit.visual.renderers {
       }
 
       _text.setColor(getStyle("fontColor"));
+      _text.embedFonts = CSSUtil.isEmbeddedFont(_text.getTextFormat());
 
       // Look up the style properties
       const color:Number = getStyle("color");

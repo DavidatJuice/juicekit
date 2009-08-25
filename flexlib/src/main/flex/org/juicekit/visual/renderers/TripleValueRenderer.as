@@ -59,9 +59,12 @@ package org.juicekit.visual.renderers {
    * <code>data</code> property to an object containing
    * <code>label</code>, <code>bar</code>, <code>tick</code>,
    * and <code>dot</code> properties.
+   * 
+   * This class is deprecated.
    *
    * @author Jon Buffington
    */
+  [Deprecated(replacement="Formatter.dataGridLabelFunction")]
   public class TripleValueRenderer extends RendererBase {
 
 
