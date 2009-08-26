@@ -21,8 +21,6 @@
 
 
 package org.juicekit.visual.controls {
-  import flare.animate.TransitionEvent;
-  import flare.animate.Transitioner;
   import flare.scale.ScaleType;
   import flare.vis.data.Data;
   import flare.vis.data.DataList;
@@ -194,7 +192,7 @@ package org.juicekit.visual.controls {
     public function TreeMapControl() {
       super();
 //      this.addEventListener(TransitionEvent.END, function(e:TransitionEvent):void {
-//      	if (vis != null) vis.update(new Transitioner(0.5));
+//      	if (vis != null) vis.update();
 //      });
     }
 
@@ -229,6 +227,7 @@ package org.juicekit.visual.controls {
                                       , "strokeColors"
                                       , "strokeThicknesses"
                                       ];
+
       return paletteStyleProps.indexOf(styleProp) !== -1;
     }
 
@@ -257,11 +256,288 @@ package org.juicekit.visual.controls {
         } else if (isLayoutStyle(styleProp)) {
           _layoutStyleChanged = true;
         }
+        if (styleProp == 'palette') {
+          _colorEncodingUpdated = true;
+        }
       }
       invalidateProperties();
     }
 
 
+    /**
+     * Get the Flare ColorEncoder
+     */
+    public function getColorEncoder():ColorEncoder {
+      return vis.operators.getOperatorAt(OP_IX_COLOR) as ColorEncoder;
+    }
+
+
+    /**
+     * @private
+     */
+    override protected function commitProperties():void {
+      super.commitProperties();
+
+      var updateTreemap:Boolean = false;
+
+      if (vis) {
+        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
+        const treeMapLayout:TreeMapLayout = vis.operators.getOperatorAt(OP_IX_LAYOUT) as TreeMapLayout;
+        const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
+
+        if (_colorEncodingUpdated) {
+          _colorEncodingUpdated = false;
+
+          colorEncoder.source = asFlareProperty(_colorEncodingField);
+          colorEncoder.palette = colorPalette;
+
+          updateTreemap = true;
+        }
+
+        if (_layoutStyleChanged) {
+          _layoutStyleChanged = false;
+
+          styleNodes();
+
+          updateTreemap = true;
+        }
+
+        if (_sizeEncodingUpdated) {
+          _sizeEncodingUpdated = false;
+
+          treeMapLayout.sizeField = asFlareProperty(_sizeEncodingField);
+
+          updateTreemap = true;
+        }
+
+        if (_labelEncodingUpdated) {
+          _labelEncodingUpdated = false;
+
+          labels.source = asFlareProperty(_labelEncodingField);
+
+          updateTreemap = true;
+        }
+
+        if (_labelStyleChanged || _labelDepthUpdated) {
+          var lfr:PLabelFormatter;
+
+          if (_labelStyleChanged) {
+            _labelStyleChanged = false;
+            _labelDepthUpdated = false;
+
+            lfr = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
+            labels.labelFormatter = lfr;
+          } else if (_labelDepthUpdated) {
+            _labelDepthUpdated = false;
+            lfr = labels.labelFormatter as PLabelFormatter;
+            lfr.minLabelDepth = _minLabelDepth;
+            lfr.maxLabelDepth = _maxLabelDepth;
+          }
+          labels.colorStrategy = getStyle('labelColorStrategy');
+
+          updateTreemap = true;
+        }
+        
+        if (_nodeStyleUpdated) {
+           _nodeStyleUpdated = false;
+           vis.data.nodes.visit(function(d:DataSprite):void {
+             d.filters = nodeFlashFilters;
+           });
+           updateTreemap = true;
+        }
+        
+        if (_leavesChanged) {
+          _leavesChanged = false;
+          calculateLeaves();
+          updateTreemap = true;
+        }
+
+        if (_truncatePropertyChanged) {
+          _truncatePropertyChanged = false;
+
+          labels.truncateToFit = _truncateToFit;
+
+          updateTreemap = true;
+        }
+        
+        if (_extraOperatorsChanged) {
+          _extraOperatorsChanged = false;
+          updateTreemap = true;
+        }
+
+        if (this.data is Tree) {
+          if (newDataLoaded) {
+            newDataLoaded = false;
+
+            vis.data.edges.setProperty("visible", false);
+            styleNodes();
+
+            updateTreemap = true;
+          }
+
+          if (dataRootChanged) {
+            dataRootChanged = false;
+            updateTreemap = true;
+          }
+
+          if (updateTreemap) {
+            updateVisualization();
+          }
+        }
+      }
+    }
+
+    //----------------------------------------
+    // data and dataRoot
+    //----------------------------------------
+
+
+    /**
+     * Holds reference to flag indicating the data root was changed.
+     */
+    private var dataRootChanged:Boolean = false;
+    
+    
+    /**
+     * Holds the depth of the current data root. Used for to calculate
+     * styling if styleFromDataRoot is true
+     */
+    private var rootDepth:int = 0;
+    
+    
+    /**
+    * Are node line width and line color (strokeColors, strokeThickness, 
+    * strokeAlpha) styling based the depth from the data root
+    * or from the base of the tree.
+    */
+    public var styleFromDataRoot:Boolean = false;
+
+
+    /**
+     * Sets the a data set's <code>root</code> reference to the
+     * <code>nodeSprite</code> parameter.
+     *
+     * @param nodeSprite Reference to a <code>NodeSprite</code> within
+     * the <code>data</code> property current instance.
+     */
+    [Bindable(event="dataRootChange")]
+    public function set dataRoot(nodeSprite:NodeSprite):void {
+      if (!nodeSprite) {
+        throw new ArgumentError("NodeSprite must exist within the data tree.");
+      }
+      if (vis && vis.tree) {
+        rootDepth = nodeSprite.depth;
+        const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
+        
+        // if data has already been set and the developer has not
+        // requested a _freezeColor state
+        if (vis.data != null && _freezeColorRequest == null) {
+          _doFreezeColors(freezeColorsOnDataRootChange);      
+        }
+
+        vis.tree.nodes.setProperty("visible", false);
+        labels.setLabelVisible(vis.tree.root, false);
+        labels.ignoreRemovals = true;
+        vis.tree.clear();
+        // the tree must be empty to set a root
+        vis.tree.root = nodeSprite;
+        vis.tree.nodes.setProperty("visible", true);
+        labels.setLabelVisible(vis.tree.root, true);
+        labels.ignoreRemovals = false;        
+        dataRootChanged = true;
+        if (styleFromDataRoot) styleNodes();
+        _leavesChanged = true;
+        invalidateProperties();
+        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
+      } else {
+        throw new ArgumentError("A visualization must already have data to manipulate the root.");
+      }
+    }
+
+
+
+    /**
+     * @private
+     */
+    public function get dataRoot():NodeSprite {
+      if (vis && vis.data) {
+        return vis.data.root;
+      }
+      return null;
+    }
+
+
+    /**
+     * Flag whether a new data set is loaded or not.
+     */
+    private var newDataLoaded:Boolean = false;
+
+
+    /**
+     * Sets the data value to a <code>Tree</code> data
+     * object used for rendering the size and color attributes
+     * of the treemap visualization.
+     *
+     * @see flare.vis.data.Tree
+     */
+    override public function set data(value:Object):void {
+      value = value is Tree ? value : null;
+      newDataLoaded = value !== this.data;
+      if (newDataLoaded) {
+        // if data has already been set and the developer has not
+        // requested a _freezeColor state
+        if (vis.data != null && _freezeColorRequest == null) {
+          _doFreezeColors(freezeColorsOnDataChange);      
+        }
+        vis.data = value as Tree;
+        super.data = value;
+        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
+      }
+      _leavesChanged = true;
+      invalidateProperties();
+    }
+
+
+    /**
+     * @private
+     */
+    override public function get data():Object {
+      return super.data;
+    }
+    
+    
+    //----------------------------------------
+    // leaf and branch calculations
+    //----------------------------------------
+    
+    /**
+    * @private
+    * 
+    * Calculate leaves and branches groups
+    * 
+    * Leaves are displayed while branches are hidden.
+    */
+    private function calculateLeaves():void {
+      var leaves:DataList = new DataList('leaves');
+      var branches:DataList = new DataList('branches');
+      vis.data.nodes.visit(function(d:DataSprite):void {
+        if ((d as NodeSprite).childDegree == 0) leaves.add(d);
+        else branches.add(d)
+      });
+      vis.data.addGroup('leaves', leaves);
+      vis.data.addGroup('branches', branches);
+    }
+
+    /**
+    * Do the leaves and branches need to be recalculated.
+    */
+    private var _leavesChanged:Boolean = false;
+
+
+    //----------------------------------------
+    // color
+    //----------------------------------------
+    
     /**
      * Return a color palette for interpolating color values
      * from the <code>colorEncodingField</code>'s data value.
@@ -283,6 +559,7 @@ package org.juicekit.visual.controls {
     * Disable color scale updates, for instance when drilling
     * through the treemap
     */
+    [Inspectable(type=Boolean)]
     public function set freezeColors(v:Boolean):void {
       _freezeColorRequest = v;
       _doFreezeColors(v);
@@ -333,186 +610,6 @@ package org.juicekit.visual.controls {
     */
     public var freezeColorsOnDataChange:Boolean = false;
 
-
-    /**
-     * Get the Flare ColorEncoder
-     */
-    public function getColorEncoder():ColorEncoder {
-      return vis.operators.getOperatorAt(OP_IX_COLOR) as ColorEncoder;
-    }
-
-
-    /**
-     * @private
-     */
-    override protected function commitProperties():void {
-      super.commitProperties();
-
-      var updateTreemap:Boolean = false;
-
-      if (vis) {
-        const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
-        const treeMapLayout:TreeMapLayout = vis.operators.getOperatorAt(OP_IX_LAYOUT) as TreeMapLayout;
-        const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
-
-        if (_colorEncodingUpdated) {
-          _colorEncodingUpdated = false;
-
-          colorEncoder.source = asFlareProperty(_colorEncodingField);
-          setupColorEncoder(colorEncoder);
-
-          updateTreemap = true;
-        }
-
-        if (_layoutStyleChanged) {
-          _layoutStyleChanged = false;
-
-          colorEncoder.palette = colorPalette;
-
-          styleNodes();
-
-          updateTreemap = true;
-        }
-
-        if (_sizeEncodingUpdated) {
-          _sizeEncodingUpdated = false;
-
-          treeMapLayout.sizeField = asFlareProperty(_sizeEncodingField);
-
-          updateTreemap = true;
-        }
-
-        if (_labelEncodingUpdated) {
-          _labelEncodingUpdated = false;
-
-          labels.source = asFlareProperty(_labelEncodingField);
-
-          updateTreemap = true;
-        }
-
-        if (_labelStyleChanged || _labelDepthUpdated) {
-          var lfr:PLabelFormatter;
-
-          if (_labelStyleChanged) {
-            _labelStyleChanged = false;
-            _labelDepthUpdated = false;
-
-            lfr = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
-            labels.labelFormatter = lfr;
-          } else if (_labelDepthUpdated) {
-            _labelDepthUpdated = false;
-            lfr = labels.labelFormatter as PLabelFormatter;
-            lfr.minLabelDepth = _minLabelDepth;
-            lfr.maxLabelDepth = _maxLabelDepth;
-          }
-          labels.colorStrategy = getStyle('labelColorStrategy');
-
-          updateTreemap = true;
-        }
-
-        if (_truncatePropertyChanged) {
-          _truncatePropertyChanged = false;
-
-          labels.truncateToFit = _truncateToFit;
-
-          updateTreemap = true;
-        }
-
-        if (this.data is Tree) {
-          if (newDataLoaded) {
-            newDataLoaded = false;
-
-            vis.data.edges.setProperty("visible", false);
-            styleNodes();
-
-            updateTreemap = true;
-          }
-
-          if (dataRootChanged) {
-            dataRootChanged = false;
-            updateTreemap = true;
-          }
-
-          if (updateTreemap) {
-            updateVisualization();
-          }
-        }
-      }
-    }
-
-
-    /**
-     * Holds reference to flag indicating the data root was changed.
-     */
-    private var dataRootChanged:Boolean = false;
-    
-    
-    /**
-     * Holds the depth of the current data root. Used for to calculate
-     * styling if styleFromDataRoot is true
-     */
-    private var rootDepth:int = 0;
-    
-    
-    /**
-    * Are node line width and line color (strokeColors, strokeThickness, 
-    * strokeAlpha) styling based the depth from the data root
-    * or from the base of the tree.
-    */
-    public var styleFromDataRoot:Boolean = false;
-
-
-    /**
-     * Sets the a data set's <code>root</code> reference to the
-     * <code>nodeSprite</code> parameter.
-     *
-     * @param nodeSprite Reference to a <code>NodeSprite</code> within
-     * the <code>data</code> property current instance.
-     */
-    [Bindable(event="dataRootChange")]
-    public function set dataRoot(nodeSprite:NodeSprite):void {
-      if (!nodeSprite) {
-        throw new ArgumentError("NodeSprite must exist within the data tree.");
-      }
-      if (vis && vis.tree) {
-        rootDepth = nodeSprite.depth;
-        const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
-        
-        // if data has already been set and the developer has not
-        // requested a _freezeColor state
-        if (vis.data != null && _freezeColorRequest == null) {
-          _doFreezeColors(freezeColorsOnDataRootChange);      
-        }
-
-        vis.tree.nodes.setProperty("visible", false);
-        labels.setLabelVisible(vis.tree.root, false);
-        labels.ignoreRemovals = true;
-        vis.tree.clear();
-        vis.tree.root = nodeSprite;
-        vis.tree.nodes.setProperty("visible", true);
-        labels.setLabelVisible(vis.tree.root, true);
-        labels.ignoreRemovals = false;        
-        dataRootChanged = true;
-        invalidateProperties();
-        if (styleFromDataRoot) styleNodes();
-        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
-      } else {
-        throw new ArgumentError("A visualization must already have data to manipulate the root.");
-      }
-    }
-
-
-    /**
-     * @private
-     */
-    public function get dataRoot():NodeSprite {
-      if (vis && vis.data) {
-        return vis.data.root;
-      }
-      return null;
-    }
-
-
     /**
      * Apply a scale to the color encoder.
      */
@@ -521,51 +618,6 @@ package org.juicekit.visual.controls {
       // maximum values from the data.
       colorEncoder.scale.preferredMin = isNaN(_minColorNumber) ? null : _minColorNumber;
       colorEncoder.scale.preferredMax = isNaN(_maxColorNumber) ? null : _maxColorNumber;
-    }
-
-
-    /**
-     * Flag whether a new data set is loaded or not.
-     */
-    private var newDataLoaded:Boolean = false;
-
-
-    /**
-     * Sets the data value to a <code>Tree</code> data
-     * object used for rendering the size and color attributes
-     * of the treemap visualization.
-     *
-     * @see flare.vis.data.Tree
-     */
-    override public function set data(value:Object):void {
-      value = value is Tree ? value : null;
-      newDataLoaded = value !== this.data;
-      if (newDataLoaded) {
-        // if data has already been set and the developer has not
-        // requested a _freezeColor state
-        if (vis.data != null && _freezeColorRequest == null) {
-          _doFreezeColors(freezeColorsOnDataChange);      
-        }
-        vis.data = value as Tree;
-        super.data = value;
-        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
-      }
-        var leaves:DataList = new DataList('leaves');
-        var branches:DataList = new DataList('branches');
-        vis.data.nodes.visit(function(d:DataSprite):void {
-          if ((d as NodeSprite).childDegree == 0) leaves.add(d);
-          else branches.add(d)
-        });
-        vis.data.addGroup('leaves', leaves);
-        vis.data.addGroup('branches', branches);
-    }
-
-
-    /**
-     * @private
-     */
-    override public function get data():Object {
-      return super.data;
     }
 
 
@@ -639,6 +691,10 @@ package org.juicekit.visual.controls {
     }
 
 
+    //----------------------------------------
+    // size
+    //----------------------------------------
+
     /**
      * Store the sizeEncodingField property.
      */
@@ -669,6 +725,10 @@ package org.juicekit.visual.controls {
       return _sizeEncodingField;
     }
 
+
+    //----------------------------------------
+    // labels
+    //----------------------------------------
 
     /**
      * Store the labelEncodingField property.
@@ -812,10 +872,57 @@ package org.juicekit.visual.controls {
       vis.operators.add(createTreeMapLayout());
       vis.operators.add(createLabelLayout());
       vis.operators.add(new PropertyEncoder({fillAlpha: 0.01}, 'branches'));
+      createExtraOperators();
 
       super.initVisualization();
     }
 
+
+    
+    private function createExtraOperators():void {
+      // Pop off all the extra operators
+      while (vis.operators.length > 4) {
+        vis.operators.removeOperatorAt(vis.operators.length - 1);
+      }
+      // add all the extra operators back in
+      for each (var op:Operator in extraOperators) {
+        vis.operators.add(op);
+      }
+    }
+
+    /**
+    * Extra operators to include in the visualization.
+    * 
+    * @param v an array of Flare Operator classes that will be
+    * added after the core operators needed to create the treemap.
+    * 
+    */
+    public function set extraOperators(v:Array):void {        
+      _extraOperators = v;
+      createExtraOperators();
+      _extraOperatorsChanged = true;
+      invalidateProperties();
+    }
+    
+    /**
+    * @private
+    */
+    public function get extraOperators():Array {
+      return _extraOperators;
+    }
+    
+    /**
+    * Stores the extra operators
+    */
+    private var _extraOperators:Array = [];
+    
+    /**
+    * Flag that indicates whether the extra operators have
+    * been changed
+    */
+    private var _extraOperatorsChanged:Boolean = false;
+    
+    
 
     /**
      * Return a ARGB color value for a given depth.
@@ -826,6 +933,23 @@ package org.juicekit.visual.controls {
       return rgbColor | alphaBits;
     }
 
+    /**
+    * An array of Flash filters to apply to each node.
+    */
+    public function set nodeFlashFilters(v:Array):void {
+      _nodeFlashFilters = v;
+      _nodeStyleUpdated = true;
+      invalidateProperties(); 
+    }
+    public function get nodeFlashFilters():Array {
+      return _nodeFlashFilters;
+    }
+    
+    /**
+    * Stores the node flash filters
+    */
+    private var _nodeFlashFilters:Array = [];
+    private var _nodeStyleUpdated:Boolean = false;
 
     /**
      * Apply node stylings to each NodeSprite.
@@ -856,7 +980,7 @@ package org.juicekit.visual.controls {
           }
           else {
             n.lineColor = computeARGB(colors, alphas, adjustedDepth);
-          }
+          }          
         }
         );
     }
@@ -928,7 +1052,7 @@ package org.juicekit.visual.controls {
 
     private function createColorEncoder():ColorEncoder {
       return new ColorEncoder(asFlareProperty(_colorEncodingField)
-                              , 'leaves' //Data.NODES
+                              , 'leaves'                              
                               , "fillColor"
                               , ScaleType.LINEAR
                               , colorPalette.toFlareColorPalette());
