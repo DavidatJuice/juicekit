@@ -183,13 +183,13 @@ package org.juicekit.visual.controls {
      */
     private function beginTransition(): void {
        // Make fancy with the animation.
-      _tree.transitionPeriod = 0.5;
+//      _tree.transitionPeriod = 0.5;
       _tree.addEventListener(TransitionEvent.END, onEndTransition, false, 0, true);
     }
 
     private function onEndTransition(event:TransitionEvent):void {
       _tree.removeEventListener(TransitionEvent.END, onEndTransition);
-      _tree.transitionPeriod = NaN;
+//      _tree.transitionPeriod = NaN;
       _tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
 
       // Force flare to render everything.
