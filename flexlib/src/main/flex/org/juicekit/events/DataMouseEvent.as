@@ -22,6 +22,8 @@
 
 package org.juicekit.events {
 
+  import flare.vis.data.DataSprite;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.MouseEvent;
@@ -96,7 +98,7 @@ package org.juicekit.events {
      * @param data Contains a reference to the related data
      * <code>Object</code>.
      */
-    public function DataMouseEvent(event:MouseEvent, data:Object = null) {
+    public function DataMouseEvent(event:MouseEvent, data:Object = null, dataSprite:DataSprite = null) {
       super( mapEvents(event.type)
            , event.bubbles
            , event.cancelable
@@ -111,6 +113,7 @@ package org.juicekit.events {
            );
 
       this.data = data;
+      this.dataSprite = dataSprite;
       this.sender = event.target as EventDispatcher;
     }
 
@@ -119,6 +122,12 @@ package org.juicekit.events {
      * Contains a reference to the event's data <code>Object</code>.
      */
     public var data:Object;
+    
+    
+    /**
+     * Contains a reference to the event's <code>dataSprite</code>.
+     */
+    public var dataSprite:DataSprite;
 
 
     /**
@@ -132,7 +141,7 @@ package org.juicekit.events {
      * @private
      */
     override public function clone():Event {
-      return new DataMouseEvent(this, data);
+      return new DataMouseEvent(this, data, dataSprite);
     }
   }
 }

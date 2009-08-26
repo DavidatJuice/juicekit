@@ -234,7 +234,7 @@ package org.juicekit.visual.controls {
     protected function signalDataMouseEvent(event:MouseEvent):void {
       if (event.target is DataSprite) {
         callLater(function():void {
-          dispatchEvent(new DataMouseEvent(event, DataSprite(event.target).data));
+          dispatchEvent(new DataMouseEvent(event, DataSprite(event.target).data, DataSprite(event.target)));
         });
       }
     }
