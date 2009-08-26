@@ -283,7 +283,7 @@ package org.juicekit.visual.controls {
     /**
      * Store the transitionPeriod property.
      */
-    private var _transitionPeriod:Number = NaN;
+    private var _transitionPeriod:Number = 0.5;
 
     /**
      * Specifies the animation transition time period in seconds. The
