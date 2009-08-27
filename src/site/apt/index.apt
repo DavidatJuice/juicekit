@@ -48,6 +48,8 @@ Download
 
 Documentation
 
+  Release notes are available {{{http://docs.google.com/View?id=dcwc9h4r_28f53pj9gs}here}}.
+
   Currently, only Application Programming Interface (API)
   documentation for developers is available. We plan to add best practices
   and tutorial documents soon.
@@ -74,7 +76,7 @@ Requirements
 
 Contribute
 
-We appreciate feedback and contributions from the community. You can help us out in three ways:
+  We appreciate feedback and contributions from the community. You can help us out in three ways:
 
   *  Get involved in the {{{http://groups.google.com/group/juicekit}JuiceKit development community}} discussion group on Google Groups to learn about best practices, tips and tricks, and questions and answers.
 
