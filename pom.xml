@@ -166,9 +166,9 @@
   </pluginRepositories>
 
   <scm>
-    <connection>scm:git:git://github.com/jonbuffington/juicekit.git</connection>
-    <developerConnection>scm:git:git@github.com:jonbuffington/juicekit.git</developerConnection>
-    <url>http://github.com/jonbuffington/juicekit/tree/master</url>
+    <connection>scm:git:git://github.com/chrisgemignani/juicekit.git</connection>
+    <developerConnection>scm:git:git@github.com:chrisgemignani/juicekit.git</developerConnection>
+    <url>http://github.com/chrisgemignani/juicekit/tree/master</url>
   </scm>
 
   <distributionManagement>
