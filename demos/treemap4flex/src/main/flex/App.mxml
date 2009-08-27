@@ -1,297 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!--
-  * -*- Mode: MXML -*-
-  * *************************************************************************
-  *
-  * Copyright 2007-2009 Juice, Inc.
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  * *************************************************************************
-  -->
-
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-  layout="vertical"
-  creationComplete="onInit()"
-  xmlns:controls="org.juicekit.visual.controls.*"
-  xmlns:renderers="org.juicekit.visual.renderers.*"
-  xmlns:local="*"
-  >
-
-  <mx:Style source="style.css"/>
+                creationComplete="dataLoader.send();"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                fontFamily="Arial" 
+                color="#333333"
+                paddingTop="10"
+                backgroundGradientColors="[0xffffff, 0xffffff]">
 
   <mx:Script>
     <![CDATA[
-      import mx.formatters.NumberFormatter;
-      import flare.animate.TransitionEvent;
-      import mx.binding.utils.ChangeWatcher;
       import flare.vis.data.NodeSprite;
       import org.juicekit.events.DataMouseEvent;
-      import flare.vis.data.Tree;
-      import flare.util.Property;
-      import org.juicekit.flare.vis.data.TreeMLReader;
-      import mx.events.ColorPickerEvent;
-      import mx.events.ItemClickEvent;
+      import org.juicekit.util.data.GraphUtil;
+      import mx.rpc.http.HTTPService;
       import mx.rpc.events.ResultEvent;
+      import flare.util.Strings;
+      import flare.query.methods.*;
+      import flare.data.converters.DelimitedTextConverter;
 
 
-      /*
-       * ---- Initialization ----
-      */
+      public function resultHandler(event:ResultEvent):void {
+        var d:Array = new DelimitedTextConverter(',').parse(event.result as String).nodes.data;
+        /*
+           The data looks like this:
 
-      private function onInit():void {
-        function initColorPickers():void {
-          minColorPicker.selectedColor = treemap.getStyle("minEncodedColor");
-          maxColorPicker.selectedColor = treemap.getStyle("maxEncodedColor");
+           STATE,SEX,AGE,POP2000,POP2008
+           Alabama,M,0,30479,32055
+           Alabama,M,1,29904,32321
+           Alabama,M,2,30065,31789
+           Alabama,M,3,29932,31371
+           Alabama,M,4,30319,31164
+           Alabama,M,5,31127,31049
+           Alabama,M,6,31466,30960
+         */
 
-          treeMapLegend.drawGradient( minColorPicker.selectedColor
-                                    , treemap.getStyle("midEncodedColor")
-                                    , maxColorPicker.selectedColor);
-        }
+        treemap.data = GraphUtil.treeMap(d, ['AGE', 'SEX', 'STATE'], ['POP2000', 'POP2008',
+          // Percentage change in population from 2000 to 2008.
+          // change = (POP2008 - POP2000) / POP2000
+          {change: pctchange('POP2008', 'POP2000')}],
+          function(o:Object):Boolean {
+            return (o.AGE >= 20 && o.AGE <= 40)
+          });
 
-        // Set defaults for controls.
-        onEnterDataRange();
-        initColorPickers();
+        treemap.addEventListener(DataMouseEvent.MOUSE_OVER, function(e:DataMouseEvent):void {
+            if ((e.dataSprite as NodeSprite).childDegree == 0) {
+              selectedNode.htmlText = Strings.format("<b>State:</b> {0}<br/>" + "<b>Sex:</b> {1}<br/>" + "<b>Age:</b> {2}<br/>" + "<b>Pop. in 2000:</b> {3:#,##0}<br/>" + "<b>Pop. in 2008:</b> {4:#,##0} (size)<br/>" + "<b>Change:</b> {5:0.0%} (color)", e.data.STATE, e.data.SEX, e.data.AGE, e.data.POP2000, e.data.POP2008, e.data.change);
+            }
+          });
+        treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
+            selectedNode.text = '';
+          });
 
-        // Load an initial data set.
-        dataLoader.url = "data/econcensus.xml";
-        dataLoader.send();
       }
-
-
-      /*
-       * ---- Event Handlers ----
-       */
-
-      private function onMouseOut(event:DataMouseEvent):void {
-        infoLabel.text = "";
-      }
-
-
-      private function onMouseOver(event:DataMouseEvent):void {
-        const tgtNode:NodeSprite = event.sender as NodeSprite;
-        if (tgtNode) {
-          const d:Object = tgtNode.data;
-          infoLabel.text = d[model.labelPropertyName]
-                         + ": $"
-                         + moneyFormatter.format(d[model.sizePropertyName])
-                         + " ("
-                         + d[model.colorPropertyName] * 100.0
-                         + "%)";
-        }
-      }
-
-
-      private function onSizePropertySelected(event:ItemClickEvent):void {
-        model.sizePropertyName = (event.currentTarget as RadioButtonGroup).selectedValue.toString();
-        treemap.transitionPeriod = 1.0; // Animate the property change for 1s.
-      }
-
-
-      private function onEnterDataRange():void {
-        const min:Number = Number(rangeMin.text);
-        const max:Number = Number(rangeMax.text);
-
-        // Apply the range change to the tree map.
-        if (isNaN(min) || isNaN(max)) {
-          treemap.unsetColorScaleRange();
-        }
-        else {
-          treemap.setColorScaleRange(min / 100, max / 100);
-        }
-
-        // Reflect the range change in the legend.
-        treeMapLegend.leftText = rangeMin.text;
-        treeMapLegend.rightText = rangeMax.text;
-      }
-
-
-      private function onColorPicked(event:ColorPickerEvent):void {
-        const value:uint = event.color;
-        // Determine which picker was used.
-        const propName:String = (event.target === minColorPicker) ? "minEncodedColor" : "maxEncodedColor";
-
-        treemap.transitionPeriod = 0.5;     // Animate the color change for 500ms.
-        treemap.setStyle(propName, value);  // Apply the change to the tree map.
-
-        // Reflect the color change in the legend.
-        treeMapLegend.drawGradient( treemap.getStyle("minEncodedColor")
-                                  , treemap.getStyle("midEncodedColor")
-                                  , treemap.getStyle("maxEncodedColor"));
-      }
-
-
-      private function onLoadResult(event:ResultEvent):void {
-        function checkTreeML(treeml:XML):Boolean {
-          const tree:Tree = TreeMLReader.read(treeml);
-          return TreeMLReader.checkSizeValues(tree.root, Property.$("data.P"))
-            && TreeMLReader.checkSizeValues(tree.root, Property.$("data.Es"))
-            && TreeMLReader.checkSizeValues(tree.root, Property.$("data.S"))
-            && TreeMLReader.checkSizeValues(tree.root, Property.$("data.Em"))
-        }
-
-//        if (!checkTreeML(event.result as XML))
-//          trace("The TreeML file check failed.");
-
-        treemap.transitionPeriod = NaN;    // Turn off animation.
-        treemap.data = TreeMLReader.read(event.result as XML);
-      }
-
     ]]>
   </mx:Script>
 
-  <!-- *** Application Model *** -->
-  <local:AppModel id="model"
-    colorPropertyName="{model.sizePropertyName + '%'}"
-    labelPropertyName="name"
-    sizePropertyName="Em"
-  />
-
-  <!-- *** HTTP Data Loader *** -->
   <mx:HTTPService id="dataLoader"
-    resultFormat="e4x"
-    result="onLoadResult(event)"
-  />
+                  url="http://media.juiceanalytics.com/census/CENSUS_STATEAGESEX.csv"
+                  method="GET"
+                  showBusyCursor="true"
+                  result="resultHandler(event)"
+                  resultFormat="text"/>
 
-  <mx:NumberFormatter id="moneyFormatter"
-    useThousandsSeparator="true"
-  />
+  <mx:VBox verticalGap="0">
+    <mx:Label text="Population Growth by Age, Gender, and State"
+              fontSize="18"
+              color="#333333"
+              fontWeight="bold"/>
+    <mx:Label text="This demo illustrates the features of the JuiceKit treemap. Source: US Census Bureau"
+              fontSize="12"
+              color="#666666"/>
+    <mx:Spacer height="10"/>
 
-  <!-- *** Header ***  -->
-
-  <mx:Canvas id="header"
-    width="{treemap.width}" height="30"
-    styleName="header"
-  >
-    <mx:Label text="Economic Census Data by NAICS comparing 1997 to 2002"/>
-  </mx:Canvas>
-
-
-  <!-- *** Body *** -->
-
-  <controls:TreeMapZoomControl id="zoomCtrl"
-    width="{treemap.width}" height="50"
-    tree="{treemap}"
-    verticalScrollPolicy="off"
-  />
-
-  <controls:TreeMapControl id="treemap"
-    width="640" height="480"
-    colorEncodingField="{model.colorPropertyName}"
-    labelEncodingField="{model.labelPropertyName}"
-    sizeEncodingField="{model.sizePropertyName}"
-    minLabelDepth="1"
-    maxLabelDepth="1"
-    truncateToFit="true"
-    jkDataMouseOut="onMouseOut(event)"
-    jkDataMouseOver="onMouseOver(event)"
-  />
-
-  <mx:Label id="infoLabel"
-    width="{treemap.width}" height="20"
-    styleName="infoLabel"
-  />
-
-
-  <!-- *** Footer *** -->
-
-  <mx:Label
-    text="Settings"
-    styleName="subTitle"
-  />
-
-  <mx:VBox id="footer"
-    width="{treemap.width}" height="70"
-    styleName="footer"
-  >
-
-    <mx:HBox
-      styleName="controlBox"
-    >
-      <mx:Label
-        text="SIZE ($1000 in 2002)"
-        styleName="controlLabel"
-      />
-
-      <mx:RadioButtonGroup id="sizePropertyRBG"
-        selectedValue="Es"
-        itemClick="onSizePropertySelected(event)"
-      />
-
-      <mx:RadioButton
-        label="Establishments"
-        value="Es"
-        groupName="sizePropertyRBG"
-        styleName="textControl"
-      />
-
-      <mx:RadioButton
-        label="Sales"
-        value="S"
-        groupName="sizePropertyRBG"
-        styleName="textControl"
-      />
-
-      <mx:RadioButton
-        label="Employees"
-        value="Em"
-        groupName="sizePropertyRBG"
-        styleName="textControl"
-      />
-
-      <mx:RadioButton
-        label="Payroll"
-        value="P"
-        groupName="sizePropertyRBG"
-        styleName="textControl"
-      />
+    <mx:HBox>
+      <mx:Label text="Color by:"/>
+      <mx:ComboBox id="colorCmb" selectedIndex="0" dataProvider="['change', 'POP2000', 'POP2008']"/>
+      <mx:Label text="Size by:"/>
+      <mx:ComboBox id="sizeCmb" selectedIndex="0" dataProvider="['POP2000', 'POP2008']"/>
+      <mx:Label text="Color palette:"/>
+      <mx:ComboBox id="paletteCmb"
+                   selectedIndex="0"
+                   dataProvider="['hot', 'summer', 'cool', 'Purples', 'YlGn', 'RdGy', 'PuOr']"
+                   itemRenderer="PaletteRenderer"
+                   dropdownWidth="200"
+                   rowCount="8"/>
     </mx:HBox>
+    <mx:Spacer height="10"/>
+    
+    <controls:TreeMapZoomControl tree="{treemap}" fontSize="16" color="#333333"/>
+    <mx:HBox width="960">
+      <controls:TreeMapControl id="treemap"
+                               width="700"
+                               height="600"
+                               transitionPeriod="1.2"
+                               palette="{paletteCmb.selectedItem}"
+                               colorEncodingField="{colorCmb.selectedItem}"
+                               sizeEncodingField="{sizeCmb.selectedItem}"
+                               styleFromDataRoot="true"
+                               fontSize="16"
+                               labelEncodingField="name"
+                               labelColorStrategy="glow"
+                               truncateToFit="true"
+                               strokeColors="[0xffffff, 0xffffff, 0xffffff, 0x333333]"
+                               strokeThicknesses="[0,8,3,0.25]"/>
 
-    <mx:HBox
-      styleName="controlBox"
-    >
-      <mx:Label
-        text="COLOR (% change)"
-        styleName="controlLabel"
-      />
-
-      <mx:TextInput id="rangeMin"
-        text="-50"
-        width="40"
-        styleName="textControl"
-        enter="onEnterDataRange()"
-      />
-
-      <mx:ColorPicker id="minColorPicker"
-        change="onColorPicked(event)"
-      />
-
-      <renderers:HLabeledGradient3 id="treeMapLegend"
-        width="200"
-        labelWidth="0"
-      />
-
-      <mx:ColorPicker id="maxColorPicker"
-        change="onColorPicked(event)"
-      />
-
-      <mx:TextInput id="rangeMax"
-        text="50"
-        width="40"
-        styleName="textControl"
-        enter="onEnterDataRange()"
-      />
+      <mx:Text id="selectedNode" text="" fontSize="14" width="250"/>
     </mx:HBox>
   </mx:VBox>
 
