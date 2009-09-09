@@ -498,46 +498,60 @@ package org.juicekit.visual.controls {
     }
 
 
+
+
     /**
      * @private
      */
     override public function get data():Object {
       return super.data;
     }
-    
-    
+
+
     //----------------------------------------
     // leaf and branch calculations
     //----------------------------------------
-    
+
     /**
-    * @private
-    * 
-    * Calculate leaves and branches groups
-    * 
-    * Leaves are displayed while branches are hidden.
-    */
+     * @private
+     *
+     * Calculate leaves and branches groups
+     *
+     * Leaves are displayed while branches are hidden.
+     */
     private function calculateLeaves():void {
       var leaves:DataList = new DataList('leaves');
       var branches:DataList = new DataList('branches');
       vis.data.nodes.visit(function(d:DataSprite):void {
-        if ((d as NodeSprite).childDegree == 0) leaves.add(d);
-        else branches.add(d)
-      });
+          var nodeDepth:int = (d as NodeSprite).depth - vis.tree.root.depth;
+          d.visible = true;
+          if (nodeDepth < 0)
+            d.visible = false;
+          else if ((d as NodeSprite).data[_sizeEncodingField] as Number <= 0)
+            //This is a bugfix that prevents nodes from lingering on screen when the
+            //size field changes from one with a value to one with zero.
+            d.visible = false;
+          else if (nodeDepth == _maxDepth || (nodeDepth < _maxDepth && (d as NodeSprite).childDegree == 0))
+            leaves.add(d);
+          else if (nodeDepth < _maxDepth)
+            branches.add(d);
+          else
+            d.visible = false;
+        });
       vis.data.addGroup('leaves', leaves);
       vis.data.addGroup('branches', branches);
     }
 
     /**
-    * Do the leaves and branches need to be recalculated.
-    */
+     * Do the leaves and branches need to be recalculated.
+     */
     private var _leavesChanged:Boolean = false;
 
 
     //----------------------------------------
     // color
     //----------------------------------------
-    
+
     /**
      * Return a color palette for interpolating color values
      * from the <code>colorEncodingField</code>'s data value.
@@ -650,6 +664,25 @@ package org.juicekit.visual.controls {
       return _colorEncodingField;
     }
 
+    /**
+     * Maximum depth for visibility in treemap
+     */
+    private var _maxDepth:int = 100;
+
+    [Inspectable(category="General")]
+    [Bindable]
+    public function set maxDepth(value:int):void {
+      _maxDepth = value;
+      if (vis.data != null) {
+        _leavesChanged = true;
+        invalidateProperties();
+      }
+    }
+
+    public function get maxDepth():int {
+      return _maxDepth;
+    }
+
 
     /**
      * Stores the color mapping range properties.
@@ -714,6 +747,9 @@ package org.juicekit.visual.controls {
       _sizeEncodingField = propertyName;
       _sizeEncodingUpdated = true;
       _colorEncodingUpdated = true;
+      if (vis.data != null)
+        _leavesChanged = true;
+
       invalidateProperties();
     }
 
