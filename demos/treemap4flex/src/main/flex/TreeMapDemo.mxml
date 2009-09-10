@@ -63,9 +63,9 @@
         treemap.addEventListener(DataMouseEvent.MOUSE_OUT, function(e:DataMouseEvent):void {
             selectedNode.text = '';
           });
-        treemap.extraOperators = [
-          new PropertyEncoder({fillColor: 0xffffff00}, 'leaves', function(d:DataSprite) { return Math.random() < 0.1})
-        ]
+//        treemap.extraOperators = [
+//          new PropertyEncoder({fillColor: 0xffffff00}, 'leaves', function(d:DataSprite) { return Math.random() < 0.1})
+//        ]
 
         currentState = 'complete';
       }
@@ -106,7 +106,7 @@
     <mx:Spacer height="10"/>
 
     <mx:HBox>
-      <mx:Label text="Group by:"/>
+      <mx:Label text="Group by (drag to reorder):"/>
       <mx:HorizontalList id="hl"
                          dataProvider="{levelOrder}"
                          dragComplete="handleBtnReorder(event)"
