@@ -136,6 +136,7 @@ package org.juicekit.flare.util.palette {
   
   import mx.binding.utils.ChangeWatcher;
   import mx.collections.ArrayCollection;
+  import mx.styles.StyleManager;
   
   import org.juicekit.flare.util.Colors;
 
@@ -1907,6 +1908,47 @@ package org.juicekit.flare.util.palette {
     }
 
 
+    /**
+    * Derives a color palette from a user input.
+    * 
+    * The value passed in can be a String, uint, or ColorPalette.
+    * 
+    * Some examples:
+    * 
+    * <ul>
+    * <li><code>"0xff0000"</code> - A single color red palette</li> 
+    * <li><code>"#ff0000"</code> - A single color red palette (CSS notation)</li> 
+    * <li><code>"red"</code> - A single color red palette (CSS literal color notation)</li> 
+    * <li><code>"0x88ff0000"</code> - A semi-transparent single color red palette</li> 
+    * <li><code>0x88ff0000</code> - A semi-transparent single color red palette</li> 
+    * <li><code>"Reds"</code> - The built-in "Reds" ColorPalette</li>
+    * <li><code>ColorPalette.getPaletteByName('Reds').darken()</code> - A darker version of the built-in "Reds" ColorPalette</li>
+    * <li><code>ColorPalette.getPaletteByName('Reds').darken(0.2).reverse()</code> - A still darker, reversed version of the built-in "Reds" ColorPalette</li>
+    * </ul>
+    * 
+    * @default 'spectral'
+    */
+    public static function fromHeuristic(v:*):org.juicekit.flare.util.palette.ColorPalette {
+      var _colorPalette:org.juicekit.flare.util.palette.ColorPalette;
+      
+      if (v is org.juicekit.flare.util.palette.ColorPalette) {
+        _colorPalette = v;
+      }
+      else if (v is String) {
+        // try to determine the color given a string
+        var c:uint = StyleManager.getColorName(v);
+        if (c != StyleManager.NOT_A_COLOR) {
+          if (Colors.a(c) == 0) c = Colors.setAlpha(c, 255);
+          _colorPalette = fromColor(c);
+        }
+        else _colorPalette = getPaletteByName(v);
+      }
+      else if (v is uint) {
+        _colorPalette = fromColor(v);        
+      }
+      
+      return _colorPalette;      
+    }
 
   }
 }
