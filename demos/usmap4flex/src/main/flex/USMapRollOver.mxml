@@ -21,12 +21,15 @@
   * *************************************************************************
 -->
 
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="180" height="30" styleName="rollOver">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="170" height="35" backgroundColor="0xeeeeee" filters="{[new DropShadowFilter(4,45,0,0.5)]}"> 
   <mx:Script>
     <![CDATA[
 
     [Bindable]
     public var rate:String;
+
+    [Bindable]
+    public var stateName:String = 'Wyoming';
 
     private static const offset:Point = new Point(20, 20);
 
@@ -45,6 +48,6 @@
 
     ]]>
   </mx:Script>
-  <mx:Label x="10" top="5" text="Unemployment rate: "/>
-  <mx:Label x="137" top="5" text="{rate + '%'}"/>
+  <mx:Label x="10" top="12" text="{'Unemployment rate: ' + rate.toString() + '%'}" styleName="jkBase"/>
+  <mx:Label x="10" top="0" text="{stateName}" styleName="jkNotes"/>
 </mx:Canvas>

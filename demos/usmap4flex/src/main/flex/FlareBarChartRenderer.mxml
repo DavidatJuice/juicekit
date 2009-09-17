@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:charts="org.juicekit.charts.*" implements="mx.controls.listClasses.IDropInListItemRenderer">
+
+  <mx:Script>
+    <![CDATA[
+      import org.juicekit.flare.util.palette.ColorPalette;
+      import mx.controls.listClasses.IDropInListItemRenderer;
+      import mx.controls.listClasses.BaseListData;
+
+      private var _listData:BaseListData;
+
+      /**
+       * Implement the IDropInListItemRenderer interface.
+       */
+      public function get listData():BaseListData {
+        return _listData;
+      }
+
+      public function set listData(value:BaseListData):void {
+        _listData = value;
+      }
+
+      [Bindable]
+      private var _data:Array = [];
+
+      override public function set data(value:Object):void {
+        simpleChart.palette = ColorPalette.getPaletteByName('hot').reverse();
+        simpleChart.showBorder = false;
+        _data = value['trend'];
+        simpleChart.valueAxisMaximum = 14;
+        simpleChart.colorEncoder.scale.preferredMax = 14;
+        simpleChart.colorEncoder.scale.preferredMin = 0;
+        simpleChart.invalidateProperties();
+      }
+    ]]>
+  </mx:Script>
+
+  <charts:ColumnChart id="simpleChart"
+                      data="{_data}"
+                      width="{this.width}"
+                      height="{this.height}"
+                      palette="hot"
+                      categoryEncodingField="Date"
+                      valueEncodingField="rate"
+                      colorEncodingField="rate"
+                      styleName="jkBase"
+                      valueAxisShowLabels="false"
+                      valueAxisShowLines="false"
+                      categoryAxisShowLabels="false"
+                      categoryAxisShowLines="false"/>
+
+
+</mx:Canvas>

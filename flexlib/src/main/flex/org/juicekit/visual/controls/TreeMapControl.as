@@ -747,7 +747,7 @@ package org.juicekit.visual.controls {
       _sizeEncodingField = propertyName;
       _sizeEncodingUpdated = true;
       _colorEncodingUpdated = true;
-      if (vis.data != null)
+      if (vis && vis.data != null)
         _leavesChanged = true;
 
       invalidateProperties();
