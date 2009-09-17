@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute">
-  
+<mx:Application layout="vertical" xmlns:controls="org.juicekit.visual.controls.*" xmlns:mx="http://www.adobe.com/2006/mxml">
+  <mx:Script>
+    <![CDATA[
+      import org.juicekit.events.DataMouseEvent;
+      import mx.controls.Alert;
+
+      [Bindable]
+      private var state:String;
+
+
+      private function mapClicked(e:DataMouseEvent):void {
+        Alert.show('Clicked on ' + e.sender['name']);
+      }
+
+      private function mapMouseover(e:DataMouseEvent):void {
+        state = e.sender['name'];
+      }
+
+      private function mapMouseout(e:DataMouseEvent):void {
+        state = '';
+      }
+    ]]>
+  </mx:Script>
+
+  <controls:StylerInstance/>
+
+  <controls:USMapControl jkDataClick="mapClicked(event)" jkDataMouseOut="mapMouseout(event)" jkDataMouseOver="mapMouseover(event)"/>
+  <mx:Label text="{state}"/>
 </mx:Application>
