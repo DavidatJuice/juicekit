@@ -1,9 +1,9 @@
 package org.juicekit.flare.query {
   import flare.query.Query;
-  
+
   import flash.events.Event;
   import flash.utils.getTimer;
-  
+
   import mx.collections.ArrayCollection;
   import mx.events.CollectionEvent;
 
@@ -23,33 +23,33 @@ package org.juicekit.flare.query {
   [Bindable]
   public dynamic class LiveQuery {
     /**
-    * The number of accesses of <code>result</code> 
-    * for performance and debugging purposes.
-    */
+     * The number of accesses of <code>result</code>
+     * for performance and debugging purposes.
+     */
     public var resultFetches:int = 0;
     // Number of times the result had to be calculated
-    
+
     /**
-    * The number of times <code>query</code> had to be 
-    * evaluated, for performance and debugging purposes.
-    */
+     * The number of times <code>query</code> had to be
+     * evaluated, for performance and debugging purposes.
+     */
     public var resultCalculations:int = 0;
-    
+
     /**
-    * The number of milliseconds it took to evaluate 
-    * <code>query</code> during the most recent eval.
-    * 
-    * @default 'NA'
-    */
+     * The number of milliseconds it took to evaluate
+     * <code>query</code> during the most recent eval.
+     *
+     * @default 'NA'
+     */
     public var evalTime:String = 'NA';
 
 
     /**
-    * A flag that stores if <code>result</code> needs to
-    * be recalculated.
-    */
+     * A flag that stores if <code>result</code> needs to
+     * be recalculated.
+     */
     private var dirty:Boolean = true;
-    
+
     private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
 
 
@@ -58,9 +58,9 @@ package org.juicekit.flare.query {
     //----------------------------------
 
     /**
-     * The result of <code>query</code> evaled against 
+     * The result of <code>query</code> evaled against
      * <code>dataProvider.source</code> as an ArrayCollection.
-     * 
+     *
      * <code>result<code> is bindable.
      */
     [Bindable(event='liveQueryRecalc')]
@@ -73,8 +73,9 @@ package org.juicekit.flare.query {
           if (query) {
             if (filterFunctions) {
               query.where(function(o:Object):Boolean {
-                  for each (var fs:* in filterFunctions) {
-                    if (!fs.filterFunction(o)) return false;
+                  for each (var fs:*in filterFunctions) {
+                    if (!fs.filterFunction(o))
+                      return false;
                   }
                   return true;
                 });
@@ -89,7 +90,7 @@ package org.juicekit.flare.query {
             _result.source = r;
           } else {
             dirty = false;
-            _result = new ArrayCollection(dataProvider.source.slice());
+            _result.source = dataProvider.source.slice();
           }
         }
       }
@@ -97,8 +98,8 @@ package org.juicekit.flare.query {
       return _result;
     }
     private var _result:ArrayCollection = new ArrayCollection();
-    
-    
+
+
     //----------------------------------
     // dataProvider
     //----------------------------------
@@ -153,10 +154,10 @@ package org.juicekit.flare.query {
     //----------------------------------
 
     /**
-    * 
-    * @param v an ArrayCollection of functions with signature
-    * <code></code>
-    */
+     *
+     * @param v an ArrayCollection of functions with signature
+     * <code></code>
+     */
     public function set filterFunctions(v:ArrayCollection):void {
       var fs:*;
       if (filterFunctions) {
@@ -178,12 +179,12 @@ package org.juicekit.flare.query {
     public function get filterFunctions():ArrayCollection {
       return _filterFunctions;
     }
-    
+
     private var _filterFunctions:ArrayCollection;
 
     /**
-    * Constructor
-    */
+     * Constructor
+     */
     public function LiveQuery() {
 
     }
