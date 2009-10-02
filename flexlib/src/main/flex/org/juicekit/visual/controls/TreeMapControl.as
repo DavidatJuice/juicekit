@@ -673,15 +673,17 @@ package org.juicekit.visual.controls {
      */
     private var _maxDepth:int = 100;
 
+
     [Inspectable(category="General")]
     [Bindable]
     public function set maxDepth(value:int):void {
       _maxDepth = value;
-      if (vis.data != null) {
+      if (vis && vis.data != null) {
         _leavesChanged = true;
         invalidateProperties();
       }
     }
+
 
     public function get maxDepth():int {
       return _maxDepth;
