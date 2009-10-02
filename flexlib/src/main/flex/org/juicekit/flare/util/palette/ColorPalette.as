@@ -127,6 +127,8 @@ package org.juicekit.flare.util.palette {
    * <li>gist_stern categorical</li>
    * <li>google categorical fixed length (6)</li>
    * </ul>
+   * 
+   * @author Chris Gemignani
    */
   import flare.util.palette.ColorPalette;
   
@@ -220,6 +222,13 @@ package org.juicekit.flare.util.palette {
       dispatchEvent(new Event(COLORS_CHANGED));
     }
 
+    /**
+    * <p>Retrieve a color palette by name.</p>
+    * 
+    * <p>If the name is preceeded by a "-", the color palette
+    * will be reversed. The default palette is 'spectral'</p>
+    * 
+    */
     public static function getPaletteByName(name:String='', size:int=64):org.juicekit.flare.util.palette.ColorPalette {
       const lookup:Object = {
          'autumn': autumn,
@@ -282,8 +291,17 @@ package org.juicekit.flare.util.palette {
          'gist_yarg': gist_yarg,
          'google': googleColors         
       }
+      var reverse:Boolean = false;
+      if (name.charAt(0) == '-') {
+        reverse = true;
+        name = name.substr(1);        
+      }
       name = lookup.hasOwnProperty(name) ? name : 'spectral';
-      return lookup[name](size);
+      if (reverse) {
+        return lookup[name](size).reverse();        
+      } else {
+        return lookup[name](size);        
+      }
     }
 
     /**
@@ -1911,7 +1929,8 @@ package org.juicekit.flare.util.palette {
     /**
     * Derives a color palette from a user input.
     * 
-    * The value passed in can be a String, uint, or ColorPalette.
+    * The value passed in can be a String, uint, or ColorPalette. If the value is a color
+    * palette name, it can be prefixed with a "-" to reverse the palette.
     * 
     * Some examples:
     * 
@@ -1922,13 +1941,14 @@ package org.juicekit.flare.util.palette {
     * <li><code>"0x88ff0000"</code> - A semi-transparent single color red palette</li> 
     * <li><code>0x88ff0000</code> - A semi-transparent single color red palette</li> 
     * <li><code>"Reds"</code> - The built-in "Reds" ColorPalette</li>
+    * <li><code>"-Reds"</code> - The built-in "Reds" ColorPalette reversed</li>
     * <li><code>ColorPalette.getPaletteByName('Reds').darken()</code> - A darker version of the built-in "Reds" ColorPalette</li>
     * <li><code>ColorPalette.getPaletteByName('Reds').darken(0.2).reverse()</code> - A still darker, reversed version of the built-in "Reds" ColorPalette</li>
     * </ul>
     * 
     * @default 'spectral'
     */
-    public static function fromHeuristic(v:*):org.juicekit.flare.util.palette.ColorPalette {
+    public static function fromString(v:*):org.juicekit.flare.util.palette.ColorPalette {
       var _colorPalette:org.juicekit.flare.util.palette.ColorPalette;
       
       if (v is org.juicekit.flare.util.palette.ColorPalette) {
@@ -1936,12 +1956,15 @@ package org.juicekit.flare.util.palette {
       }
       else if (v is String) {
         // try to determine the color given a string
-        var c:uint = StyleManager.getColorName(v);
+        var s:String = v as String;
+  
+        var c:uint = StyleManager.getColorName(s);
         if (c != StyleManager.NOT_A_COLOR) {
           if (Colors.a(c) == 0) c = Colors.setAlpha(c, 255);
           _colorPalette = fromColor(c);
+        } else {
+          _colorPalette = getPaletteByName(v);
         }
-        else _colorPalette = getPaletteByName(v);
       }
       else if (v is uint) {
         _colorPalette = fromColor(v);        
@@ -1950,5 +1973,12 @@ package org.juicekit.flare.util.palette {
       return _colorPalette;      
     }
 
+    /**
+    * [Deprecated(replacement="fromString")]
+    */
+    public static function fromHeuristic(v:*):org.juicekit.flare.util.palette.ColorPalette {
+      return fromString(v);
+    }
+  
   }
 }

@@ -1,4 +1,4 @@
-/*
+ /*
  * -*- Mode: Actionscript -*-
  * *************************************************************************
  *
@@ -27,7 +27,7 @@ package org.juicekit.visual.controls {
   import flare.vis.data.NodeSprite;
 
   import flash.display.DisplayObject;
-  import flash.events.MouseEvent;
+  import flash.events.MouseEvent; 
 
   import mx.binding.utils.BindingUtils;
   import mx.binding.utils.ChangeWatcher;
@@ -144,10 +144,10 @@ package org.juicekit.visual.controls {
      * It is executed whenever the data for treemap is updated.
      */
     private function onTreeDataChanged(event:FlexEvent):void {
-      if(tree.data == null){
+      if (tree.data == null) {
         resetView();
       }
-      if(tree.dataRoot != null){
+      if (tree.dataRoot != null) {
         this.rootNode = tree.dataRoot; //update the rootNode to point to the dataRoot of this new data set
         tree.minLabelDepth = tree.maxLabelDepth = 1;
         gotoNode(rootNode);
@@ -183,17 +183,15 @@ package org.juicekit.visual.controls {
      */
     private function beginTransition(): void {
        // Make fancy with the animation.
-//      _tree.transitionPeriod = 0.5;
       _tree.addEventListener(TransitionEvent.END, onEndTransition, false, 0, true);
     }
 
     private function onEndTransition(event:TransitionEvent):void {
       _tree.removeEventListener(TransitionEvent.END, onEndTransition);
-//      _tree.transitionPeriod = NaN;
       _tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
 
       // Force flare to render everything.
-      callLater(function ():void {
+      callLater(function():void {
         DirtySprite.renderDirty();
       });
     }
@@ -222,7 +220,15 @@ package org.juicekit.visual.controls {
     }
 
 
+    /**
+    * Zoom into the node.
+    * 
+    * If the node doesn't have any children, zooming is disabled
+    */
     private function zoomToTargetNode(targetNode:NodeSprite):void{
+      if (targetNode.childDegree == 0) {
+        return;
+      }
       const prop:Property = Property.$("data."+ labelField);
       _tree.dataRoot = targetNode; //update the treemap view
       _tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;

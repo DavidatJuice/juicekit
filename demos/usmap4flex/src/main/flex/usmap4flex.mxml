@@ -1,43 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
-  * -*- Mode: MXML -*-
-  * *************************************************************************
-  *
-  * Copyright 2007-2009 Juice, Inc.
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *     http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  * *************************************************************************
+     * -*- Mode: MXML -*-
+     * *************************************************************************
+     *
+     * Copyright 2007-2009 Juice, Inc.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     *
+     * *************************************************************************
 -->
+<mx:Application height="100%"
+                width="100%"
+                layout="vertical"
+                preloader="org.juicekit.util.preloader.JuiceKitPreloader"
+                xmlns:charts="org.juicekit.charts.*"
+                xmlns:controls="org.juicekit.visual.controls.*"
+                xmlns:data="org.juicekit.util.data.*"
+                xmlns:local="*"
+                xmlns:mx="http://www.adobe.com/2006/mxml"
+                xmlns:renderers="org.juicekit.visual.renderers.*">
 
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-   layout="vertical"
-   width="100%" height="100%"
-   xmlns:controls="org.juicekit.visual.controls.*"
-   xmlns:local="*" xmlns:renderers="org.juicekit.visual.renderers.*"
-   creationComplete="init()"
-   >
-
-   <mx:Style source="skin.css"/>
+  <mx:Style source="style.css"/>
+  <controls:StylerInstance/>
 
   <mx:Script>
     <![CDATA[
-
+      import flare.util.Strings;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      import mx.controls.Alert;
+      import mx.events.CollectionEvent;
+      import flare.util.Maths;
+      import org.juicekit.flare.util.palette.ColorPalette;
       import org.juicekit.events.DataMouseEvent;
       import org.juicekit.visual.renderers.IndexCircleRenderer;
-
-      import flare.util.palette.ColorPalette;
 
       import mx.rpc.http.HTTPService;
       import mx.rpc.events.FaultEvent;
@@ -46,172 +52,139 @@
       import mx.formatters.NumberFormatter;
       import mx.events.SliderEvent;
 
-      /*
-      * This stores the data for application. It contains year as the key and the object (data for that year) as the value.
-      * Hence: dict[1999] = { avg: 4.3, states: [{abbr: AL, name: Alabama, rate: 4.3}, {abbr: AK, name: Alaska, rate: 6.2}, ...] }.
-      */
-      private var dict:Dictionary;
-
-      /*
-      * This holds national average for the selected year.
-      */
+      /**
+       * This is the dataProvider for USMapControl.
+       */
       [Bindable]
-      private var natAvg:Number;
+      private var mapData:ArrayCollection = new ArrayCollection();
 
-      /*
-      * This holds text for the datagrid sidebar.
-      */
+      /**
+       * The US unemployment rate for the selected date
+       */
       [Bindable]
-      private var labelAvg:String;
+      private var usAverage:String = 'na';
 
-      /*
-      * This is the dataProvider for USMapControl. Its source is the 'states' array from the dictionary for the selected year(key).
-      * It is sorted based on 'rate'. Hence, the states with low rates are at the top.
-      */
+      /**
+       * The selected date.
+       */
       [Bindable]
-      private var mapData:ArrayCollection;
+      private var selectedDate:String = 'na';
 
-      /*
-      * This is the dataProvider for top states datagrid.
-      * It contains top five states from mapData.
-      */
+
+      /**
+       * Object of type USMapRollOver is used to display rate as user hovers mouse
+       * from one state to another.
+       */
+      private var rollOver:USMapRollOver = new USMapRollOver();
+
+      /**
+       * The color palette used to display unemployment rates.
+       */
+      private var colorPalette:ColorPalette = ColorPalette.getPaletteByName('hot').reverse();
+
+      /**
+       * The maximum rate of unemployment on the color scale
+       */
+      private const MAX_RATE:Number = 14;
+
+      /**
+       * Maps state names to abbreviations
+       * The map requires state data to be associated with state abbreviations
+       * while the BLS unemployment dataset has full state names.
+       */
+      private const state_abbr_lookup:Object = {'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'District of Columbia': 'DC', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Puerto Rico': 'PR', 'Rhode Island': 'RI', 'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'US': 'US', 'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'};
+
       [Bindable]
-      private var topStatesAC:ArrayCollection;
+      public var stateTrends:ArrayCollection;
 
-      /*
-      * This is the dataProvider for bottom states dataGrid.
-      * It contains bottom five states from mapData arrayCollection.
-      */
-      [Bindable]
-      private var bottomStatesAC:ArrayCollection;
-
-      /*
-      * Object of type USMapRollOver is used to display rate as user hovers mouse from one state to another.
-      */
-      private var rollOver:USMapRollOver = null;
-
-
-      /*
-      * This function initializes the legend and colorPalette.
-      * It also sends an HTTP request to load data and populates the model(dictionary) in the result handler.
-      */
-      private function init():void{
-        loader.send();
-
-        rollOver = new USMapRollOver();
-
-        const RANGE_MIN:Number = 0.0;
-        const RANGE_MAX:Number = 2.0;
-        const RANGE:Number = RANGE_MIN + RANGE_MAX;
-
-        const LEFT_GRADIENT_COLOR:uint = 0x00ff00;
-        const MIDDLE_GRADIENT_COLOR:uint = 0xF4F5F5;
-        const RIGHT_GRADIENT_COLOR:uint = 0xff0000;
-
-        //Generate a ColorPalette with these colors.
-        const colorPalette:ColorPalette = ColorPalette.diverging( LEFT_GRADIENT_COLOR
-                                                                , MIDDLE_GRADIENT_COLOR
-                                                                , RIGHT_GRADIENT_COLOR);
-
-
-        // Set the colors and labels on the legend gradient.
-        legend.drawGradient( LEFT_GRADIENT_COLOR
-                           , MIDDLE_GRADIENT_COLOR
-                           , RIGHT_GRADIENT_COLOR);
-
-        legend.leftText = RANGE_MIN.toString()+"%";
-
-
-        /*
-        * ColorPalete maps color to data in the range 0 - 1.0.
-        * Dividing the state rate by nat. avg gives number less than or greater than 1.
-        * Dividing that value by 2 maps nat. avg to middle color in the gradient.
-        */
-        map.colorEncodingFunction = function(name:String, data:Object):uint{
-          const lookUpValue:Number = (parseFloat(data.rate) / natAvg) / RANGE;
-          return colorPalette.getColor(Math.min(lookUpValue, 1)); //This maps the max color for the out-of-range states.
-        };
+      private function mapEncodingFunction(name:String, data:Object):uint {
+        const lookupValue:Number = Maths.clampValue(data.rate / MAX_RATE, 0.0, 1.0);
+        return colorPalette.getColor(lookupValue); //This maps the max color for the out-of-range states.
       }
 
+      /**
+       * This method is called when the delimited data has been loaded.
+       *
+       * The data is available as an ArrayCollection in bls.result
+       */
+      private function loadSucceeded(event:Event):void {
+        var barData:Array = [];
+        var cnt:int = 0;
+        var o:Object;
 
-      /*
-      * This method is the event handler for result event of HTTPService.
-      * It populates dictionary object with data.
-      */
-      private function loadSucceeded(event:ResultEvent):void{
-        trace("In result handler.");
-        dict = new Dictionary();
-        var yearsAC:ArrayCollection = new ArrayCollection;
-        yearsAC = event.result.data.year;
-
-        //Populate dictionary with year as the key and value as an object(containing national average and array collection of states)
-        for each(var year:Object in yearsAC){
-          var value:Object = new Object();
-          value["avg"] = Number(year.natAvg);
-          value["states"] = year.state;
-          dict[year.name] = value;
-        }
-        extractMapData("1999"); //load map with data for the first year in dataSet.
-      }
-
-      /*
-      * This is an eventHandler for the fault event.
-      */
-      private function loadFailed(event:FaultEvent):void{
-        trace("Unable to load data.");
-      }
-
-
-      /*
-      * This function extracts the data from the dictionary for the selected year and populates mapData(the dataProvider for the map).
-      * It populates topStatesAC (dataProvider of topDG dataGrid) with the top five states.
-      * It also populates bottomStatesAC (dataProvider of bottomDG) with the states with highest unemployment rates.
-      */
-      private function extractMapData(key:String):void{
-        var value:Object = dict[key];
-
-        natAvg = value.avg;
-        legend.rightText = (2 * natAvg).toString() + "%"; //range of data mapped is from 0% (leftText) to twice the national average
-        labelAvg = "Nat. unemployment for year "+ key + " is "+natAvg + "%";
-
-        var statesArray:Array = value.states.source;
-        mapData = new ArrayCollection(statesArray.sortOn("rate", Array.NUMERIC)); //sort the data on rate to get the top and bottom states
-
-        if(mapData != null && mapData.length >0){
-          topStatesAC = new ArrayCollection();
-          bottomStatesAC = new ArrayCollection();
-          //Get the top five states.
-          for(var i:int=0; i<5; i++){
-            var unempRate:String = numForm.format(( parseFloat(mapData[i].rate) / natAvg ) * 100); //calculate rate relative to the national avg
-            topStatesAC.addItem({name: mapData[i].name, rate: unempRate});
+        // calculate trends for each state, saving only one in 12 datapoints        
+        stateTrends = new ArrayCollection();
+        for (var stateName:String in state_abbr_lookup) {
+          var row:Object = {};
+          row['name'] = stateName;
+          var trendArr:Array = [];
+          cnt = 0;
+          for each (o in bls.result) {
+            cnt += 1;
+            if (cnt % 12 == 0)
+              trendArr.push({'Date': o.Date, 'rate': o[stateName]});
           }
-
-          //Get the bottom five states.
-          for(var j:int=mapData.length -1; j>mapData.length-6; j--){
-            var rate:String = numForm.format(( parseFloat(mapData[j].rate) / natAvg ) * 100); //calculate rate relative to the national avg
-            bottomStatesAC.addItem({name: mapData[j].name, rate: rate});
-          }
+          row['trend'] = trendArr;
+          stateTrends.addItem(row);
         }
+
+        // sort the states by name
+        var nameSortField:SortField = new SortField('name');
+        var dataSort:Sort = new Sort();
+        dataSort.fields = [nameSortField];
+        stateTrends.sort = dataSort;
+        stateTrends.refresh();
+
+        // extract data for the long term trend behind the slider
+        var allTrendData:Array = []
+        for each (o in bls.result) {
+          allTrendData.push({'Date': o.Date, 'rate': o.US});
+        }
+        allTrendChart.data = allTrendData;
+
+        allTrendChart.colorEncoder.scale.preferredMax = 14;
+        allTrendChart.colorEncoder.scale.preferredMin = 0;
+        allTrendChart.invalidateProperties();
+        extractBLSData(1);
+      }
+
+      /**
+       * Called whenever the selected date changes.
+       *
+       * Extracts data from the current row in the bls dataset
+       *
+       */
+      private function extractBLSData(idx:int):void {
+        var row:Object = bls.result.getItemAt(idx);
+        usAverage = Strings.format('{0:0.0%}', row.US / 100);
+        selectedDate = row.Date;
+        var stateData:Array = [];
+        mapData.removeAll();
+        for (var k:String in state_abbr_lookup) {
+          stateData.push({state: k, value: row[k]});
+          mapData.addItem({abbr: state_abbr_lookup[k], name: k, rate: row[k]});
+        }
+        map.encodeMap(map.data as Array);
       }
 
 
-      /*
-      * This is an event handler for the change event of the Slider.
-      */
-      private function sliderChange(event:SliderEvent):void{
-        var year:String = event.currentTarget.value;
-        //look up dictionary for the selected year and extract data for USMapControl and dataGrids.
-        extractMapData(year);
+      /**
+       * This is an event handler for the change event of the Slider.
+       *
+       * Extract the BLS data at the appropriate index
+       */
+      private function sliderChange(event:SliderEvent):void {
+        extractBLSData(int(event.currentTarget.value));
       }
 
 
-      /*
-      * This is an event handler for the juicekit event. This function is called when user hovers mouse over USMapControl.
-      */
-      private function onMouseOver(event:DataMouseEvent):void{
-
+      /**
+       * This is an event handler for the juicekit event. This function is called
+       * when user hovers mouse over USMapControl.
+       */
+      private function onMouseOver(event:DataMouseEvent):void {
         /* Transform the 'overState' of button by applying alphaOffset to it.
-        * This would make the state stand out (highlight) as the user hovers over it. */
+         * This would make the state stand out (highlight) as the user hovers over it. */
         const display:DisplayObject = (event.sender as SimpleButton).overState;
         const ct:ColorTransform = display.transform.colorTransform;
         ct.alphaOffset = -180;
@@ -220,6 +193,7 @@
         const dataObj:Object = event.data;
         if (dataObj) {
           rollOver.rate = dataObj.rate;
+          rollOver.stateName = dataObj.stateName;
           // Postiion the roll-over display.
           rollOver.position(new Rectangle(event.localX, event.localY, map.width, map.height));
 
@@ -228,114 +202,174 @@
         }
       }
 
-      /*
-      * This is an event handler for the juicekit mouse out event.
-      */
-      private function onMouseOut(event:DataMouseEvent):void{
-        if (map.contains(rollOver)) {
+
+      /**
+       * This is an event handler for the juicekit mouse out event.
+       */
+      private function onMouseOut(event:DataMouseEvent):void {
+        if (map.contains(rollOver))
           map.removeChild(rollOver);
-        }
       }
 
 
-      /*
-      * This function formats the data tip of the slider.
-      */
-      private function dataTipFormatter(value:Number):String{
-        var formatter:NumberFormatter = new NumberFormatter();
-        formatter.precision = -1;
-        formatter.useThousandsSeparator = false;
-        return formatter.format(value);
+      /**
+       * This function formats the data tip of the slider.
+       */
+      private function dataTipFormatter(value:Number):String {
+        return bls.result.getItemAt(value).Date
       }
-
-
-      /*
-      * This function formats the dataTip for DataGridColumns
-      */
-      private function dataGridToolTip(value:Object):String{
-       //Convert the rate back to its original value since it is stored relative to national rate in arrayCollection(DataGrid's dataprovider).
-        return value.name + " : " + numForm.format((value.rate * natAvg / 100)) + "%";
-      }
-
     ]]>
   </mx:Script>
 
+  <!-- bls stands for Bureau of Labor Statistics -->
+  <data:ArrayCollectionFromUrl id="bls" dataLoaded="{loadSucceeded}" url="http://media.juiceanalytics.com/census/blsunemployment.csv"/>
 
-  <mx:NumberFormatter id="numForm" precision="1" rounding="nearest"/>
+  <mx:HBox height="100%" width="960" horizontalGap="20">
 
-  <mx:HTTPService id="loader"
-      url="data/unemploymentRates.xml"
-      result="loadSucceeded(event)"
-      fault="loadFailed(event)"
-   />
+    <mx:VBox height="100%" width="620" verticalGap="20">
 
-  <mx:HBox width="1100" height="600" horizontalGap="50">
+      <mx:Label styleName="jkHeader" text="Unemployment Rates over Time"/>
+      <mx:Text width="100%" text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."/>
 
-    <mx:VBox width="650" height="550" styleName="generalLayout">
-      <mx:HSlider id="yearSlider"
-        width="362"
-        change="sliderChange(event)"
-        minimum="1999"
-        maximum="2009"
-        labels="[1999, 2009]"
-        snapInterval="1"
-        tickInterval="1"
-        dataTipFormatFunction="dataTipFormatter"
-        liveDragging="true"
-      />
+      <mx:HBox width="100%" horizontalGap="20">
 
-     <controls:USMapControl id="map"
-       stateAbbrField="abbr"
-       data="{mapData}"
-       jkDataMouseOver="onMouseOver(event)"
-       jkDataMouseOut="onMouseOut(event)"
-       width="600" height="400"
-      />
-     <renderers:HLabeledGradient3 id="legend" width="50%"/>
-     <mx:Label text="{'Unemployment Rate: '+natAvg + '%'}"/>
+        <!--
+             a canvas containing a chart of the entire time series trend
+             for the US, with a slider overlaid
+        -->
+        <mx:Canvas height="80" width="400">
+          <charts:ColumnChart id="allTrendChart"
+                              height="50"
+                              width="100%"
+                              bottom="30"
+                              left="18"
+                              right="18"
+                              alpha="0.5"
+                              categoryAxisShowLabels="false"
+                              categoryAxisShowLines="false"
+                              categoryEncodingField="Date"
+                              colorEncodingField="rate"
+                              palette="{ColorPalette.getPaletteByName('hot').reverse()}"
+                              transitionPeriod="NaN"
+                              valueAxisLabelFormat="0"
+                              valueAxisMaximum="20"
+                              valueAxisShowLabels="false"
+                              valueAxisShowLines="false"
+                              valueEncodingField="rate"/>
+          <mx:HSlider id="dateSlider"
+                      width="100%"
+                      top="20"
+                      change="sliderChange(event)"
+                      dataTipFormatFunction="dataTipFormatter"
+                      labels="[1976, 2009]"
+                      liveDragging="true"
+                      maximum="399"
+                      minimum="0"
+                      snapInterval="1"
+                      tickInterval="12"
+                      tickOffset="7"
+                      tickThickness="0"/>
+          <mx:Label top="60" paddingLeft="10" styleName="jkNotes" text="Move the slider to explore unemployment over time"/>
+        </mx:Canvas>
+
+        <!-- this spacer will push the US unemployment display to the far right -->
+        <mx:Spacer width="100%"/>
+
+        <!-- The view showing US unemployment rate -->
+        <mx:VBox width="150" verticalGap="-10">
+          <mx:Label width="150" styleName="jkBody" text="US Unemployment Rate" textAlign="right"/>
+          <mx:Label width="150"
+                    fontSize="32"
+                    fontWeight="bold"
+                    styleName="jkHeader"
+                    text="{usAverage}"
+                    textAlign="right"/>
+          <mx:Label width="150" styleName="jkBody" text="{selectedDate}" textAlign="right"/>
+        </mx:VBox>
+      </mx:HBox>
+
+
+      <!--
+           A canvas is required so the legend can be positioned absolutely on the map.
+      -->
+      <mx:Canvas height="420" width="600">
+        <controls:USMapControl id="map"
+                               data="{mapData}"
+                               height="{map.width*0.7}"
+                               width="600"
+                               colorEncodingFunction="mapEncodingFunction"
+                               jkDataMouseOut="onMouseOut(event)"
+                               jkDataMouseOver="onMouseOver(event)"
+                               stateAbbrField="abbr"
+                               styleName="jkBase"/>
+
+        <!-- the legend -->
+        <mx:Canvas height="120"
+                   width="100"
+                   bottom="20"
+                   right="0"
+                   horizontalScrollPolicy="off"
+                   verticalScrollPolicy="off">
+          <mx:Label top="5"
+                    right="0"
+                    styleName="jkNotes"
+                    text="Unemployment rate"
+                    textAlign="left"/>
+          <local:PaletteLegend height="100%"
+                               width="20"
+                               top="20"
+                               right="40"
+                               palette="hot"/>
+          <mx:Label width="30"
+                    top="20"
+                    right="10"
+                    styleName="jkNotes"
+                    text="14%"
+                    textAlign="left"/>
+          <mx:Label width="30"
+                    top="62"
+                    right="10"
+                    styleName="jkNotes"
+                    text="7"
+                    textAlign="left"/>
+          <mx:Label width="30"
+                    top="105"
+                    right="10"
+                    styleName="jkNotes"
+                    text="0"
+                    textAlign="left"/>
+        </mx:Canvas>
+      </mx:Canvas>
     </mx:VBox>
 
-    <mx:VBox width="360" height="550" styleName="generalLayout">
-     <mx:Label id="lblDG" text="{labelAvg}" fontSize="14" fontWeight="bold"/>
-     <mx:HBox styleName="dGLabels" width="100%">
-       <mx:Label text="Top five states."/>
-     </mx:HBox>
-     <mx:DataGrid id="topDG"
-      height="200" width="250"
-      rowHeight="30"
-      fontSize="10"
-      styleName="dataGridStyle"
-      showHeaders="false"
-      resizableColumns="false"
-      draggableColumns="false"
-      selectable="false"
-      dataProvider="{topStatesAC}"
-      >
-      <mx:columns>
-        <mx:DataGridColumn dataField="name" width="120" showDataTips="true" dataTipFunction="dataGridToolTip"/>
-        <mx:DataGridColumn dataField="rate" width="120" itemRenderer="org.juicekit.visual.renderers.IndexCircleRenderer"/>
-      </mx:columns>
-     </mx:DataGrid>
-     <mx:HBox styleName="dGLabels" width="100%">
-      <mx:Label text="Bottom five states." fontSize="12" fontWeight="bold"/>
-     </mx:HBox>
-    <mx:DataGrid id="bottomDG"
-      height="50%" width="250"
-      rowHeight="30"
-      fontSize="10"
-      styleName="dataGridStyle"
-      showHeaders="false"
-      resizableColumns="false"
-      draggableColumns="false"
-      selectable="false"
-      dataProvider="{bottomStatesAC}"
-     >
-     <mx:columns>
-       <mx:DataGridColumn dataField="name" width="120" showDataTips="true" dataTipFunction="dataGridToolTip"/>
-       <mx:DataGridColumn dataField="rate" dataTipField="rate" width="120" itemRenderer="org.juicekit.visual.renderers.IndexCircleRenderer"/>
-     </mx:columns>
-    </mx:DataGrid>
-   </mx:VBox>
+    <mx:VBox height="100%" width="300">
+      <!--
+           A datagrid
+           The styling has been chosed to mirror a minimalist style
+           used by the NY Times
+      -->
+      <mx:DataGrid id="dataGrid"
+                   dataProvider="{stateTrends}"
+                   height="100%"
+                   width="100%"
+                   alternatingItemColors="[0xffffff, 0xffffff]"
+                   borderThickness="0.0"
+                   headerColors="[0xf0f4f5, 0xf0f4f5]"
+                   horizontalGridLineColor="0xefefef"
+                   horizontalGridLines="true"
+                   paddingBottom="0"
+                   paddingTop="0"
+                   rollOverColor="0xf6fafb"
+                   rowCount="{dataGrid.dataProvider.length+1}"
+                   rowHeight="12"
+                   styleName="jkNotes"
+                   verticalGridLineColor="0xefefef">
+        <mx:columns>
+          <mx:DataGridColumn dataField="name" headerText="State"/>
+          <mx:DataGridColumn dataField="trend" headerText="Trend" itemRenderer="FlareBarChartRenderer"/>
+        </mx:columns>
+      </mx:DataGrid>
+    </mx:VBox>
 
   </mx:HBox>
 </mx:Application>

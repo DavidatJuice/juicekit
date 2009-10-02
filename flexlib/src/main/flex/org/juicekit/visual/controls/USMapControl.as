@@ -32,7 +32,9 @@ package org.juicekit.visual.controls {
   import flash.text.TextField;
   import flash.text.TextFieldAutoSize;
   import flash.text.TextFormat;
-
+  
+  import mx.controls.Label;
+  
   import org.juicekit.util.helper.CSSUtil;
   import org.juicekit.visual.flash.controls.USMap;
 
@@ -191,9 +193,16 @@ package org.juicekit.visual.controls {
         stateSB = states.getChildAt(i) as SimpleButton;
         bounds = stateSB.getBounds(_labelLayer);
 
+//        var lb:Label = new Label();
+//        lb.text = stateSB.name
+//        lb.name = stateSB.name;
+//        _labelLayer.addChild(lb);
+//        lb.x = bounds.x + (bounds.width / 2 - lb.textWidth / 2);
+//        lb.y = bounds.y + (bounds.height / 2 - lb.textHeight / 2);
         tf = new TextField();
         tf.autoSize = TextFieldAutoSize.LEFT;
         tf.antiAliasType = AntiAliasType.ADVANCED;
+        
 
         tf.name = stateSB.name;
         tf.text = stateSB.name;

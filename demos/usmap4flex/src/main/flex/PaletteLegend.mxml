@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+           initialize="init()"
+           width="20"
+           height="100"
+           horizontalScrollPolicy="off"
+           verticalScrollPolicy="off">
+  <mx:Script>
+    <![CDATA[
+      import mx.effects.AnimateProperty;
+      import mx.controls.Alert;
+      import org.juicekit.flare.util.Colors;
+      import org.juicekit.flare.util.palette.ColorPalette;
+      import mx.binding.utils.BindingUtils;
+
+      [Bindable]
+      public var color:uint = 0;
+
+      [Bindable]
+      public function set palette(v:String):void {
+        _palette = v;
+        colorPalette = ColorPalette.getPaletteByName(palette, 64);
+        colorPalette.addEventListener('colorsChanged', function(e:Event):void {
+            invalidateDisplayList();
+          });
+        invalidateDisplayList();
+      }
+
+      public function get palette():String {
+        return _palette;
+      }
+      private var _palette:String = 'spectral';
+
+      [Bindable]
+      public var colorPalette:ColorPalette = ColorPalette.getPaletteByName(palette);
+
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+        color = Colors.whiteOrBlack(colorPalette.getColorByIndexFromAC(0));
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        Timer
+        var len:int = colorPalette.length;
+        var idx:int = 0;
+        var w:Number = unscaledWidth / len;
+        var h:Number = unscaledHeight / len;
+        for each (var c:uint in colorPalette.values) {
+          graphics.beginFill(0xffffff & c, 1);
+          //graphics.drawRect(idx * w, 0, w, unscaledHeight);
+          graphics.drawRect(0, idx*h, unscaledWidth, h);
+          idx += 1;
+        }
+      }
+    ]]>
+  </mx:Script>
+
+</mx:Canvas>
