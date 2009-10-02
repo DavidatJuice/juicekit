@@ -520,6 +520,7 @@ package org.juicekit.visual.controls {
      * Leaves are displayed while branches are hidden.
      */
     private function calculateLeaves():void {
+      var fallenLeaves:DataList = new DataList('fallen_leaves');
       var leaves:DataList = new DataList('leaves');
       var branches:DataList = new DataList('branches');
       vis.data.nodes.visit(function(d:DataSprite):void {
@@ -531,13 +532,16 @@ package org.juicekit.visual.controls {
             //This is a bugfix that prevents nodes from lingering on screen when the
             //size field changes from one with a value to one with zero.
             d.visible = false;
-          else if (nodeDepth == _maxDepth || (nodeDepth < _maxDepth && (d as NodeSprite).childDegree == 0))
+          else if (nodeDepth == _maxDepth || (nodeDepth < _maxDepth && (d as NodeSprite).childDegree == 0)) {
             leaves.add(d);
+            fallenLeaves.add(d);
+          }
           else if (nodeDepth < _maxDepth)
             branches.add(d);
           else
             d.visible = false;
         });
+      vis.data.addGroup('fallen_leaves', fallenLeaves);
       vis.data.addGroup('leaves', leaves);
       vis.data.addGroup('branches', branches);
     }
@@ -747,7 +751,7 @@ package org.juicekit.visual.controls {
       _sizeEncodingField = propertyName;
       _sizeEncodingUpdated = true;
       _colorEncodingUpdated = true;
-      if (vis.data != null)
+      if (vis && vis.data != null)
         _leavesChanged = true;
 
       invalidateProperties();
