@@ -1092,13 +1092,12 @@ package org.juicekit.visual.controls {
      */
     public var highlightRollOver:Boolean = true;
 
+
     private function createColorEncoder():ColorEncoder {
-      return new ColorEncoder(asFlareProperty(_colorEncodingField)
-                              , 'leaves'                              
-                              , "fillColor"
-                              , ScaleType.LINEAR
-                              , colorPalette.toFlareColorPalette());
+      return new ColorEncoder(asFlareProperty(_colorEncodingField), freezeColorsOnDataRootChange ? 'fallen_leaves' : 'leaves',
+        "fillColor", ScaleType.LINEAR_PERCENTILE10, colorPalette.toFlareColorPalette());
     }
+
 
     private function createTreeMapLayout():Operator {
       return new TreeMapLayout(asFlareProperty(sizeEncodingField));
