@@ -149,7 +149,6 @@ package org.juicekit.visual.controls {
       }
       if (tree.dataRoot != null) {
         this.rootNode = tree.dataRoot; //update the rootNode to point to the dataRoot of this new data set
-        tree.minLabelDepth = tree.maxLabelDepth = 1;
         gotoNode(rootNode);
       }
     }
@@ -188,7 +187,6 @@ package org.juicekit.visual.controls {
 
     private function onEndTransition(event:TransitionEvent):void {
       _tree.removeEventListener(TransitionEvent.END, onEndTransition);
-      _tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
 
       // Force flare to render everything.
       callLater(function():void {
@@ -231,7 +229,6 @@ package org.juicekit.visual.controls {
       }
       const prop:Property = Property.$("data."+ labelField);
       _tree.dataRoot = targetNode; //update the treemap view
-      _tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
       resetView();
       pathNodes = makeNodePath(rootNode, targetNode);
       buttons = makePathView(pathNodes, targetNode, prop);

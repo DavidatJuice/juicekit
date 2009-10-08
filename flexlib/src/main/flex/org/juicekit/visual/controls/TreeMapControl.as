@@ -400,27 +400,28 @@ package org.juicekit.visual.controls {
             _labelStyleChanged = false;
             _labelDepthUpdated = false;
 
-            lfr = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
+            lfr = new PLabelFormatter(this, _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0), _maxLabelDepth + (dataRoot != null ? dataRoot.depth : 0));
             labels.labelFormatter = lfr;
-          } else if (_labelDepthUpdated) {
+          }
+          else if (_labelDepthUpdated) {
             _labelDepthUpdated = false;
             lfr = labels.labelFormatter as PLabelFormatter;
-            lfr.minLabelDepth = _minLabelDepth;
-            lfr.maxLabelDepth = _maxLabelDepth;
+            lfr.minLabelDepth = _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0);  //_tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
+            lfr.maxLabelDepth = _maxLabelDepth + (dataRoot != null ? dataRoot.depth : 0);
           }
           labels.colorStrategy = getStyle('labelColorStrategy');
 
           updateTreemap = true;
         }
-        
+
         if (_nodeStyleUpdated) {
-           _nodeStyleUpdated = false;
-           vis.data.nodes.visit(function(d:DataSprite):void {
-             d.filters = nodeFlashFilters;
-           });
-           updateTreemap = true;
+          _nodeStyleUpdated = false;
+          vis.data.nodes.visit(function(d:DataSprite):void {
+              d.filters = nodeFlashFilters;
+            });
+          updateTreemap = true;
         }
-        
+
         if (_leavesChanged) {
           _leavesChanged = false;
           calculateLeaves();
@@ -518,13 +519,16 @@ package org.juicekit.visual.controls {
         vis.tree.root = nodeSprite;
         vis.tree.nodes.setProperty("visible", true);
         labels.setLabelVisible(vis.tree.root, true);
-        labels.ignoreRemovals = false;        
+        labels.ignoreRemovals = false;
         dataRootChanged = true;
-        if (styleFromDataRoot) styleNodes();
+        if (styleFromDataRoot)
+          styleNodes();
         _leavesChanged = true;
+        _labelDepthUpdated = true;
         invalidateProperties();
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
-      } else {
+      }
+      else {
         throw new ArgumentError("A visualization must already have data to manipulate the root.");
       }
     }
@@ -1184,12 +1188,8 @@ package org.juicekit.visual.controls {
 
 
     private function createLabelLayout():Operator {
-      const lfr:PLabelFormatter = new PLabelFormatter(this, _minLabelDepth, _maxLabelDepth);
-      return new Labels(asFlareProperty(_labelEncodingField), 
-                        Data.NODES, 
-                        lfr, 
-                        _truncateToFit, 
-                        getStyle('labelColorStrategy'));
+      const lfr:PLabelFormatter = new PLabelFormatter(this, _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0), _maxLabelDepth + (dataRoot != null ? dataRoot.depth : 0));
+      return new Labels(asFlareProperty(_labelEncodingField), Data.NODES, lfr, _truncateToFit, getStyle('labelColorStrategy'));
     }
 
   }
