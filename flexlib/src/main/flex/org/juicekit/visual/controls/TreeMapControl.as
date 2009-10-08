@@ -36,6 +36,7 @@ package org.juicekit.visual.controls {
   import flash.events.MouseEvent;
   import flash.filters.ColorMatrixFilter;
   import flash.geom.Rectangle;
+  import flash.utils.Dictionary;
   
   import org.juicekit.events.JuiceKitEvent;
   import org.juicekit.flare.util.palette.ColorPalette;
@@ -262,7 +263,77 @@ package org.juicekit.visual.controls {
       }
       invalidateProperties();
     }
+    
+    private var emphasizeList:Dictionary = new Dictionary();
+    
+    private var _defaultEmphasizeEffect:Object = {fillColor: 0xffbbbbbb};
+    
+    public function get defaultEmphasizeEffect():Object {
+      return _defaultEmphasizeEffect;
+    }
+    
+    public function set defaultEmphasizeEffect(val:Object):void {
+      _defaultEmphasizeEffect = val;
+      var e:PropertyEncoder = vis.operators.getOperatorAt(OP_IX_EMPHASIZER) as PropertyEncoder;
+      e.values = val;
+       _extraOperatorsChanged = true;
+      invalidateProperties();
+    }
+    
+    /**
+    * Append emphasizers and deemphasizers to the emphasizeList
+    * 
+    * emphasize can be passed a function that takes a datasprite and returns a boolean
+    * Alternatively, the default behavior is a simple string match for the val
+    */
+    public function emphasize(val:String, testFunction:Function=null):void {
+      if (val.length >= 1) {
+         emphasizeList[val] = testFunction ? testFunction : 'default';
+         updateEmphasizer();
+      }
+    }
+    
+    public function deemphasize(val:String):void {
+      if (val.length >= 1) {
+        delete emphasizeList[val];
+        updateEmphasizer();
+      }
+    }
+    
+    public function emphasizerReset():void {
+      emphasizeList = new Dictionary();
+      updateEmphasizer();
+    }
+    
+    public function updateEmphasizer():void {
+      var emphasizer_default:DataList = new DataList('emphasizer_default');
+      vis.data.nodes.visit(function(d:DataSprite):void {
+        for (var elem:String in emphasizeList) {
+          if (emphasizeList[elem] is Function) {
+            if (emphasizeList[elem](d)) {
+              emphasizer_default.add(d);
+            }
+          }
+          else if (d.data.name.indexOf(elem) != -1)
+            emphasizer_default.add(d);
+            
+          //Add all nodes whose parent nodes are emphasized
+          if (emphasizer_default.contains((d as NodeSprite).parentNode))
+            emphasizer_default.add(d);
+        }
+      });
 
+      vis.data.addGroup('emphasizer_default', emphasizer_default);
+      _extraOperatorsChanged = true;
+      invalidateProperties();
+    }
+
+    /**
+    * preferred min and max colors for the color encoder
+    */
+    public var preferredMinColor:Number = NaN;
+    
+    public var preferredMaxColor:Number = NaN;
 
     /**
      * Get the Flare ColorEncoder
@@ -290,6 +361,10 @@ package org.juicekit.visual.controls {
 
           colorEncoder.source = asFlareProperty(_colorEncodingField);
           colorEncoder.palette = colorPalette;
+          if (!isNaN(preferredMinColor))
+            colorEncoder.scale.preferredMin = preferredMinColor;
+          if (!isNaN(preferredMaxColor))
+            colorEncoder.scale.preferredMax = preferredMaxColor;
 
           updateTreemap = true;
         }
@@ -544,6 +619,7 @@ package org.juicekit.visual.controls {
       vis.data.addGroup('fallen_leaves', fallenLeaves);
       vis.data.addGroup('leaves', leaves);
       vis.data.addGroup('branches', branches);
+      updateEmphasizer();
     }
 
     /**
@@ -899,6 +975,8 @@ package org.juicekit.visual.controls {
     private static const OP_IX_COLOR:int = 0;
     private static const OP_IX_LAYOUT:int = 1;
     private static const OP_IX_LABEL:int = 2;
+    
+    private static const OP_IX_EMPHASIZER:int = 4;
 
 
     /**
@@ -909,21 +987,22 @@ package org.juicekit.visual.controls {
       vis.bounds = new Rectangle(0, 0, 0, 0);
 
       // Initialize rendering pipeline
-      
+
       vis.operators.add(createColorEncoder());
       vis.operators.add(createTreeMapLayout());
       vis.operators.add(createLabelLayout());
       vis.operators.add(new PropertyEncoder({fillAlpha: 0.01}, 'branches'));
+      vis.operators.add(new PropertyEncoder(defaultEmphasizeEffect, 'emphasizer_default'));
       createExtraOperators();
 
       super.initVisualization();
     }
 
 
-    
+
     private function createExtraOperators():void {
       // Pop off all the extra operators
-      while (vis.operators.length > 4) {
+      while (vis.operators.length > 5) {
         vis.operators.removeOperatorAt(vis.operators.length - 1);
       }
       // add all the extra operators back in
