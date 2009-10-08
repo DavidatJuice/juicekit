@@ -26,6 +26,7 @@ package org.juicekit.util.data {
   import flare.query.methods.*;
   import flare.util.Shapes;
   import flare.vis.data.Data;
+  import flare.vis.data.DataSprite;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
 
@@ -37,6 +38,9 @@ package org.juicekit.util.data {
    */
 
   public class GraphUtil {
+    
+    public static const TREENODEDIRTY:String = "__treeNodeDirty";
+    
     public static function printTree(n:NodeSprite, d:int):void {
       trace(n.name + "\t" + n.u + "\t" + n.v + "\t" + n.w + "\t" + n.h);
       for (var i:uint = 0; i < n.childDegree; ++i) {
@@ -327,7 +331,14 @@ package org.juicekit.util.data {
             return generateTreeMapBranch(tree, n.getChildNode(i), levels.slice(), o);
           }
           else {
-            return n.getChildNode(i);
+            //If the node already exists, update its data.
+            //This functionality is mostly for use with the matchTree parameter.
+            var c:NodeSprite = n.getChildNode(i);
+            //c.shape = Shapes.TREEMAPBLOCK;
+            c.data = o;
+            c.data['name'] = o[name];
+            c.props[TREENODEDIRTY] = false;
+            return c;
           }
         }
       }
@@ -337,6 +348,7 @@ package org.juicekit.util.data {
       c.shape = Shapes.TREEMAPBLOCK;
       c.data = o;
       c.data['name'] = o[name];
+      c.props[TREENODEDIRTY] = false;
       if (levels.length > 0) {
         return generateTreeMapBranch(tree, c, levels.slice(), o);
       }
@@ -400,16 +412,29 @@ package org.juicekit.util.data {
     public static function treeMap(dataArray:Array, 
                                    levels:Array,
                                    metrics:Array,
-                                   rowFilter:Function=null):Tree {
+                                   rowFilter:Function=null,
+                                   matchTree:Tree=null):Tree {
       var c:NodeSprite;
       var i:int;
       var k:String;
       var o:Object;
-      var tree:Tree = new Tree();
-      var rootNode:NodeSprite = tree.addRoot();
-      // All TreeMap nodes must have Shapes.TREEMAPBLOCK
-      rootNode.shape = Shapes.TREEMAPBLOCK;
-      rootNode.data['name'] = 'All';
+      var tree:Tree;
+      //If matchTree contains a tree, merge the new data into that tree instead of creating a new tree
+      if (matchTree) {
+         tree = matchTree;
+         var rootNode:NodeSprite = tree.root;
+         tree.nodes.visit(function(n:DataSprite) {
+           n.props[TREENODEDIRTY] = true;
+         });
+         rootNode.props[TREENODEDIRTY] = false;
+      }
+      else {
+        tree = new Tree();
+        var rootNode:NodeSprite = tree.addRoot();
+        // All TreeMap nodes must have Shapes.TREEMAPBLOCK
+        rootNode.shape = Shapes.TREEMAPBLOCK;
+        rootNode.data['name'] = 'All';
+      }
       
       var _metrics:Array = [];
       for each (var v:* in metrics) {
@@ -431,9 +456,11 @@ package org.juicekit.util.data {
       var rootquery:Query = new Query(metrics, rowFilter, null, ["'1'"]);
       var result:Object = rootquery.eval(dataArray);
       if (result && result.length>0) {
-        for (k in result[0]) {
-          rootNode.data[k] = result[0][k]
-        }        
+//        for (k in result[0]) {
+//          rootNode.data[k] = result[0][k]
+//        }        
+          rootNode.data = result[0];
+          rootNode.data['name'] = 'All';
       } 
 
       // Perform a discrete summarization for each level of the tree.
@@ -453,6 +480,15 @@ package org.juicekit.util.data {
         for each (o in resultArray) {
             generateTreeMapBranch(tree, rootNode, levels.slice(0,i+1), o);
         }
+      }
+      
+      if (matchTree) {
+         tree.nodes.visit(function(n:DataSprite) {
+           if (n.props[TREENODEDIRTY] != null && n.props[TREENODEDIRTY])
+              tree.removeNode(n as NodeSprite);
+         },
+         null,
+         true);
       }
       return tree;
     }
