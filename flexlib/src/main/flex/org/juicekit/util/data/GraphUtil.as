@@ -324,6 +324,7 @@ package org.juicekit.util.data {
                                                  levels:Array,
                                                  o:Object):NodeSprite {
       var name:String = levels.shift();
+      var c:NodeSprite;
       
       for (var i:int = 0; i < n.childDegree; i++) {      	
         if (n.getChildNode(i).data[name] == o[name]) {
@@ -333,7 +334,7 @@ package org.juicekit.util.data {
           else {
             //If the node already exists, update its data.
             //This functionality is mostly for use with the matchTree parameter.
-            var c:NodeSprite = n.getChildNode(i);
+            c = n.getChildNode(i);
             //c.shape = Shapes.TREEMAPBLOCK;
             c.data = o;
             c.data['name'] = o[name];
@@ -343,7 +344,7 @@ package org.juicekit.util.data {
         }
       }
       // If we did not find anything, create a node
-      var c:NodeSprite = tree.addChild(n);
+      c = tree.addChild(n);
       // TreeMap requires the shape attribute of nodes be TREEMAPBLOCK
       c.shape = Shapes.TREEMAPBLOCK;
       c.data = o;
@@ -419,18 +420,19 @@ package org.juicekit.util.data {
       var k:String;
       var o:Object;
       var tree:Tree;
+      var rootNode:NodeSprite;
       //If matchTree contains a tree, merge the new data into that tree instead of creating a new tree
       if (matchTree) {
          tree = matchTree;
-         var rootNode:NodeSprite = tree.root;
-         tree.nodes.visit(function(n:DataSprite) {
+         rootNode = tree.root;
+         tree.nodes.visit(function(n:DataSprite):void {
            n.props[TREENODEDIRTY] = true;
          });
          rootNode.props[TREENODEDIRTY] = false;
       }
       else {
         tree = new Tree();
-        var rootNode:NodeSprite = tree.addRoot();
+        rootNode = tree.addRoot();
         // All TreeMap nodes must have Shapes.TREEMAPBLOCK
         rootNode.shape = Shapes.TREEMAPBLOCK;
         rootNode.data['name'] = 'All';
@@ -483,7 +485,7 @@ package org.juicekit.util.data {
       }
       
       if (matchTree) {
-         tree.nodes.visit(function(n:DataSprite) {
+         tree.nodes.visit(function(n:DataSprite):void {
            if (n.props[TREENODEDIRTY] != null && n.props[TREENODEDIRTY])
               tree.removeNode(n as NodeSprite);
          },

@@ -192,9 +192,6 @@ package org.juicekit.visual.controls {
      */
     public function TreeMapControl() {
       super();
-//      this.addEventListener(TransitionEvent.END, function(e:TransitionEvent):void {
-//      	if (vis != null) vis.update();
-//      });
     }
 
 
@@ -406,7 +403,7 @@ package org.juicekit.visual.controls {
           else if (_labelDepthUpdated) {
             _labelDepthUpdated = false;
             lfr = labels.labelFormatter as PLabelFormatter;
-            lfr.minLabelDepth = _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0);  //_tree.minLabelDepth = _tree.maxLabelDepth = _tree.dataRoot.depth + 1;
+            lfr.minLabelDepth = _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0);
             lfr.maxLabelDepth = _maxLabelDepth + (dataRoot != null ? dataRoot.depth : 0);
           }
           labels.colorStrategy = getStyle('labelColorStrategy');
@@ -562,11 +559,13 @@ package org.juicekit.visual.controls {
     override public function set data(value:Object):void {
       value = value is Tree ? value : null;
       newDataLoaded = value !== this.data;
+//      newDataLoaded = true;
+//      styleNodes();
       if (newDataLoaded) {
         // if data has already been set and the developer has not
         // requested a _freezeColor state
         if (vis.data != null && _freezeColorRequest == null) {
-          _doFreezeColors(freezeColorsOnDataChange);      
+          _doFreezeColors(freezeColorsOnDataChange);
         }
         vis.data = value as Tree;
         super.data = value;
