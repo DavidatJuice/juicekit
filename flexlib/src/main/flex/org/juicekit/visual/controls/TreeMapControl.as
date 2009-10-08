@@ -887,7 +887,7 @@ package org.juicekit.visual.controls {
     /**
      * Stores the minLabelDepth property.
      */
-    private var _minLabelDepth:int = -1;
+    private var _minLabelDepth:int = 1;
 
 
     /**
@@ -917,7 +917,7 @@ package org.juicekit.visual.controls {
     /**
      * Stores the maxLabelDepth property.
      */
-    private var _maxLabelDepth:int = -1;
+    private var _maxLabelDepth:int = 1;
 
 
     /**
