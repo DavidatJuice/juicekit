@@ -61,13 +61,13 @@ package org.juicekit.visual.controls {
 
 
   /**
-   * Possible labelColorStrategy values are: <code>blackwhite</code> adaptively choose black or 
-   * white depending on the background color, <code>glow</code> apply a white glow around 
+   * Possible labelColorStrategy values are: <code>blackwhite</code> adaptively choose black or
+   * white depending on the background color, <code>glow</code> apply a white glow around
    * letters or <code>none</code> don't apply any effect.
-   * 
+   *
    * Deprecation warning: This default will be changed to <code>blackwhite</code> in
-   * JuiceKit 2.0. 
-   * 
+   * JuiceKit 2.0.
+   *
    * @default "glow"
    */
   [Style(name="labelColorStrategy", type="String", enumeration="blackwhite,glow,none", inherit="no")]
@@ -171,19 +171,9 @@ package org.juicekit.visual.controls {
 
 
     private static function classConstructor():void {
-      CSSUtil.setDefaultsFor("TreeMapControl",
-        { fontColor: 0x000000
-        , textPosition: "top"
-        , strokeAlphas: [1.0]
-        , strokeColors: [0x000000]
-        , strokeThicknesses: [0]
-        , encodedColorAlpha: 1.0
-        , minEncodedColor: 0xFF0000
-        , midEncodedColor: 0x000000
-        , maxEncodedColor: 0x00FF00
-        , labelColorStrategy: 'glow'
-        }
-      );
+      CSSUtil.setDefaultsFor("TreeMapControl", {fontColor: 0x000000, textPosition: "top", strokeAlphas: [1.0]
+          , strokeColors: [0x000000], strokeThicknesses: [0], encodedColorAlpha: 1.0, minEncodedColor: 0xFF0000
+          , midEncodedColor: 0x000000, maxEncodedColor: 0x00FF00, labelColorStrategy: 'glow'});
     }
 
 
@@ -192,9 +182,6 @@ package org.juicekit.visual.controls {
      */
     public function TreeMapControl() {
       super();
-//      this.addEventListener(TransitionEvent.END, function(e:TransitionEvent):void {
-//      	if (vis != null) vis.update();
-//      });
     }
 
 
@@ -202,15 +189,8 @@ package org.juicekit.visual.controls {
      * Is property name used for text styling?
      */
     private function isTextStyle(styleProp:String):Boolean {
-      const textStyleProps:Array = [ "fontColor"
-                                   , "fontFamily"
-                                   , "fontSize"
-                                   , "fontStyle"
-                                   , "fontWeight"
-                                   , "textAlign"
-                                   , "textPosition"
-                                   , "labelColorStrategy"
-                                   ];
+      const textStyleProps:Array = ["fontColor", "fontFamily", "fontSize", "fontStyle", "fontWeight", "textAlign"
+        , "textPosition", "labelColorStrategy"];
       return textStyleProps.indexOf(styleProp) !== -1;
     }
 
@@ -219,15 +199,8 @@ package org.juicekit.visual.controls {
      * Is property name used for visualization layout styling?
      */
     private function isLayoutStyle(styleProp:String):Boolean {
-      const paletteStyleProps:Array = [ "minEncodedColor"
-                                      , "midEncodedColor"
-                                      , "maxEncodedColor"
-                                      , "palette"
-                                      , "encodedColorAlpha"
-                                      , "strokeAlphas"
-                                      , "strokeColors"
-                                      , "strokeThicknesses"
-                                      ];
+      const paletteStyleProps:Array = ["minEncodedColor", "midEncodedColor", "maxEncodedColor", "palette"
+        , "encodedColorAlpha", "strokeAlphas", "strokeColors", "strokeThicknesses"];
 
       return paletteStyleProps.indexOf(styleProp) !== -1;
     }
@@ -244,6 +217,8 @@ package org.juicekit.visual.controls {
     private var _layoutStyleChanged:Boolean = false;
 
 
+
+
     /**
      * @private
      */
@@ -254,7 +229,8 @@ package org.juicekit.visual.controls {
       if (!allStyles) {
         if (isTextStyle(styleProp)) {
           _labelStyleChanged = true;
-        } else if (isLayoutStyle(styleProp)) {
+        }
+        else if (isLayoutStyle(styleProp)) {
           _layoutStyleChanged = true;
         }
         if (styleProp == 'palette') {
@@ -472,20 +448,20 @@ package org.juicekit.visual.controls {
      * Holds reference to flag indicating the data root was changed.
      */
     private var dataRootChanged:Boolean = false;
-    
-    
+
+
     /**
      * Holds the depth of the current data root. Used for to calculate
      * styling if styleFromDataRoot is true
      */
     private var rootDepth:int = 0;
-    
-    
+
+
     /**
-    * Are node line width and line color (strokeColors, strokeThickness, 
-    * strokeAlpha) styling based the depth from the data root
-    * or from the base of the tree.
-    */
+     * Are node line width and line color (strokeColors, strokeThickness,
+     * strokeAlpha) styling based the depth from the data root
+     * or from the base of the tree.
+     */
     public var styleFromDataRoot:Boolean = false;
 
 
@@ -504,11 +480,11 @@ package org.juicekit.visual.controls {
       if (vis && vis.tree) {
         rootDepth = nodeSprite.depth;
         const labels:Labels = vis.operators.getOperatorAt(OP_IX_LABEL) as Labels;
-        
+
         // if data has already been set and the developer has not
         // requested a _freezeColor state
         if (vis.data != null && _freezeColorRequest == null) {
-          _doFreezeColors(freezeColorsOnDataRootChange);      
+          _doFreezeColors(freezeColorsOnDataRootChange);
         }
 
         vis.tree.nodes.setProperty("visible", false);
@@ -562,11 +538,13 @@ package org.juicekit.visual.controls {
     override public function set data(value:Object):void {
       value = value is Tree ? value : null;
       newDataLoaded = value !== this.data;
+//      newDataLoaded = true;
+//      styleNodes();
       if (newDataLoaded) {
         // if data has already been set and the developer has not
         // requested a _freezeColor state
         if (vis.data != null && _freezeColorRequest == null) {
-          _doFreezeColors(freezeColorsOnDataChange);      
+          _doFreezeColors(freezeColorsOnDataChange);
         }
         vis.data = value as Tree;
         super.data = value;
@@ -647,23 +625,24 @@ package org.juicekit.visual.controls {
       const maxColor:uint = getStyle("maxEncodedColor") | alphaBits;
       if (getStyle("palette") == undefined) {
         return ColorPalette.diverging(minColor, midColor, maxColor);
-      } else {
+      }
+      else {
         return ColorPalette.getPaletteByName(getStyle("palette"));
       }
     }
 
-    
-    /** 
-    * Disable color scale updates, for instance when drilling
-    * through the treemap
-    */
+
+    /**
+     * Disable color scale updates, for instance when drilling
+     * through the treemap
+     */
     [Inspectable(type=Boolean)]
     public function set freezeColors(v:Boolean):void {
       _freezeColorRequest = v;
       _doFreezeColors(v);
     }
-    
-    
+
+
     public function get freezeColors():Boolean {
       const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
       return colorEncoder.scale.ignoreUpdates;
@@ -674,39 +653,40 @@ package org.juicekit.visual.controls {
       const colorEncoder:Encoder = vis.operators.getOperatorAt(OP_IX_COLOR) as Encoder;
       colorEncoder.scale.ignoreUpdates = v;
     }
-    
+
     /**
-    * Have the colors been frozen at the developers request?
-    * 
-    * @default null, the user has not specified a desired 
-    * freezeColors state
-    */
+     * Have the colors been frozen at the developers request?
+     *
+     * @default null, the user has not specified a desired
+     * freezeColors state
+     */
     private var _freezeColorRequest:Object = null;
-    
-    
+
+
     /**
-    * Freeze the color range when the data root changes. 
-    * 
-    * If true, colors will be frozen when the data root changes.
-    * 
-    * If false, colors will be unfrozen and the color scale
-    * will be recalculated when the data root changes.
-    * 
-    * @default true
-    */
+     * Freeze the color range when the data root changes.
+     *
+     * If true, colors will be frozen when the data root changes.
+     *
+     * If false, colors will be unfrozen and the color scale
+     * will be recalculated when the data root changes.
+     *
+     * @default true
+     */
     public var freezeColorsOnDataRootChange:Boolean = true;
 
     /**
-    * Recalculate the color range when the data changes. 
-    * 
-    * If true, colors will be frozen when the data changes.
-    * 
-    * If false, the color scale will be recalculated
-    * when the data changes.
-    * 
-    * @default false
-    */
+     * Recalculate the color range when the data changes.
+     *
+     * If true, colors will be frozen when the data changes.
+     *
+     * If false, the color scale will be recalculated
+     * when the data changes.
+     *
+     * @default false
+     */
     public var freezeColorsOnDataChange:Boolean = false;
+
 
     /**
      * Apply a scale to the color encoder.
@@ -1015,39 +995,41 @@ package org.juicekit.visual.controls {
       }
     }
 
+
     /**
-    * Extra operators to include in the visualization.
-    * 
-    * @param v an array of Flare Operator classes that will be
-    * added after the core operators needed to create the treemap.
-    * 
-    */
-    public function set extraOperators(v:Array):void {        
+     * Extra operators to include in the visualization.
+     *
+     * @param v an array of Flare Operator classes that will be
+     * added after the core operators needed to create the treemap.
+     *
+     */
+    public function set extraOperators(v:Array):void {
       _extraOperators = v;
       createExtraOperators();
       _extraOperatorsChanged = true;
       invalidateProperties();
     }
-    
+
+
     /**
-    * @private
-    */
+     * @private
+     */
     public function get extraOperators():Array {
       return _extraOperators;
     }
-    
+
     /**
-    * Stores the extra operators
-    */
+     * Stores the extra operators
+     */
     private var _extraOperators:Array = [];
-    
+
     /**
-    * Flag that indicates whether the extra operators have
-    * been changed
-    */
+     * Flag that indicates whether the extra operators have
+     * been changed
+     */
     private var _extraOperatorsChanged:Boolean = false;
-    
-    
+
+
 
     /**
      * Return a ARGB color value for a given depth.
@@ -1058,23 +1040,27 @@ package org.juicekit.visual.controls {
       return rgbColor | alphaBits;
     }
 
+
     /**
-    * An array of Flash filters to apply to each node.
-    */
+     * An array of Flash filters to apply to each node.
+     */
     public function set nodeFlashFilters(v:Array):void {
       _nodeFlashFilters = v;
       _nodeStyleUpdated = true;
-      invalidateProperties(); 
+      invalidateProperties();
     }
+
+
     public function get nodeFlashFilters():Array {
       return _nodeFlashFilters;
     }
-    
+
     /**
-    * Stores the node flash filters
-    */
+     * Stores the node flash filters
+     */
     private var _nodeFlashFilters:Array = [];
     private var _nodeStyleUpdated:Boolean = false;
+
 
     /**
      * Apply node stylings to each NodeSprite.
@@ -1091,10 +1077,9 @@ package org.juicekit.visual.controls {
       const lastIxLineWidths:uint = lineWidths.length - 1;
 
       var adjustedDepth:int = 0;
-      vis.tree.nodes.visit(
-        function(n:NodeSprite):void {
+      vis.tree.nodes.visit(function(n:NodeSprite):void {
           if (styleFromDataRoot) {
-            adjustedDepth = Math.max(0,n.depth-rootDepth); 
+            adjustedDepth = Math.max(0, n.depth - rootDepth);
           } else {
             adjustedDepth = n.depth;
           }
@@ -1102,12 +1087,10 @@ package org.juicekit.visual.controls {
           // Hide zero-width lines.
           if (n.lineWidth === 0) {
             n.lineAlpha = 0;
-          }
-          else {
+          } else {
             n.lineColor = computeARGB(colors, alphas, adjustedDepth);
-          }          
-        }
-        );
+          }
+        });
     }
 
 
@@ -1139,7 +1122,8 @@ package org.juicekit.visual.controls {
         if (ns.props.hasOwnProperty(FILTERS_PROP)) {
           ns.filters = ns.props[FILTERS_PROP];
           delete ns.props[FILTERS_PROP];
-        } else if (ns.filters && ns.filters.length > 0) {
+        }
+        else if (ns.filters && ns.filters.length > 0) {
           ns.filters = [];
         }
       }
@@ -1153,12 +1137,13 @@ package org.juicekit.visual.controls {
       super.onMouseOver(event);
 
       const ns:NodeSprite = event.target as NodeSprite;
-      if (ns !== null && ns.childDegree==0 && highlightRollOver) {
+      if (ns !== null && ns.childDegree == 0 && highlightRollOver) {
         if (ns.filters && ns.filters.length > 0) {
           ns.props[FILTERS_PROP] = ns.filters;
           ns.filters.push(brightnessFilter);
           ns.filters = ns.filters;
-        } else {
+        }
+        else {
           ns.filters = [brightnessFilter];
         }
       }
@@ -1224,12 +1209,7 @@ class PLabelFormatter implements ILabelFormatter {
     const textAlign:String = component.getStyle("textAlign");
     const textPosition:String = component.getStyle("textPosition");
 
-    fmt = new LabelFormat(fontFamily
-      , fontSize
-      , fontColor
-      , fontWeight === "bold"
-      , fontStyle === "italic"
-      );
+    fmt = new LabelFormat(fontFamily, fontSize, fontColor, fontWeight === "bold", fontStyle === "italic");
     switch (textAlign) {
       case "left":
         fmt.horizontalAnchor = LabelFormat.LEFT;
@@ -1257,8 +1237,7 @@ class PLabelFormatter implements ILabelFormatter {
 
   public function labelFormat(dataSprite:DataSprite):LabelFormat {
     const depth:int = (dataSprite as NodeSprite).depth;
-    if ((minLabelDepth === -1 || depth >= minLabelDepth)
-      && (maxLabelDepth === -1 || depth <= maxLabelDepth)) {
+    if ((minLabelDepth === -1 || depth >= minLabelDepth) && (maxLabelDepth === -1 || depth <= maxLabelDepth)) {
       return fmt;
     }
     return null;
