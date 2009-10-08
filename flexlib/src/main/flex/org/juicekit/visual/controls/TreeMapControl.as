@@ -434,18 +434,18 @@ package org.juicekit.visual.controls {
 
           updateTreemap = true;
         }
-        
+
         if (_extraOperatorsChanged) {
           _extraOperatorsChanged = false;
           updateTreemap = true;
         }
 
         if (this.data is Tree) {
+          styleNodes();
           if (newDataLoaded) {
             newDataLoaded = false;
 
             vis.data.edges.setProperty("visible", false);
-            styleNodes();
 
             updateTreemap = true;
           }
