@@ -281,7 +281,7 @@ package org.juicekit.visual.controls {
               emphasizer_default.add(d);
             }
           }
-          else if (d.data.name.indexOf(elem) != -1)
+          else if (((d as NodeSprite).depth > 0) && d.data.name.toLowerCase().indexOf(elem.toLowerCase()) != -1)
             emphasizer_default.add(d);
             
           //Add all nodes whose parent nodes are emphasized
@@ -488,8 +488,8 @@ package org.juicekit.visual.controls {
         labels.setLabelVisible(vis.tree.root, true);
         labels.ignoreRemovals = false;
         dataRootChanged = true;
-        if (styleFromDataRoot)
-          styleNodes();
+//        if (styleFromDataRoot)
+//          styleNodes();
         _leavesChanged = true;
         _labelDepthUpdated = true;
         invalidateProperties();

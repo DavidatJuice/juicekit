@@ -1,12 +1,11 @@
 package org.juicekit.flare.query {
   import flare.query.Query;
-  
+
   import flash.events.Event;
   import flash.utils.getTimer;
-  
+
   import mx.collections.ArrayCollection;
   import mx.events.CollectionEvent;
-  import mx.utils.NameUtil;
 
 
   /**
@@ -43,8 +42,6 @@ package org.juicekit.flare.query {
      * @default 'NA'
      */
     public var evalTime:String = 'NA';
-    
-    public var queryName:String = NameUtil.createUniqueName(this);
 
 
     /**
@@ -86,7 +83,6 @@ package org.juicekit.flare.query {
             var starttime:Number = getTimer();
             var r:Array = query.eval(dataProvider.source);
             evalTime = (getTimer() - starttime).toString() + 'ms';
-            trace(queryName + ' ' + evalTime + ' ' + r.length.toString() + ' results');
             // Clear the dirty flag before setting _result.source
             // since setting _result.source might cause more 
             // attempts to fetch result.  
@@ -134,6 +130,7 @@ package org.juicekit.flare.query {
       dispatchEvent(new Event(LIVE_QUERY_RECALC));
     }
 
+
     //----------------------------------
     // query
     //----------------------------------
@@ -164,16 +161,17 @@ package org.juicekit.flare.query {
     public function set filterFunctions(v:ArrayCollection):void {
       var fs:*;
       if (filterFunctions) {
+        _filterFunctions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
         for each (fs in filterFunctions) {
           fs.removeEventListener('filterChanged', acCollectionChange);
         }
       }
 
       _filterFunctions = v;
+      filterFunctions.addEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
       for each (fs in filterFunctions) {
         fs.addEventListener('filterChanged', acCollectionChange);
       }
-      
       acCollectionChange(new Event(LIVE_QUERY_RECALC));
     }
 
