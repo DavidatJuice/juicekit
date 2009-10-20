@@ -49,20 +49,8 @@ package org.juicekit.visual.controls {
 
 
   /**
-   * Determines the color palette to use
-   * Possible values are <code>"hot"</code>, <code>"cool"</code>,
-   * <code>"summer"</code>, <code>"winter"</code>, <code>"spring"</code>
-   * <code>"autumn"</code>, <code>"bone"</code>, <code>"copper"</code>
-   * or <code>"pink"</code>.
-   *
-   * @default "spectral"
-   */
-  [Style(name="palette", type="String", enumeration="hot,cool,summer,winter,spring,autumn,bone,copper,pink", inherit="yes")]
-
-
-  /**
-   * Possible labelColorStrategy values are: <code>blackwhite</code> adaptively choose black or
-   * white depending on the background color, <code>glow</code> apply a white glow around
+   * Possible labelColorStrategy values are: <code>blackwhite</code> adaptively choose black or 
+   * white depending on the background color, <code>glow</code> apply a white glow around 
    * letters or <code>none</code> don't apply any effect.
    *
    * Deprecation warning: This default will be changed to <code>blackwhite</code> in
@@ -199,8 +187,14 @@ package org.juicekit.visual.controls {
      * Is property name used for visualization layout styling?
      */
     private function isLayoutStyle(styleProp:String):Boolean {
-      const paletteStyleProps:Array = ["minEncodedColor", "midEncodedColor", "maxEncodedColor", "palette"
-        , "encodedColorAlpha", "strokeAlphas", "strokeColors", "strokeThicknesses"];
+      const paletteStyleProps:Array = [ "minEncodedColor"
+                                      , "midEncodedColor"
+                                      , "maxEncodedColor"
+                                      , "encodedColorAlpha"
+                                      , "strokeAlphas"
+                                      , "strokeColors"
+                                      , "strokeThicknesses"
+                                      ];
 
       return paletteStyleProps.indexOf(styleProp) !== -1;
     }
@@ -232,9 +226,6 @@ package org.juicekit.visual.controls {
         }
         else if (isLayoutStyle(styleProp)) {
           _layoutStyleChanged = true;
-        }
-        if (styleProp == 'palette') {
-          _colorEncodingUpdated = true;
         }
       }
       invalidateProperties();
@@ -623,19 +614,36 @@ package org.juicekit.visual.controls {
       const minColor:uint = getStyle("minEncodedColor") | alphaBits;
       const midColor:uint = getStyle("midEncodedColor") | alphaBits;
       const maxColor:uint = getStyle("maxEncodedColor") | alphaBits;
-      if (getStyle("palette") == undefined) {
+      if (rawColorPalette == null) {
         return ColorPalette.diverging(minColor, midColor, maxColor);
-      }
-      else {
-        return ColorPalette.getPaletteByName(getStyle("palette"));
+      } else {
+      	return ColorPalette.fromString(rawColorPalette);
       }
     }
 
-
     /**
-     * Disable color scale updates, for instance when drilling
-     * through the treemap
-     */
+    * The color palette set by the user. This is evaluated into a
+    * ColorPalette with ColorPalette.fromString()
+    * 
+    * @see org.juicekit.flare.util.palette.ColorPalette;
+    */
+    private var rawColorPalette:* = null;
+    
+    [Bindable]
+    public function set palette(v:*):void {
+    	rawColorPalette = v;
+      _colorEncodingUpdated=true;
+      invalidateProperties();
+    }
+    public function get palette():* {
+    	return rawColorPalette;
+    }
+
+    
+    /** 
+    * Disable color scale updates, for instance when drilling
+    * through the treemap
+    */
     [Inspectable(type=Boolean)]
     public function set freezeColors(v:Boolean):void {
       _freezeColorRequest = v;
