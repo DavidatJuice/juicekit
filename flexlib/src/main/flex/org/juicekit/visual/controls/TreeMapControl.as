@@ -629,7 +629,7 @@ package org.juicekit.visual.controls {
     */
     private var rawColorPalette:* = null;
     
-    [Bindable]
+
     public function set palette(v:*):void {
     	rawColorPalette = v;
       _colorEncodingUpdated=true;
