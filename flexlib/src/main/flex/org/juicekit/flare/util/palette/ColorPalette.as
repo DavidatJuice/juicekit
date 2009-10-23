@@ -158,6 +158,8 @@ package org.juicekit.flare.util.palette {
     * if the palette length is changed
     */
     public var paletteName:String = 'undefined';
+    
+    public var reversed:Boolean = false;
 
     public var _keyframes:Array;
 
@@ -172,6 +174,9 @@ package org.juicekit.flare.util.palette {
     }
     public function set length(v:uint):void {
       var p:org.juicekit.flare.util.palette.ColorPalette = getPaletteByName(paletteName, v);
+      if (this.reversed) {
+        p = p.reverse();
+      }
       values = p.values.slice();
       dispatchEvent(new Event(COLORS_CHANGED));
     }
@@ -1470,6 +1475,7 @@ package org.juicekit.flare.util.palette {
      * Reverse the order of colors in the Palette
      */
     public function reverse():org.juicekit.flare.util.palette.ColorPalette {
+      this.reversed = !this.reversed;
       this.values = this.values.reverse();
       dispatchEvent(new Event("colorsChanged"));
       return this;

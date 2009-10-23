@@ -29,6 +29,8 @@ package org.juicekit.util.data {
   import flare.vis.data.DataSprite;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
+  
+  import flash.utils.ByteArray;
 
   /**
    * Utilities for generating sample data and Graph structures
@@ -497,95 +499,96 @@ package org.juicekit.util.data {
 
 
     /**
-     * Generates a word tree structure from an array of objects.
+     * Generates a wordTree data structure by parsing <code>labelField</code>
+     * into words.
      *
-     * @param arr the source array
-     * @param rootword the word to use as the root of the tree
-     * @param reverse calculate the wordtree forwards or backwards
-     * @param addTerminator add "START" and "END" terminators at the end of phrases
-     * @param removeStartEnd remove terminators after generating trees if the terminator is
-     * the only child of a node
-     * @param coalesceNodes group nodes that contain only a single child
-     * @param delimiter what is the delimiter in the phrases, default is ' '
-     * @returns the generated tree
+     * @param dataProvider an Array of objects
+     * @param rootWord the base word to start with
+     * @param metrics an Array containing Flare Query select terms
+     * @param labelField the field containing the test string
+     * @param reverse generate the tree in reverse order, default is false
+     * @param joinWords join singleton words into strings, default is true
+     * @result a Flare Tree structure representing the sequence of tokenized words
+     *
+     * @see import flare.vis.data.Tree
      */
-    public static function wordTree(arr:Array, rootword:String = "hotels", reverse:Boolean = true, addTerminator:Boolean = false, removeStartEnd:Boolean = true, coalesceNodes:Boolean = true, delimiter:String = ' '):Tree {
-      var tree:Tree = new Tree();
-      var n:NodeSprite = tree.addRoot();
-      var c:NodeSprite;
-      var newNode:NodeSprite;
-      var i:int;
-      var k:String;
-      // prevent the root name from displaying in ConcentrateTree
-      tree.root.name = '';
-      for each (var obj:Object in arr) {
-        var p:NodeSprite = tree.root;
-        newNode = new NodeSprite();
-
-        var contains_word:Boolean = false;
-        var words:Array = obj.label.split(delimiter);
-        if (reverse)
-          words = words.reverse();
-        if (addTerminator) {
-          if (reverse) {
-            words.push('START');
-          } else {
-            words.push('END');
-          }
-        }
-        for (i = 0; i < words.length; i++) {
-          if (words[i] == rootword) {
-            contains_word = true;
-            words = words.slice(i);
-            break;
-          }
-        }
-        
-        if (contains_word) {
-          newNode = new NodeSprite();
-          for (k in obj) {
-            newNode.data[k] = obj[k];
-            tree.root.data[k] = obj[k];
-          }
-
-          aggr(tree.root, newNode)
-          for each (var word:String in words.slice(1)) {
-            var found:Boolean = false;
-            for (i = 0; i < p.childDegree; i++) {
-              c = p.getChildNode(i);
-              if (c.data.label == word) {
-                c = aggr(c, newNode);
-                p = c;
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              c = tree.addChild(p);
-              for (k in obj) {
-                c.data[k] = obj[k];
-              }
-              c.data.label = word;
-              c.name = word;
-              p = c;
-            }
-            if (!p.data.hasOwnProperty('labels')) {
-              p.data['labels'] = [];
-            }
-            p.data['labels'].push(obj.label);
-          }
-        }
+    public static function wordTree(dataProvider:Array, rootWord:String, metrics:Array, labelField:String = 'label', reverse:Boolean = false, joinWords:Boolean = true):Tree {
+      // make a deep copy to prevent possible side effects from node deletion
+      // http://help.adobe.com/en_US/ActionScript/3.0_ProgrammingAS3/WS5b3ccc516d4fbf351e63e3d118a9b90204-7ee7.html
+      function cloneObj(source:Object):* {
+        var myBA:ByteArray = new ByteArray();
+        myBA.writeObject(source);
+        myBA.position = 0;
+        return (myBA.readObject());
       }
 
-      if (removeStartEnd) {
-        tree.root.visitTreeDepthFirst(function(n:NodeSprite):Boolean {
-            if (n.parentNode != null && (n.data.label == 'START' || n.data.label == 'END')) {
-              var p:NodeSprite = n.parentNode;
+      // http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/String.html
+      function trim(s:String, char:String=' '):String {
+        while (s.charAt(0) == char) {
+          s = s.substr(1);
+        }
+        while (s.charAt(s.length - 1) == char) {
+          s = s.substring(0, s.length - 1);
+        }
+        return s;
+      }
 
-              if (p != null && p.childDegree == 1) {
-                tree.remove(n);
-                return false;
-              }
+      var tree:Tree = new Tree;
+      var o:Object;
+      var newData:Array = cloneObj(dataProvider);
+
+      // limit to strings containing the rootword
+      newData = newData.filter(function(item:*, index:int, array:Array):Boolean {
+          if (item[labelField] is Array) {
+            item[labelField] = (item[labelField] as Array).join(' ');
+          }
+          return (item[labelField] as String).split(' ').indexOf(rootWord) != -1;
+        });
+
+      // break the labelfield into an array, reverse if necessary
+      newData = newData.map(function callback(item:*, index:int, array:Array):Object {
+          var arr:Array = (item[labelField] as String).split(' ');
+          if (reverse)
+            arr.reverse();
+          arr = arr.splice(arr.indexOf(rootWord));
+          item[labelField] = arr;
+          return item;
+        });
+
+      // break the labelfield into an array, reverse if necessary
+      var maxLen:int = 0;
+      for each (o in newData) {
+        var len:int = (o[labelField] as Array).length;
+        maxLen = Math.max(maxLen, len);
+      }
+
+      // calculate level fields
+      var levels:Array = [];
+      var i:int;
+      var levelPrefix:String = '__level';
+      for (i = 0; i < maxLen; i++) {
+        levels.push(levelPrefix + i.toString());
+      }
+      newData = newData.map(function callback(item:*, index:int, array:Array):Object {
+          var arr:Array = item[labelField];
+          var len:int = arr.length;
+          for (var i:int = 0; i < maxLen; i++) {
+            if (i > len - 1) {
+              item[levelPrefix + i.toString()] = '';
+            } else {
+              item[levelPrefix + i.toString()] = arr[i];
+            }
+          }
+          return item;
+        });
+
+      // generate the tree using the treemap algorithm
+      tree = treeMap(newData, levels.splice(1), metrics);
+
+      if (true) {
+        tree.root.visitTreeDepthFirst(function(n:NodeSprite):Boolean {
+            if (n.childDegree == 0 && n.data.name == '') {
+              tree.removeNode(n);
             }
             return false;
           });
@@ -602,21 +605,28 @@ package org.juicekit.util.data {
       //  A -----
       //         \-C D E
       //
-      if (coalesceNodes) {
+      if (joinWords) {
         tree.root.visitTreeDepthFirst(function(n:NodeSprite):Boolean {
-            if (n.parentNode != null && n.data.label != 'START' && n.data.label != 'END') {
-              var p:NodeSprite = n.parentNode;
-
-              if (p != null && p.childDegree == 1) {
-                if (reverse) {p.name = n.name + ' ' + p.name;}
-                else {p.name = p.name + ' ' + n.name;}
-                tree.remove(n);
-                return false;
+            if (n.depth == 0) return false;
+          
+            if (n.childDegree == 1) {
+              var c:NodeSprite = n.getChildNode(0);
+              if (c.childDegree == 0) {
+                n.data.name = reverse ? c.data.name + ' ' + n.data.name : n.data.name + ' ' + c.data.name;
+                n.data.name = trim(n.data.name);
+                tree.removeNode(c);
               }
             }
+
             return false;
           });
       }
+
+      tree.root.visitTreeDepthFirst(function(n:NodeSprite):Boolean {
+          n.name = n.data.name;
+          n.data['label'] = n.data.name;
+          return false;
+        });
 
       return tree;
     }

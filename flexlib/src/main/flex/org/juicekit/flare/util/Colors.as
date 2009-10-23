@@ -22,6 +22,8 @@
 
 
 package org.juicekit.flare.util {
+  import flare.util.Strings;
+  
   import mx.styles.CSSStyleDeclaration;
   import mx.styles.StyleManager;
 
@@ -909,6 +911,14 @@ package org.juicekit.flare.util {
       } catch (errorObj:Error) {
       }
       return NaN;
+    }
+    
+    
+    /**
+    * Convert a color to a hexadecimal representation.
+    */
+    public static function toRRGGBB(c:uint):String {
+      return Strings.format('{0:x6}', c);
     }
 
 
