@@ -5,3 +5,12 @@
 bin-debug/
 bin-release/
 target/
+flexlib/libs/
+*.releaseBackup
+# temporary ignores
+demos/
+docs/
+# temporary intellij ignores
+*.iml
+*.ipr
+*.iws
