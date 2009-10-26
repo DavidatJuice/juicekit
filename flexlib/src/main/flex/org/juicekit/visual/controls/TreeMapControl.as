@@ -629,11 +629,13 @@ package org.juicekit.visual.controls {
     */
     private var rawColorPalette:* = null;
     
-    [Bindable]
+//    [Bindable]
     public function set palette(v:*):void {
+       if (v !== this.palette) {
     	   rawColorPalette = v;
          _colorEncodingUpdated=true;
          invalidateProperties();
+       }
     }
     public function get palette():* {
     	return rawColorPalette;
