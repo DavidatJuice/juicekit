@@ -143,7 +143,7 @@ package org.juicekit.visual.controls {
      * This is the event handler defined by the changeWatcher.
      * It is executed whenever the data for treemap is updated.
      */
-    private function onTreeDataChanged(event:FlexEvent):void {
+    public function onTreeDataChanged(event:FlexEvent):void {
       if (tree.data == null) {
         resetView();
       }
