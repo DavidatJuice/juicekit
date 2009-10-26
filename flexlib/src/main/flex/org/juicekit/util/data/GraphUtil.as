@@ -26,9 +26,10 @@ package org.juicekit.util.data {
   import flare.query.methods.*;
   import flare.util.Shapes;
   import flare.vis.data.Data;
+  import flare.vis.data.DataSprite;
   import flare.vis.data.NodeSprite;
   import flare.vis.data.Tree;
-  
+
   import flash.utils.ByteArray;
 
   /**
@@ -39,6 +40,13 @@ package org.juicekit.util.data {
    */
 
   public class GraphUtil {
+
+    /**
+    * A temporary attribute on treemap nodes to merge a new
+    * tree with an existing tree
+    */
+    private static const TREENODE_NOT_VISITED:String = "__treeNodeNotVisited";
+
     public static function printTree(n:NodeSprite, d:int):void {
       trace(n.name + "\t" + n.u + "\t" + n.v + "\t" + n.w + "\t" + n.h);
       for (var i:uint = 0; i < n.childDegree; ++i) {
@@ -206,8 +214,7 @@ package org.juicekit.util.data {
     }
 
 
-    private static function balancedHelper(t:Tree, n:NodeSprite,
-      breadth:uint, depth:uint):void {
+    private static function balancedHelper(t:Tree, n:NodeSprite, breadth:uint, depth:uint):void {
       for (var i:uint = 0; i < breadth; ++i) {
         var c:NodeSprite = t.addChild(n);
         c.data.label = i + "," + c.depth;
@@ -277,8 +284,7 @@ package org.juicekit.util.data {
     }
 
 
-    private static function deepHelper(t:Tree, n:NodeSprite,
-      breadth:int, depth:int, left:Boolean):void {
+    private static function deepHelper(t:Tree, n:NodeSprite, breadth:int, depth:int, left:Boolean):void {
       var c:NodeSprite = t.addChild(n);
       if (left && depth > 0)
         deepHelper(t, c, breadth, depth - 1, left);
@@ -294,9 +300,9 @@ package org.juicekit.util.data {
 
     private static function aggr(n1:NodeSprite, n2:NodeSprite):NodeSprite {
       // combine values of two nodesprites
-      var lookup:Object = {
-          'value': function(v1:Object, v2:Object):Object {return (v1 as Number) + (v2 as Number)}
-        }
+      var lookup:Object = {'value': function(v1:Object, v2:Object):Object {
+          return (v1 as Number) + (v2 as Number)
+        }}
       for (var fld:String in n1.data) {
         var v1:Object = n1.data[fld];
         var v2:Object = n2.data[fld];
@@ -309,120 +315,136 @@ package org.juicekit.util.data {
 
 
     /**
-     * Recursively generate a tree branch for an existing tree
+     * @private 
      * 
+     * Recursively generate a tree branch for an existing tree
+     *
      * @param tree is the existing tree
      * @param n is the node where to start the tree (usually the root node)
      * @param levels is a list of dimensions to create in the tree
      * @param o is a data row object
      * @return the last generated node
      */
-    private static function generateTreeMapBranch(tree:Tree, 
-                                                 n:NodeSprite, 
-                                                 levels:Array,
-                                                 o:Object):NodeSprite {
+    private static function generateTreeMapBranch(tree:Tree, n:NodeSprite, levels:Array, o:Object):NodeSprite {
       var name:String = levels.shift();
-      
-      for (var i:int = 0; i < n.childDegree; i++) {      	
+      var c:NodeSprite;
+
+      for (var i:int = 0; i < n.childDegree; i++) {
         if (n.getChildNode(i).data[name] == o[name]) {
           if (levels.length > 0) {
             return generateTreeMapBranch(tree, n.getChildNode(i), levels.slice(), o);
-          }
-          else {
-            return n.getChildNode(i);
+          } else {
+            //If the node already exists, update its data.
+            //This functionality is mostly for use with the matchTree parameter.
+            c = n.getChildNode(i);
+            //c.shape = Shapes.TREEMAPBLOCK;
+            c.data = o;
+            c.data['name'] = o[name];
+            c.props[TREENODE_NOT_VISITED] = false;
+            return c;
           }
         }
       }
       // If we did not find anything, create a node
-      var c:NodeSprite = tree.addChild(n);
+      c = tree.addChild(n);
       // TreeMap requires the shape attribute of nodes be TREEMAPBLOCK
       c.shape = Shapes.TREEMAPBLOCK;
       c.data = o;
       c.data['name'] = o[name];
+      c.props[TREENODE_NOT_VISITED] = false;
       if (levels.length > 0) {
         return generateTreeMapBranch(tree, c, levels.slice(), o);
-      }
-      else {
+      } else {
         return c;
       }
-    } 
-     
-     
+    }
+
+
     /**
-    * <p>Generates a treemap data structure given an array of data objects.</p>
-    * 
-    * <p>The tree will be generated with the levels specified.</p>
-    * 
-    * <p>Consider a case if dataArray is:</p>
-    * 
-    * <pre><code>
-    * 	[{state: 'California': year: '2009', people: 200, avg_income: 600},
-    *    {state: 'California': year: '2008', people: 200, avg_income: 400}, 
-    * 	 {state: 'Oregon': year: '2009', people: 400, avg_income: 200}]
-    * </code></pre>
-    * 
-    * <p><code>treeMap(dataArray, ['state', 'year'], ['people'])</code> will generate 
-    * (indentation indicates node tree):</p>
-    * 
-    * <pre><code>
-    * {'name': 'All', 'people': 800}
-    *     {'name': 'California', 'people': 400}
-    *         {'name': '2009', 'people': 200 }
-    *         {'name': '2008', 'people': 200 }
-    *     {'name': 'Oregon', 'people': 400 }
-    *         {'name': '2009', 'people': 400 }
-    * </code></pre>
-    * 
-    * <p>Metrics will sum by default.<p>
-    * 
-    * <p>You can perform different calculations on the metrics using flare query
-    * expressions.</p>
-    * 
-    * <pre><code>
-    * import flare.query.methods.*
-    * treeMap(dataArray, ['state', 'year'], 
-    *    ['people', 
-    *     {avginc: weightedavg('avg_income', 'people')]
-    * 
-    * {'name': 'All', 'people': 800, 'avginc': 350}
-    *     {'name': 'California', 'people': 300, 'avginc': 500}
-    *         {'name': '2009', 'people': 100, 'avginc': 600}
-    *         {'name': '2008', 'people': 200, 'avginc': 400}
-    *     {'name': 'Oregon', 'people': 400, 'avginc': 200}
-    *         {'name': '2009', 'people': 400, 'avginc': 200}
-    * </code></pre>
-    * 
-    * @param dataArray the source array containing objects
-    * @param fields an array of treemap levels to generate
-    * @param metrics the metrics to create, these can be strings or flare query expressions
-    * if strings, the value will be summed across child nodes
-    * @param rowFilter an optional filter function that takes a row and returns boolean
-    * @returns a Flare Tree structure suitable for assigning to TreeMapControl.data
-    */
-    public static function treeMap(dataArray:Array, 
-                                   levels:Array,
-                                   metrics:Array,
-                                   rowFilter:Function=null):Tree {
+     * <p>Generates a treemap data structure given an array of data objects.</p>
+     *
+     * <p>The tree will be generated with the levels specified.</p>
+     *
+     * <p>Consider a case if dataArray is:</p>
+     *
+     * <pre><code>
+     * 	[{state: 'California': year: '2009', people: 200, avg_income: 600},
+     *    {state: 'California': year: '2008', people: 200, avg_income: 400},
+     * 	 {state: 'Oregon': year: '2009', people: 400, avg_income: 200}]
+     * </code></pre>
+     *
+     * <p><code>treeMap(dataArray, ['state', 'year'], ['people'])</code> will generate
+     * (indentation indicates node tree):</p>
+     *
+     * <pre><code>
+     * {'name': 'All', 'people': 800}
+     *     {'name': 'California', 'people': 400}
+     *         {'name': '2009', 'people': 200 }
+     *         {'name': '2008', 'people': 200 }
+     *     {'name': 'Oregon', 'people': 400 }
+     *         {'name': '2009', 'people': 400 }
+     * </code></pre>
+     *
+     * <p>Metrics will sum by default.<p>
+     *
+     * <p>You can perform different calculations on the metrics using flare query
+     * expressions.</p>
+     *
+     * <pre><code>
+     * import flare.query.methods.*
+     * treeMap(dataArray, ['state', 'year'],
+     *    ['people',
+     *     {avginc: weightedavg('avg_income', 'people')]
+     *
+     * {'name': 'All', 'people': 800, 'avginc': 350}
+     *     {'name': 'California', 'people': 300, 'avginc': 500}
+     *         {'name': '2009', 'people': 100, 'avginc': 600}
+     *         {'name': '2008', 'people': 200, 'avginc': 400}
+     *     {'name': 'Oregon', 'people': 400, 'avginc': 200}
+     *         {'name': '2009', 'people': 400, 'avginc': 200}
+     * </code></pre>
+     *
+     * @param dataArray the source array containing objects
+     * @param fields an array of treemap levels to generate
+     * @param metrics the metrics to create, these can be strings or flare query expressions
+     * if strings, the value will be summed across child nodes
+     * @param rowFilter an optional filter function that takes a row and returns boolean
+     * @returns a Flare Tree structure suitable for assigning to TreeMapControl.data
+     */
+    public static function treeMap(dataArray:Array, levels:Array, metrics:Array, rowFilter:Function = null, matchTree:Tree = null):Tree {
       var c:NodeSprite;
       var i:int;
       var k:String;
       var o:Object;
-      var tree:Tree = new Tree();
-      var rootNode:NodeSprite = tree.addRoot();
-      // All TreeMap nodes must have Shapes.TREEMAPBLOCK
-      rootNode.shape = Shapes.TREEMAPBLOCK;
-      rootNode.data['name'] = 'All';
+      var tree:Tree;
+      var rootNode:NodeSprite;
       
+      // If matchTree contains a tree, merge the new data into that 
+      // tree instead of creating a new tree.
+      if (matchTree) {
+        tree = matchTree;
+        rootNode = tree.root;
+        tree.nodes.visit(function(n:DataSprite):void {
+            n.props[TREENODE_NOT_VISITED] = true;
+          });
+        rootNode.props[TREENODE_NOT_VISITED] = false;
+      } else {
+        tree = new Tree();
+        rootNode = tree.addRoot();
+        // All TreeMap nodes must have Shapes.TREEMAPBLOCK
+        rootNode.shape = Shapes.TREEMAPBLOCK;
+        rootNode.data['name'] = 'All';
+      }
+
       var _metrics:Array = [];
-      for each (var v:* in metrics) {
+      for each (var v:*in metrics) {
         // if an aggregate expression is not present
         // then sum the value
         if (v is String) {
           var d:Object = {};
           d[v] = sum(v);
           _metrics.push(d);
-        }
-        else {
+        } else {
           _metrics.push(v);
         }
       }
@@ -432,29 +454,37 @@ package org.juicekit.util.data {
       // Grouping by the Literal 1 groups everything
       var rootquery:Query = new Query(metrics, rowFilter, null, ["'1'"]);
       var result:Object = rootquery.eval(dataArray);
-      if (result && result.length>0) {
-        for (k in result[0]) {
-          rootNode.data[k] = result[0][k]
-        }        
-      } 
+      if (result && result.length > 0) {
+        rootNode.data = result[0];
+        rootNode.data['name'] = 'All';
+      }
 
       // Perform a discrete summarization for each level of the tree.
       // Summarize with the dimensions for the level of the tree and all
       // higher levels, and all the metrics.      
-      for (i=0; i<levels.length; i++) {
+      for (i = 0; i < levels.length; i++) {
         var query:Query;
-                
-        query = select.apply(null, levels.slice(0,i+1).concat(metrics));
-        query = query.groupby.apply(null, levels.slice(0,i+1));
+
+        query = select.apply(null, levels.slice(0, i + 1).concat(metrics));
+        query = query.groupby.apply(null, levels.slice(0, i + 1));
         if (rowFilter != null) {
-        	query = query.where(rowFilter)
+          query = query.where(rowFilter)
         }
-        
+
         var resultArray:Array = query.eval(dataArray);
-        
+
         for each (o in resultArray) {
-            generateTreeMapBranch(tree, rootNode, levels.slice(0,i+1), o);
+          generateTreeMapBranch(tree, rootNode, levels.slice(0, i + 1), o);
         }
+      }
+
+      // delete the nodes from mergeTree that were not visited
+      // during the creation of the new tree
+      if (matchTree) {
+        tree.nodes.visit(function(n:DataSprite):void {
+            if (n.props[TREENODE_NOT_VISITED] != null && n.props[TREENODE_NOT_VISITED])
+              tree.removeNode(n as NodeSprite);
+          }, null, true);
       }
       return tree;
     }
@@ -485,7 +515,7 @@ package org.juicekit.util.data {
       }
 
       // http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/String.html
-      function trim(s:String, char:String=' '):String {
+      function trim(s:String, char:String = ' '):String {
         while (s.charAt(0) == char) {
           s = s.substr(1);
         }
@@ -569,8 +599,9 @@ package org.juicekit.util.data {
       //
       if (joinWords) {
         tree.root.visitTreeDepthFirst(function(n:NodeSprite):Boolean {
-            if (n.depth == 0) return false;
-          
+            if (n.depth == 0)
+              return false;
+
             if (n.childDegree == 1) {
               var c:NodeSprite = n.getChildNode(0);
               if (c.childDegree == 0) {
