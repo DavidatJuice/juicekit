@@ -338,7 +338,9 @@ package org.juicekit.util.data {
             //This functionality is mostly for use with the matchTree parameter.
             c = n.getChildNode(i);
             //c.shape = Shapes.TREEMAPBLOCK;
-            c.data = o;
+            for (var r:String in o) {
+              c.data[r] = o[r];
+            }
             c.data['name'] = o[name];
             c.props[TREENODE_NOT_VISITED] = false;
             return c;
