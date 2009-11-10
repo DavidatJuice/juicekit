@@ -28,7 +28,7 @@ package org.juicekit.flare.vis.label {
   import flare.vis.data.DataSprite;
   import flare.vis.data.NodeSprite;
   import flare.vis.operator.Operator;
-
+  
   import flash.display.DisplayObject;
   import flash.display.DisplayObjectContainer;
   import flash.display.Sprite;
@@ -38,9 +38,9 @@ package org.juicekit.flare.vis.label {
   import flash.text.AntiAliasType;
   import flash.text.TextField;
   import flash.text.TextLineMetrics;
-
-  import org.juicekit.util.helper.CSSUtil;
+  
   import org.juicekit.flare.util.Colors;
+  import org.juicekit.util.helper.CSSUtil;
 
   /**
    * A LabelLayout places text labels using a DataSprite data property for
@@ -106,6 +106,16 @@ package org.juicekit.flare.vis.label {
     * @default 'glow'
     */
     public var colorStrategy:String = 'blackwhite';
+
+
+    /**
+    * Store the minimumWidth property.
+    * 
+    * The default is 20.  
+    * 
+    * @default 20
+    */
+    public var minimumWidth = 20;
 
 
     /**
@@ -185,18 +195,23 @@ package org.juicekit.flare.vis.label {
      * 
      * @param colorStrategy An optional color strategy to make the labels more
      * readable against the background.
+     * 
+     * @param minimumWidth Sprites must be at least <code>minimumWidth</code> for
+     * a label to be displayed.
      */
     public function Labels( source:String
                           , group:String = Data.NODES
                           , labelFormatter:ILabelFormatter = null
                           , truncateToFit:Boolean = false
                           , colorStrategy:String = 'glow'
+                          , minimumWidth:Number = 20
                           ) {
       this.source = source;
       this.group = group;
       this.labelFormatter = labelFormatter;
       this.truncateToFit = truncateToFit;
       this.colorStrategy = colorStrategy;
+      this.minimumWidth = minimumWidth;
 
       labelLayer = new Sprite();
       labelLayer.mouseEnabled = false;
@@ -320,11 +335,15 @@ package org.juicekit.flare.vis.label {
               label.verticalAnchor = LabelFormat.TOP;
             }
 
-            if (truncateToFit) {
-              fitText(label, labelText, spriteW);
-            }
-            else {
-              label.text = labelText;
+            if (spriteW >= minimumWidth) {
+              if (truncateToFit) {
+                fitText(label, labelText, spriteW);
+              }
+              else {
+                label.text = labelText;
+              }
+            } else {
+              label.text = '';
             }
 
             // Work-around for a transitioner only wrapping one
