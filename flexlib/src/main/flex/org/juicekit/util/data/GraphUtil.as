@@ -409,6 +409,7 @@ package org.juicekit.util.data {
      * @param metrics the metrics to create, these can be strings or flare query expressions
      * if strings, the value will be summed across child nodes
      * @param rowFilter an optional filter function that takes a row and returns boolean
+     * @param matchTree an optional tree to use as the base for matching
      * @returns a Flare Tree structure suitable for assigning to TreeMapControl.data
      */
     public static function treeMap(dataArray:Array, levels:Array, metrics:Array, rowFilter:Function = null, matchTree:Tree = null):Tree {

@@ -44,7 +44,7 @@ package org.juicekit.events {
     /**
      * The <code>JuiceKitEvent.DATA_ROOT_CHANGE</code> constant defines the
      * value of the <code>type</code> property of the event object for
-     * an <code>dataRootChange</code> event. The <code>dataRootChange</code>
+     * a <code>dataRootChange</code> event. The <code>dataRootChange</code>
      * event is primarily used for data binding.
      *
      *  <p>The properties of the event object have the following values:</p>
