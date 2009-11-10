@@ -91,10 +91,18 @@ package org.juicekit.flare.query {
             // since setting _result.source might cause more 
             // attempts to fetch result.  
             dirty = false;
-            _result.source = r;
+            if (_limit > 0) {
+              _result.source = r.slice(0, limit);              
+            } else {
+              _result.source = r;              
+            }
           } else {
             dirty = false;
-            _result.source = dataProvider.source.slice();
+            if (_limit > 0) {
+              _result.source = dataProvider.source.slice(0, limit);
+            } else {
+              _result.source = dataProvider.source.slice();
+            }
           }
         }
       }
@@ -150,6 +158,29 @@ package org.juicekit.flare.query {
     }
 
     private var _query:Query = null;
+
+
+    //----------------------------------
+    // limit
+    //----------------------------------
+
+    /**
+    * Restrict the number of results. Zero
+    * means return all results
+    * 
+    * @default 0
+    */
+    public function set limit(v:int):void {
+      _limit = v;
+      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+    }
+
+
+    public function get limit():int {
+      return _limit;
+    }
+
+    private var _limit:int = 0;
 
 
     //----------------------------------
