@@ -1,0 +1,50 @@
+<project name="Flex Ant Tasks Build Script" default="compile flex project">
+
+  <!-- load previously defined configuration properties file -->
+  <property file="build.properties"/>
+
+  <!-- points to our flexTasks.jar we copied to the libs folder to distribute with the project -->
+  <taskdef resource="flexTasks.tasks" classpath="${basedir}/libs/flexTasks.jar"/>
+
+  <!-- delete and recreate the DEPLOY dir -->
+  <target name="init">
+    <delete dir="${DEPLOY_DIR}"/>
+    <mkdir dir="${DEPLOY_DIR}"/>
+  </target>
+
+  <target name="createdocs">
+    <exec executable="${asdoc.dir}/asdoc" failonerror="true">
+      <arg line="-doc-sources 'src/flare/'"/>
+        <arg line="-doc-sources+='src/com/'"/>
+        <arg line="-doc-sources+='src/org/juicekit/effects/'"/>
+        <arg line="-doc-sources+='src/org/juicekit/flare/'"/>
+        <arg line="-doc-sources+='src/org/juicekit/util/'"/>
+        <arg line="-doc-sources+='src/org/juicekit/events/'"/>
+        <arg line="-doc-sources+='src/org/juicekit/visual/'"/>
+        <arg line="-exclude-classes org.juicekit.visual.styles.metadata.PaddingStyles org.juicekit.visual.styles.metadata.TextStyles"/>
+      <arg line="-library-path+=libs/us-map-1.0.swc"/>
+      <arg line="-library-path+=libs/dma-map-1.0.swc"/>
+      <arg line="-main-title 'JuiceKit, a Flash and Flex development framework'"/>
+      <arg line="-window-title 'JuiceKit'"/>
+      <arg line="-output 'docsflare'"/>
+    </exec>
+  </target>
+
+
+  <!-- Build and output the Main.swf-->
+  <target name="compile flex project" depends="init,createdocs">
+    <exec command="'/Applications/Adobe Flex Builder 3 Plug-in/sdks/3.2.0/bin/mxmlc' -library-path+=${DEPLOY_DIR}/../libs/dma-map-1.0.swc -library-path+=${DEPLOY_DIR}/../libs/us-map-1.0.swc -optimize -output ${DEPLOY_DIR}/juicekit.swf ${SRC_DIR}">
+    </exec>
+  </target>
+
+  <target name="package juicekit" depends="compile flex project">
+    <copy todir="${DEPLOY_DIR}/docs">
+      <fileset dir="./docs"/>
+    </copy>
+    <zip zipfile="juicekit_${VERSION}.zip">
+      <fileset dir="${DEPLOY_DIR}"/>
+    </zip>
+  </target>
+
+
+</project>

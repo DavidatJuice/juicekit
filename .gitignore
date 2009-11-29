@@ -6,6 +6,8 @@ bin-debug/
 bin-release/
 target/
 flexlib/libs/
+flexlib/docsflare/
+flexlib/docs/
 *.releaseBackup
 # temporary ignores
 demos/
