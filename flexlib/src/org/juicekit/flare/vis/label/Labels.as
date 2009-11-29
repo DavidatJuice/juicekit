@@ -115,7 +115,7 @@ package org.juicekit.flare.vis.label {
     * 
     * @default 20
     */
-    public var minimumWidth = 20;
+    public var minimumWidth:Number = 20;
 
 
     /**

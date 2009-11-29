@@ -2,12 +2,14 @@ package org.juicekit.flare.query {
   import flare.query.Query;
   
   import flash.events.Event;
+  import flash.events.EventDispatcher;
   import flash.utils.getTimer;
   
   import mx.collections.ArrayCollection;
   import mx.events.CollectionEvent;
   import mx.utils.NameUtil;
 
+  
 
   /**
    *
@@ -22,7 +24,7 @@ package org.juicekit.flare.query {
    *
    */
   [Bindable]
-  public dynamic class LiveQuery {
+  public dynamic class LiveQuery extends EventDispatcher {
     /**
      * The number of accesses of <code>result</code>
      * for performance and debugging purposes.
