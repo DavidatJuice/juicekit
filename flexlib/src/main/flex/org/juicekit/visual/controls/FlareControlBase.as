@@ -399,6 +399,9 @@ package org.juicekit.visual.controls {
       const paddingLeft:Number = getStyle("paddingLeft");
       const paddingTop:Number = getStyle("paddingTop");
       const r:Rectangle = new Rectangle();
+      // TODO: Padding values are getting doubled when visualizations render
+      // this adjusts for the doubling when drawing backgrounds, but we
+      // need to investigate the fundamental cause
       r.x = paddingLeft;
       r.y = paddingTop;
       r.width = w - (paddingLeft + getStyle("paddingRight"));
@@ -424,8 +427,9 @@ package org.juicekit.visual.controls {
 
       // Draw a background?
       if (hasBgColor) {
-        const r:Rectangle = calcPaddedBounds(unscaledWidth, unscaledHeight);
-
+        const r:Rectangle = vis.bounds;
+        //const r:Rectangle = calcPaddedBounds(unscaledWidth, unscaledHeight);
+        
         g.lineStyle();
         g.beginFill(backgroundColor);
         g.drawRect(r.x, r.y, r.width, r.height);
