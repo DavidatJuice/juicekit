@@ -1,4 +1,4 @@
-<project name="Flex Ant Tasks Build Script" default="compile flex project">
+<project name="Flex Ant Tasks Build Script" default="compile juicekit">
 
 	
   <!-- load previously defined configuration properties file -->
