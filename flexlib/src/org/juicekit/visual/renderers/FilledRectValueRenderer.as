@@ -83,7 +83,7 @@ package org.juicekit.visual.renderers {
    */
   [Style(name="rectCount", type="uint", inherit="no")]
 
-  include "../styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
 
   /**

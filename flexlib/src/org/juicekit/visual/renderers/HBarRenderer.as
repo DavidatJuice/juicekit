@@ -65,8 +65,8 @@ package org.juicekit.visual.renderers {
    */
   [Style(name="gapWidth", type="Number", format="Length", inherit="no")]
 
-  include "../styles/metadata/PaddingStyles.as";
-  include "../styles/metadata/TextStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/TextStyles.as";
 
 
   /**

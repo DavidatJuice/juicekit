@@ -66,7 +66,7 @@ package org.juicekit.visual.renderers {
    */
   [Style(name="indicatorHeight", type="Number", format="Length", inherit="no")]
 
-  include "../styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
 
   /**

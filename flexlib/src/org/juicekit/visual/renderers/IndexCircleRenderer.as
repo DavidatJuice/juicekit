@@ -37,7 +37,7 @@ package org.juicekit.visual.renderers {
    */
   [Style(name="color", type="uint", format="Color", inherit="yes")]
 
-  include "../styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
 
   /**

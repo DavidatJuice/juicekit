@@ -45,7 +45,7 @@ package org.juicekit.visual.controls {
   import org.juicekit.util.helper.CSSUtil;
 
 
-  include "../styles/metadata/TextStyles.as";
+  include "../../../../../shared/styles/metadata/TextStyles.as";
 
 
   /**

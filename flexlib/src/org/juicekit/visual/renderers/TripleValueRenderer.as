@@ -38,7 +38,7 @@ package org.juicekit.visual.renderers {
   [Style(name="labelWidth", type="Number", format="Length", inherit="no")]
   [Style(name="labelGap", type="Number", format="Length", inherit="no")]
 
-  include "../styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
   /*
    * Skin choices for how the custom renderer properties (bar, tick, and dot)

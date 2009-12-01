@@ -38,7 +38,7 @@ package org.juicekit.visual.controls {
   import org.juicekit.util.helper.CSSUtil;
   import org.juicekit.visual.flash.controls.USMap;
 
-  include "../styles/metadata/TextStyles.as";
+  include "../../../../../shared/styles/metadata/TextStyles.as";
 
 
   /**

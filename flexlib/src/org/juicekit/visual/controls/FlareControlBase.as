@@ -95,7 +95,7 @@ package org.juicekit.visual.controls {
    */
   [Style(name="backgroundColor", type="uint", format="Color", inherit="no")]
 
-  include "../styles/metadata/PaddingStyles.as";
+  include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
 
   /**
