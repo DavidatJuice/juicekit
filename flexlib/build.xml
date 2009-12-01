@@ -1,49 +1,153 @@
 <project name="Flex Ant Tasks Build Script" default="compile flex project">
 
+	
   <!-- load previously defined configuration properties file -->
   <property file="build.properties"/>
 
   <!-- points to our flexTasks.jar we copied to the libs folder to distribute with the project -->
   <taskdef resource="flexTasks.tasks" classpath="${basedir}/libs/flexTasks.jar"/>
+	
+	<!-- 
+	http://tlrobinson.net/blog/2008/11/13/ant-tasks-for-git/
+	
+	<git command = "clone">
+	    <args>
+	        <arg value = "git://github.com/280north/ojunit.git" />
+	        <arg value = "ojunit" />
+	    </args>
+	</git>
+	
+	And pull:
+	
+	<git command = "pull" dir = "repository_path" />
+	
+	-->
+	<macrodef name = "git">
+	    <attribute name = "command" />
+	    <attribute name = "dir" default = "" />
+	    <element name = "args" optional = "true" />
+	    <sequential>
+	        <echo message = "git @{command}" />
+	        <exec executable = "git" dir = "@{dir}">
+	            <arg value = "@{command}" />
+	            <args/>
+	        </exec>
+	    </sequential>
+	</macrodef>
 
+	<macrodef name = "git-clone-pull">
+	    <attribute name = "repository" />
+	    <attribute name = "dest" />
+	    <sequential>
+	        <git command = "clone">
+	            <args>
+	                <arg value = "@{repository}" />
+	                <arg value = "@{dest}" />
+	            </args>
+	        </git>
+	        <git command = "pull" dir = "@{dest}" />
+	    </sequential>
+	</macrodef>
+
+	
   <!-- delete and recreate the DEPLOY dir -->
   <target name="init">
     <delete dir="${DEPLOY_DIR}"/>
+    <delete file="src/.DS_Store"/>
     <mkdir dir="${DEPLOY_DIR}"/>
   </target>
 
+
+  <!-- create the asdocs -->
   <target name="createdocs">
     <exec executable="${asdoc.dir}/asdoc" failonerror="true">
-      <arg line="-doc-sources 'src/flare/'"/>
-        <arg line="-doc-sources+='src/com/'"/>
-        <arg line="-doc-sources+='src/org/juicekit/effects/'"/>
-        <arg line="-doc-sources+='src/org/juicekit/flare/'"/>
-        <arg line="-doc-sources+='src/org/juicekit/util/'"/>
-        <arg line="-doc-sources+='src/org/juicekit/events/'"/>
-        <arg line="-doc-sources+='src/org/juicekit/visual/'"/>
-        <arg line="-exclude-classes org.juicekit.visual.styles.metadata.PaddingStyles org.juicekit.visual.styles.metadata.TextStyles"/>
+    	<arg line="-doc-sources 'src/'"/>
       <arg line="-library-path+=libs/us-map-1.0.swc"/>
       <arg line="-library-path+=libs/dma-map-1.0.swc"/>
-      <arg line="-main-title 'JuiceKit, a Flash and Flex development framework'"/>
-      <arg line="-window-title 'JuiceKit'"/>
-      <arg line="-output 'docsflare'"/>
+      <arg line="-templates-path ${basedir}/shared/templates/"/>
+      <arg line="-main-title 'JuiceKit, a Flash visualization framework, version ${VERSION}'"/>
+      <arg line="-window-title 'JuiceKit, a Flash visualization framework, version ${VERSION}'"/>
+      <arg line="-output 'docs'"/>
     </exec>
   </target>
 
 
-  <!-- Build and output the Main.swf-->
-  <target name="compile flex project" depends="init,createdocs">
-    <exec command="'/Applications/Adobe Flex Builder 3 Plug-in/sdks/3.2.0/bin/mxmlc' -library-path+=${DEPLOY_DIR}/../libs/dma-map-1.0.swc -library-path+=${DEPLOY_DIR}/../libs/us-map-1.0.swc -optimize -output ${DEPLOY_DIR}/juicekit.swf ${SRC_DIR}">
+  <!-- Build the juicekit swc -->
+  <target name="compile juicekit" depends="init,createdocs">
+    <exec executable="${asdoc.dir}/compc" failonerror="true">
+    	<arg line="-include-sources 'src/'"/>
+      <arg line="-library-path+=libs/us-map-1.0.swc"/>
+      <arg line="-library-path+=libs/dma-map-1.0.swc"/>
+      <arg line="-optimize"/>
+      <arg line="-output '${DEPLOY_DIR}/juicekit_${VERSION}.swc'"/>
     </exec>
   </target>
 
-  <target name="package juicekit" depends="compile flex project">
+	
+  <!-- copy the asdocs to the deploydir and zip up the result -->
+  <target name="package juicekit" depends="compile juicekit">
+    <!-- copy the docs -->
     <copy todir="${DEPLOY_DIR}/docs">
       <fileset dir="./docs"/>
     </copy>
+  	
+    <!-- copy the source files -->
+    <copy todir="${DEPLOY_DIR}/sources/src">
+      <fileset dir="./src"/>
+    </copy>
+  	
+    <!-- copy the libs -->
+    <copy todir="${DEPLOY_DIR}/sources/libs">
+      <fileset dir="./libs"/>
+    </copy>
+    <delete file="${DEPLOY_DIR}/sources/libs/flexTasks.jar"/>
+
+  	<!-- copy shared files -->
+    <copy todir="${DEPLOY_DIR}/sources/shared/styles">
+      <fileset dir="./shared/styles"/>
+    </copy>
+    <!-- copy extra release files like READMEs -->
+    <copy todir="${DEPLOY_DIR}/">
+      <fileset dir="./shared/release-files"/>
+    </copy>
+    
+    <!-- zip up the entire bundle -->
     <zip zipfile="juicekit_${VERSION}.zip">
       <fileset dir="${DEPLOY_DIR}"/>
     </zip>
+  	
+	<!-- deploy the asdocs -->
+  	<delete dir="${WEBSITE_ASDOC_DIR}"/>
+    <copy todir="${WEBSITE_ASDOC_DIR}">
+      <fileset dir="./docs"/>
+    </copy>
+  	
+    <!-- copy the package to the website dir -->
+    <copy todir="${WEBSITE_DEPLOY_DIR}/">
+      <fileset file="juicekit_${VERSION}.zip"/>
+    </copy>
+
+  	<echo>
+The zipfile has been deployed to ${WEBSITE_DEPLOY_DIR}. 
+  		
+1) Tag this release  
+  		
+Go to the flexlib directory.
+
+> git tag -f -a juicekit-${VERSION}
+	
+This creates an unsigned annotation tag indicating this release. 
+The -f will overwrite an existing tag of the same name. You 
+SHOULD NOT overwrite a tag if you have already pushed to github.
+  		
+2) Write an updated release notes and deploy to juicekit.org
+  		
+Go to the chrisgemignani.github.com repo and create a new file in releases/_posts
+bearing the name yyyy-mm-dd-${VERSION}-release-notes.markdown. 
+  		
+Write and commit the release notes. This will make the release publicly available.
+  	</echo>
+  
   </target>
 
 
