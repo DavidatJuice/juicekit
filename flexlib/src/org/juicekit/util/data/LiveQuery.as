@@ -1,4 +1,4 @@
-package org.juicekit.flare.query {
+package org.juicekit.util.data {
   import flare.query.Query;
   
   import flash.events.Event;
@@ -9,6 +9,14 @@ package org.juicekit.flare.query {
   import mx.events.CollectionEvent;
   import mx.utils.NameUtil;
 
+  
+
+  /**
+   * Dispatched when data has been loaded.
+   *
+   * @eventType flash.events.Event
+   */
+  [Event(name="complete", type="flash.events.Event")]
   
 
   /**
@@ -25,6 +33,9 @@ package org.juicekit.flare.query {
    */
   [Bindable]
   public dynamic class LiveQuery extends EventDispatcher {
+    
+    public static const QUERY_CALCULATED:String = 'complete';
+    
     /**
      * The number of accesses of <code>result</code>
      * for performance and debugging purposes.
@@ -106,6 +117,7 @@ package org.juicekit.flare.query {
               _result.source = dataProvider.source.slice();
             }
           }
+          dispatchEvent(new Event(QUERY_CALCULATED));
         }
       }
 

@@ -240,7 +240,6 @@
 <classEntry path="org.juicekit.events.InactivityEvent"/>
 <classEntry path="org.juicekit.events.InactivityMonitor"/>
 <classEntry path="org.juicekit.events.JuiceKitEvent"/>
-<classEntry path="org.juicekit.flare.query.LiveQuery"/>
 <classEntry path="org.juicekit.flare.util.Colors"/>
 <classEntry path="org.juicekit.flare.util.palette.ColorPalette"/>
 <classEntry path="org.juicekit.flare.vis.data.TreeMLReader"/>
@@ -250,6 +249,7 @@
 <classEntry path="org.juicekit.flare.vis.label.Labels"/>
 <classEntry path="org.juicekit.util.collection.AlphanumSort"/>
 <classEntry path="org.juicekit.util.data.GraphUtil"/>
+<classEntry path="org.juicekit.util.data.LiveQuery"/>
 <classEntry path="org.juicekit.util.helper.Browser"/>
 <classEntry path="org.juicekit.util.helper.CSSUtil"/>
 <classEntry path="org.juicekit.util.helper.Clipboard"/>
