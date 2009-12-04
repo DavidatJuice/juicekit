@@ -310,9 +310,51 @@ package org.juicekit.visual.controls {
     /**
      * Preferred min and max colors for the color encoder
      */
-    public var preferredMinColor:Number = NaN;
+    private var _preferredMinColor:Number = NaN;
 
-    public var preferredMaxColor:Number = NaN;
+    private var _preferredMaxColor:Number = NaN;
+    
+    /**
+     * Specifies the minimum value used
+     * to encode a treemap rectangle's color.
+     *
+     * @default "color"
+     */
+    [Inspectable(category="General")]
+    [Bindable]
+    public function set preferredMinColor(property:Number):void {
+      _preferredMinColor = property;
+      _colorEncodingUpdated = true;
+      invalidateProperties();
+    }
+
+    /**
+     * @private
+     */
+    public function get preferredMinColor():Number {
+      return _preferredMinColor;
+    }
+
+    /**
+     * Specifies the maximum used
+     * to encode a treemap rectangle's color.
+     *
+     * @default "color"
+     */
+    [Inspectable(category="General")]
+    [Bindable]
+    public function set preferredMaxColor(property:Number):void {
+      _preferredMaxColor = property;
+      _colorEncodingUpdated = true;
+      invalidateProperties();
+    }
+
+    /**
+     * @private
+     */
+    public function get preferredMaxColor():Number {
+      return _preferredMaxColor;
+    }
 
     /**
      * Get the Flare ColorEncoder
@@ -547,6 +589,7 @@ package org.juicekit.visual.controls {
         vis.data = value as Tree;
         super.data = value;
         dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
+
       }
       _leavesChanged = true;
       invalidateProperties();
