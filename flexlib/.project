@@ -3,7 +3,6 @@
 	<name>flexlib_juicekit</name>
 	<comment></comment>
 	<projects>
-		<project>flare</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

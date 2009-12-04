@@ -6,6 +6,9 @@ bin-debug/
 bin-release/
 target/
 flexlib/libs/
+flexlib/docsflare/
+flexlib/docs/
+flexlib/RELEASE*
 *.releaseBackup
 # temporary ignores
 demos/
@@ -14,3 +17,4 @@ docs/
 *.iml
 *.ipr
 *.iws
+flexlib/juicekit_*.zip
