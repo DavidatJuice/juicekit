@@ -31,7 +31,7 @@ package org.juicekit.util.helper {
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
   import flash.system.System;
-  
+
   import mx.collections.ArrayCollection;
   import mx.controls.DataGrid;
   import mx.graphics.ImageSnapshot;
@@ -158,22 +158,22 @@ package org.juicekit.util.helper {
 
     /**
      * Put an Array Collection onto the system clipboard
-     * formatted as a tab-delimited string.  
-     * 
+     * formatted as a tab-delimited string.
+     *
      * The formatVars variable should be an object where the key
      * consists of the matching label and the value is the flare-style
      * format string.  By default, strings are left as is, and numbers
      * are written in with two decimal places.
-     * 
+     *
      * Example formatVars: {'name': '{0}', 'percent': '{0:0.0%}', 'average value' : '{0:0.00}'}
      */
-    public static function putArrayCollection(arr:ArrayCollection, formatVars:Object=null, delimiter:String = '\t'):void {
+    public static function putArrayCollection(arr:ArrayCollection, formatVars:Object = null, delimiter:String = '\t'):void {
 
       var rowIx:uint, colIx:uint; // Looping indexes.
       var retVal:String = "";
       var elem:String;
       var tempArray:Array = [];
-      
+
       if (formatVars == null)
         formatVars = {};
 
@@ -182,7 +182,10 @@ package org.juicekit.util.helper {
 
       //Add on header row
       for (elem in arr.getItemAt(0)) {
-        tempArray.push(elem);
+        if (elem != 'mx_internal_uid') {
+          //Ignore ArrayCollection's internal elements
+          tempArray.push(elem);
+        }
       }
       for (colIx = 0; colIx < tempArray.length; colIx++) {
         retVal += tempArray[colIx];
@@ -196,9 +199,13 @@ package org.juicekit.util.helper {
         var row:Object = arr.getItemAt(rowIx);
         tempArray = [];
         for (elem in row) {
+          if (elem == 'mx_internal_uid') {
+            //Ignore ArrayCollection's internal elements
+            continue;
+          }
           var val:Object = row[elem];
           if (formatVars[elem] != null) {
-            tempArray.push(Strings.format(formatVars[elem],val));
+            tempArray.push(Strings.format(formatVars[elem], val));
           }
           else if (val is Number) {
             tempArray.push(Number(val).toFixed(2).toString());
