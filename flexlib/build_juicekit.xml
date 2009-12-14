@@ -1,54 +1,11 @@
-<project name="Flex Ant Tasks Build Script" default="compile juicekit">
+<project name="JuiceKit Ant Build Script" default="compile juicekit">
 
 	
-  <!-- load previously defined configuration properties file -->
-  <property file="build.properties"/>
+  <!-- load defined configuration properties file -->
+  <property file="build_juicekit.properties"/>
 
   <!-- points to our flexTasks.jar we copied to the libs folder to distribute with the project -->
   <taskdef resource="flexTasks.tasks" classpath="${basedir}/libs/flexTasks.jar"/>
-	
-	<!-- 
-	http://tlrobinson.net/blog/2008/11/13/ant-tasks-for-git/
-	
-	<git command = "clone">
-	    <args>
-	        <arg value = "git://github.com/280north/ojunit.git" />
-	        <arg value = "ojunit" />
-	    </args>
-	</git>
-	
-	And pull:
-	
-	<git command = "pull" dir = "repository_path" />
-	
-	-->
-	<macrodef name = "git">
-	    <attribute name = "command" />
-	    <attribute name = "dir" default = "" />
-	    <element name = "args" optional = "true" />
-	    <sequential>
-	        <echo message = "git @{command}" />
-	        <exec executable = "git" dir = "@{dir}">
-	            <arg value = "@{command}" />
-	            <args/>
-	        </exec>
-	    </sequential>
-	</macrodef>
-
-	<macrodef name = "git-clone-pull">
-	    <attribute name = "repository" />
-	    <attribute name = "dest" />
-	    <sequential>
-	        <git command = "clone">
-	            <args>
-	                <arg value = "@{repository}" />
-	                <arg value = "@{dest}" />
-	            </args>
-	        </git>
-	        <git command = "pull" dir = "@{dest}" />
-	    </sequential>
-	</macrodef>
-
 	
   <!-- delete and recreate the DEPLOY dir -->
   <target name="init">
@@ -89,6 +46,13 @@
     <!-- copy the docs -->
     <copy todir="${DEPLOY_DIR}/docs">
       <fileset dir="./docs"/>
+    </copy>
+  	
+    <!-- copy dot files -->
+    <copy todir="${DEPLOY_DIR}/sources/">
+      <fileset file=".project"/>
+      <fileset file=".actionScriptProperties"/>
+      <fileset file="flex-formatting.settings"/>
     </copy>
   	
     <!-- copy the source files -->
