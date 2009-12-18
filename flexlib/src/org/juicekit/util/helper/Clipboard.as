@@ -3,13 +3,13 @@
  * *************************************************************************
  *
  * Copyright 2007-2009 Juice, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,6 +35,7 @@ package org.juicekit.util.helper {
   import mx.collections.ArrayCollection;
   import mx.controls.DataGrid;
   import mx.graphics.ImageSnapshot;
+  import flare.util.Strings;
 
 
   /**
@@ -61,8 +62,8 @@ package org.juicekit.util.helper {
      * clipboard contents.
      */
     public static function putArrayOfObjects(objects:Array
-                        , propNames:Array
-                        ):void {
+      , propNames:Array
+      ):void {
       // For readibility in the loops, rename the objects to rows.
       const rows:Array = objects;
 
@@ -89,9 +90,9 @@ package org.juicekit.util.helper {
       }
 
       // Prepend headers to the clipboard.
-      appendUsing(function (ix:int):String {
-        return propNames[ix];
-      });
+      appendUsing(function(ix:int):String {
+          return propNames[ix];
+        });
 
       s += RECORD_SEPARATOR;
 
@@ -100,15 +101,15 @@ package org.juicekit.util.helper {
       for (var rowIx:int = 0; rowIx < rowsN; rowIx++) {
         row = rows[rowIx];
 
-        appendUsing(function (ix:int):String {
-          const propVal:* = row[propNames[ix]];
-          if (propVal) {
-            return propVal.toString();
-          }
-          else {
-            return "";
-          }
-        });
+        appendUsing(function(ix:int):String {
+            const propVal:* = row[propNames[ix]];
+            if (propVal) {
+              return propVal.toString();
+            }
+            else {
+              return "";
+            }
+          });
 
         if ((rowsN - rowIx) > 1) {
           s += RECORD_SEPARATOR;
@@ -156,6 +157,81 @@ package org.juicekit.util.helper {
 
 
     /**
+     * Put an Array Collection onto the system clipboard
+     * formatted as a tab-delimited string.
+     *
+     * The formatVars variable should be an object where the key
+     * consists of the matching label and the value is the flare-style
+     * format string.  By default, strings are left as is, and numbers
+     * are written in with two decimal places.
+     *
+     * Example formatVars: {'name': '{0}', 'percent': '{0:0.0%}', 'average value' : '{0:0.00}'}
+     */
+    public static function putArrayCollection(arr:ArrayCollection, formatVars:Object = null, delimiter:String = '\t'):void {
+
+      var rowIx:uint, colIx:uint; // Looping indexes.
+      var retVal:String = "";
+      var elem:String;
+      var tempArray:Array = [];
+
+      if (formatVars == null)
+        formatVars = {};
+
+      if (arr.length < 1)
+        return;
+
+      //Add on header row
+      for (elem in arr.getItemAt(0)) {
+        if (elem != 'mx_internal_uid') {
+          //Ignore ArrayCollection's internal elements
+          tempArray.push(elem);
+        }
+      }
+      for (colIx = 0; colIx < tempArray.length; colIx++) {
+        retVal += tempArray[colIx];
+        if ((tempArray.length - colIx) > 1) {
+          retVal += delimiter;
+        }
+      }
+      retVal += RECORD_SEPARATOR;
+
+      for (rowIx = 0; rowIx < arr.length; rowIx++) {
+        var row:Object = arr.getItemAt(rowIx);
+        tempArray = [];
+        for (elem in row) {
+          if (elem == 'mx_internal_uid') {
+            //Ignore ArrayCollection's internal elements
+            continue;
+          }
+          var val:Object = row[elem];
+          if (formatVars[elem] != null) {
+            tempArray.push(Strings.format(formatVars[elem], val));
+          }
+          else if (val is Number) {
+            tempArray.push(Number(val).toFixed(2).toString());
+          }
+          else if (val is String) {
+            tempArray.push(val);
+          }
+          else {
+            //Add nothing
+            tempArray.push("");
+          }
+        }
+        for (colIx = 0; colIx < tempArray.length; colIx++) {
+          retVal += tempArray[colIx];
+          if ((tempArray.length - colIx) > 1) {
+            retVal += delimiter;
+          }
+        }
+        retVal += RECORD_SEPARATOR;
+//        }
+      }
+      System.setClipboard(retVal);
+    }
+
+
+    /**
      * Put a DataGrid's dataProvider Array of arrays onto
      * the system clipboard formatted as a tab-delimited string.
      * The DataGrid's columns' headerText properties define the TSV column
@@ -182,14 +258,14 @@ package org.juicekit.util.helper {
      * @param fieldPropName Defines the column data property (e.g., dataField).
      */
     public static function getTabularArrayFromSrc(src:Object
-                       , itemsPropName:String
-                       , titlePropName:String
-                       , fieldPropName:String
-                       ):Array {
+      , itemsPropName:String
+      , titlePropName:String
+      , fieldPropName:String
+      ):Array {
 
       var retVal:Array = new Array();
 
-      var rowIx:uint, colIx:uint;	// Looping indexes.
+      var rowIx:uint, colIx:uint; // Looping indexes.
 
       // Insert titles using the DataGrid columns.
       const items:Array = src[itemsPropName] as Array;
