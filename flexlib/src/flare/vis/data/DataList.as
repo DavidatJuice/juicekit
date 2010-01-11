@@ -221,7 +221,7 @@ package flare.vis.data
 		 * @return an ArrayCollection of data objects for items in this data list
 		 */
 		[Bindable(event="changedDataList")]
-    public function toDataArrayCollection():ArrayCollection {
+    public function toArrayCollection():ArrayCollection {
       return new ArrayCollection(this.toDataArray());
     }
 
