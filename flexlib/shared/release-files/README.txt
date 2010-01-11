@@ -1,4 +1,12 @@
-Welcome to JuiceKit
+# Welcome to JuiceKit
+
+This folder contains a compiled version of the JuiceKit Flex library, documentation
+and source code. 
+
+# Using JuiceKit
+
+To use JuiceKit in your Flex project, move the juicekit.swc into the libs directory
+of your Flex project. 
 
 
 # Contents
@@ -16,10 +24,11 @@ juicekit_{VERSION}.swc
 
 /sources/
 
-	The source code and assets required to build JuiceKit. To build JuiceKit
-	from source, all of the directories need to be included in a Flex library 
-	project.
-
+	The source code and assets required to build JuiceKit.
+	
+	Import this directory as a project into Flex Builder. This is a Flex Library
+	project that you can reference from other Flex projects.
+	
 /sources/libs/
 		
 	Contains US map asset files required to use the DMAMapControl and 
@@ -31,5 +40,5 @@ juicekit_{VERSION}.swc
 	
 /sources/src/
 
-	Contains the source code.
+	JuiceKit and Flare source code.
 	
