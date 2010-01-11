@@ -282,9 +282,12 @@ package flare.vis.data
 		 * @param ignoreExistingEdges if false (the default), this method will
 		 *  not create a new edge if one already exists between two nodes. If
 		 *  true, new edges will be created regardless.
+		 * @param clearExcessiveEdges if true, this method will parse through 
+		 *  edges at the end of the creation process, and remove those that
+     *  connect non-adjacent nodes.
 		 */
 		public function createEdges(sortBy:*=null, groupBy:*=null,
-			ignoreExistingEdges:Boolean=false):void
+			ignoreExistingEdges:Boolean=false, clearExcessiveEdges:Boolean=false):void
 		{
 			// create arrays and sort criteria
 			var a:Array = Arrays.copy(_nodes.list);
@@ -315,6 +318,20 @@ package flare.vis.data
 				if (!f || f.getValue(a[i-1]) == f.getValue(a[i])) {
 					if (!ignoreExistingEdges && a[i].isConnected(a[i-1]))
 						continue;
+					
+					// remove excessive edges between non-adjacent nodes
+          // Author: Sal Uryasev
+          if (clearExcessiveEdges) {
+            //visit all connected nodes, and if they are not adjacent, break bonds
+            a[i].visitEdges(function(e:EdgeSprite):void {
+              // return if we are one of the adjacent nodes
+              if (e.other(a[i]) == a[i-1] || i == (a.length - 1) || e.other(a[i]) == a[i+1])
+                { return; }
+              else
+                { removeEdge(e); }
+            });
+          }
+						
 					var e:EdgeSprite = addEdgeFor(a[i-1], a[i], directedEdges);
 					// add data values from nodes
 					for (var j:uint=0; j<p.length; ++j) {
@@ -322,6 +339,7 @@ package flare.vis.data
 					}
 				}
 			}
+			
 		}
 		
 		/**
