@@ -16,7 +16,6 @@ package flare.vis.data
 	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
 	import flash.utils.Proxy;
-	import flash.utils.flash_proxy;
 	
 	import mx.collections.ArrayCollection;
 
@@ -144,6 +143,22 @@ package flare.vis.data
 			_stats = {};	
 			dispatchEvent(new Event('changedDataList'));
 			return true;
+		}
+		
+		/**
+     * Update a DataSprite that was edited externally from the DataList.
+     * Currently, this clears the stats and dispatches a changedDataList event.
+     * In the future, it may do something specific to a DataSprite.
+     * Author: Sal Uryasev
+     * 
+     * @param ds the DataSprite to update
+     * @return true
+     */
+		public function update(d:DataSprite):Boolean
+		{
+		  _stats = {};
+		  dispatchEvent(new Event('changedDataList'));
+		  return true;
 		}
 		
 		/**
@@ -547,7 +562,7 @@ package flare.vis.data
 		{
 			delete _stats[field];
 		}
-		
+
 		
 		// -- Event Dispatcher Methods ----------------------------------------
 		
