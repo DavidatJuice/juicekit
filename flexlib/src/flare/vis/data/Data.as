@@ -325,10 +325,11 @@ package flare.vis.data
             //visit all connected nodes, and if they are not adjacent, break bonds
             a[i].visitEdges(function(e:EdgeSprite):void {
               // return if we are one of the adjacent nodes
-              if (e.other(a[i]) == a[i-1] || i == (a.length - 1) || e.other(a[i]) == a[i+1])
-                { return; }
-              else
-                { removeEdge(e); }
+              if (e.other(a[i]) === a[i-1] || i == (a.length - 1) || e.other(a[i]) === a[i+1]) { 
+                return; 
+              } else { 
+                removeEdge(e); 
+              }
             });
           }
 						
