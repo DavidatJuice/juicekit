@@ -44,6 +44,7 @@ package org.juicekit.util.helper {
    * (TSV) where the <code>TAB</code> character is used for the delimiter.
    *
    * @author Jon Buffington
+   * @author Sal Uryasev
    */
   public final class Clipboard {
 
@@ -60,6 +61,8 @@ package org.juicekit.util.helper {
      * @param propNames List of the object properties names to be copied.
      * The propNames order determines the order of columns in the tab-delimited
      * clipboard contents.
+     * 
+     * @deprecated in favor of putArrayCollection/LiveQuery combionation
      */
     public static function putArrayOfObjects(objects:Array
       , propNames:Array
@@ -239,6 +242,8 @@ package org.juicekit.util.helper {
      * dataField properties.
      *
      * @param dataGrid Is the target DataGrid with a dataProvider to be copied.
+     * 
+     * @deprecated in favor of putArrayCollection
      */
     public static function makeTabularArrayFromDataGrid(dataGrid:DataGrid):Array {
       return getTabularArrayFromSrc(dataGrid, "columns", "headerText", "dataField");
@@ -256,6 +261,8 @@ package org.juicekit.util.helper {
      * @param titlePropName Defines the column header name property (e.g., headerText).
      *
      * @param fieldPropName Defines the column data property (e.g., dataField).
+     * 
+     * @deprecated in favor of putArrayCollection
      */
     public static function getTabularArrayFromSrc(src:Object
       , itemsPropName:String
