@@ -331,7 +331,7 @@ package org.juicekit.visual.controls {
      * and <code>TransitionEvent.END</code> to any listeners.
      */
     protected function updateVisualization():void {
-      if (vis) {
+      if (vis && vis.data !== null && vis.data.length > 0) {
         if (isNaN(transitionPeriod)) {
           vis.update();
         }
