@@ -540,7 +540,7 @@ package flare.vis.data
 					return true;
 			} else {
 				var list:DataList = _groups[group];
-				if (list.length > 0 && list.visit(v, filter, reverse))
+				if (list && list.length > 0 && list.visit(v, filter, reverse))
 					return true;
 			}
 			return false;
