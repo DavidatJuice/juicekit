@@ -58,7 +58,7 @@ package flare.vis.data
 		/** Cache of Stats objects for item properties. */
 		private var _stats:Object = {};
 		/** The underlying array storing the list. */
-		internal function get list():Array { return _list; }
+		public function get list():Array { return _list; }
 		
 		/** The name of this data list. */
 		public function get name():String { return _name; }
