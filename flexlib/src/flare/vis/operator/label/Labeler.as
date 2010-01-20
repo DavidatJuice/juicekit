@@ -9,6 +9,7 @@ package flare.vis.operator.label
 	import flare.vis.data.Data;
 	import flare.vis.data.DataSprite;
 	import flare.vis.operator.Operator;
+	import flare.util.Strings;
 	
 	import flash.display.Sprite;
 	import flash.text.TextFormat;
@@ -63,6 +64,8 @@ package flare.vis.operator.label
 		protected var _access:Property = Property.$("props.label");
 		/** @private */
 		protected var _cacheText:Boolean = true;
+		/** @private */
+		private var _labelFormat:String = null;
 		
 		/** @private */
 		protected var _t:Transitioner;
@@ -75,6 +78,17 @@ package flare.vis.operator.label
 		/** The name of the data group to label. */
 		public function get group():String { return _group; }
 		public function set group(g:String):void { _group = g; setup(); }
+		
+		/** String formatting pattern used for any labels.
+		 *  @author Sal Uryasev 
+		 */
+    public function get labelFormat():String {
+      return _labelFormat==null ? null 
+          : _labelFormat.substring(3, _labelFormat.length-1);
+    }
+    public function set labelFormat(fmt:String):void {
+      _labelFormat = "{0:"+fmt+"}"; //operate();
+    }
 		
 		/** The source property that provides the label text. This
 		 *  property will be ignored if the <code>textFunction<code>
@@ -225,7 +239,8 @@ package flare.vis.operator.label
 			if (textFunction != null) {
 				return textFunction(d);
 			} else {
-				return _source.getValue(d);
+				//return _source.getValue(d);
+				return _labelFormat ? Strings.format(_labelFormat, _source.getValue(d)) : _source.getValue(d);
 			}
 		}
 		
