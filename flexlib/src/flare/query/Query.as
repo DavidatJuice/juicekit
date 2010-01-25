@@ -43,6 +43,7 @@ package flare.query
 		private var _orderby:Array;
 		private var _groupby:Array;
 		private var _where:Function;
+		private var _wheres:Array = [];
 		private var _sort:Sort;
 		private var _aggrs:Array;
 		private var _map:Boolean = false;
@@ -127,6 +128,7 @@ package flare.query
 			return this;
 		}
 		
+		
 		/**
 		 * Sets the where clause (filter conditions) used by this query.
 		 * @param e the filter expression. This can be a string, a literal
@@ -137,9 +139,12 @@ package flare.query
 		public function where(e:*):Query
 		{
 			_where = Filter.$(e);
+			if (_where != null) {
+			  _wheres.push(_where);			 
+			}
 			return this;
 		}
-				
+		
 		/**
 		 * Sets the sort order for query results.
 		 * @param terms the sort terms as a list of field names to sort on.
@@ -272,15 +277,31 @@ package flare.query
 			}
 			
 			// collect and filter
-			if (_where != null) {
+			if (_wheres.length > 1) {
 				visitor(function(item:Object, ...rest):void {
-					if (_where(item)) results.push(item);
+          // making _where an Array
+          var result:Boolean = true;
+          for each (var wh:Function in _wheres) {
+            if (wh != null && wh(item) == false) {
+              result = false;
+              break;
+            }
+          } 
+          if (result) results.push(item);
 				});
 			} else {
-				visitor(function(item:Object, ...rest):void {
-					results.push(item);
-				});
-			}
+  			if (_where != null) {
+  				visitor(function(item:Object, ...rest):void {
+  					if (_where(item)) results.push(item);
+  				});
+  			} else {
+  				visitor(function(item:Object, ...rest):void {
+  					results.push(item);
+  				});
+  			}
+			}      
+			
+			
 			
 			// sort the result set
 			if (_sort != null) {
