@@ -474,6 +474,7 @@ package org.juicekit.visual.controls {
           if (dataRootChanged) {
             dataRootChanged = false;
             updateTreemap = true;
+            dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
           }
 
           if (updateTreemap) {
@@ -544,7 +545,6 @@ package org.juicekit.visual.controls {
         _leavesChanged = true;
         _labelDepthUpdated = true;
         invalidateProperties();
-        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
       } else {
         throw new ArgumentError("A visualization must already have data to manipulate the root.");
       }
@@ -588,9 +588,9 @@ package org.juicekit.visual.controls {
         }
         vis.data = value as Tree;
         super.data = value;
-        dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
-
+        dataRootChanged = true;
       }
+
       _leavesChanged = true;
       invalidateProperties();
     }
