@@ -261,8 +261,7 @@ package flare.vis.operator.label
 			} else if (!label) {
 				label = new TextSprite("", null, textMode);
 				label.text = getLabelText(d);
-				label.visible = visible;
-				label.applyFormat(textFormat);
+				label.visible = visible; 
 				
 				_access.setValue(d, label);
 				if (_policy == LAYER) {
@@ -280,6 +279,7 @@ package flare.vis.operator.label
 				var o:Object = _t.$(label);
 				o.text = getLabelText(d); 				
 			}
+			label.applyFormat(textFormat);
 			label.textMode = textMode;
 			label.horizontalAnchor = horizontalAnchor;
 			label.verticalAnchor = verticalAnchor;
