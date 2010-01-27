@@ -54,9 +54,9 @@ package flare.util
 		public function get minimum():Number { return _min; }
 		/** The maximum value (for numerical data). */
 		public function get maximum():Number { return _max; }
-    /** The 0.05 percentile value (for numerical data). */
+    /** The 0.025 percentile value (for numerical data). */
     public function get percentileLow():Number { return _percentileLow; }
-    /** The 0.95 percentile value (for numerical data). */
+    /** The 0.975 percentile value (for numerical data). */
     public function get percentileHigh():Number { return _percentileHigh; }
 		/** The sum of all the values (for numerical data). */
 		public function get sum():Number { return _sum; }
@@ -154,7 +154,7 @@ package flare.util
 			if (_type == NUMBER)
 			{
 				
-				//Calculate the 5th and the 95th percentile of the data
+				//Calculate the 2.5th and the 97.5th percentile of the data
 				var plow:Number = .025 * N;
 				var phigh:Number = .975 * N;
 				
