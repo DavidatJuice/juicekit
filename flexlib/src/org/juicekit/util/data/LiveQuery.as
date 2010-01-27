@@ -19,6 +19,8 @@ package org.juicekit.util.data {
   
   import flash.events.Event;
   import flash.events.EventDispatcher;
+  import flash.events.TimerEvent;
+  import flash.utils.Timer;
   import flash.utils.getTimer;
   
   import mx.collections.ArrayCollection;
@@ -48,7 +50,7 @@ package org.juicekit.util.data {
    *
    */
   [Bindable]
-  public dynamic class LiveQuery extends EventDispatcher {
+  public class LiveQuery extends EventDispatcher {
     
     public static const QUERY_CALCULATED:String = 'complete';
     
@@ -81,7 +83,8 @@ package org.juicekit.util.data {
      * be recalculated.
      */
     private var dirty:Boolean = true;
-
+    
+    
     private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
 
 
@@ -95,23 +98,17 @@ package org.juicekit.util.data {
      *
      * <code>result<code> is bindable.
      */
+
+		 import flare.query.methods.*
     [Bindable(event='liveQueryRecalc')]
     public function get result():ArrayCollection {
       resultFetches += 1;
       if (dirty) {
+        trace('getting result', queryName);
         resultCalculations += 1;
 
         if (dataProvider) {
           if (query) {
-            if (filterFunctions) {
-              query.where(function(o:Object):Boolean {
-                  for each (var fs:*in filterFunctions) {
-                    if (!fs.filterFunction(o))
-                      return false;
-                  }
-                  return true;
-                });
-            }
             var starttime:Number = getTimer();
             var r:Array = query.eval(dataProvider.source);
             evalTime = (getTimer() - starttime).toString() + 'ms';
@@ -120,6 +117,7 @@ package org.juicekit.util.data {
             // since setting _result.source might cause more 
             // attempts to fetch result.  
             dirty = false;
+            recalcInProgress = false;
             if (_limit > 0) {
               _result.source = r.slice(0, limit);              
             } else {
@@ -127,16 +125,18 @@ package org.juicekit.util.data {
             }
           } else {
             dirty = false;
+            recalcInProgress = false;
             if (_limit > 0) {
               _result.source = dataProvider.source.slice(0, limit);
             } else {
               _result.source = dataProvider.source.slice();
             }
           }
-          dispatchEvent(new Event(QUERY_CALCULATED));
+          dispatchEvent(new Event(QUERY_CALCULATED, true));
         }
       }
 
+      recalcInProgress = false;
       return _result;
     }
     private var _result:ArrayCollection = new ArrayCollection();
@@ -147,11 +147,12 @@ package org.juicekit.util.data {
     //----------------------------------
 
     public function set dataProvider(v:ArrayCollection):void {
-      if (dataProvider)
-        dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
+      if (dataProvider) {
+        dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, setDirty);
+      }
       _dataProvider = v;
-      dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, acCollectionChange);
-      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+      dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, setDirty);
+      setDirty();
       var r:ArrayCollection = result;
     }
 
@@ -163,23 +164,15 @@ package org.juicekit.util.data {
     private var _dataProvider:ArrayCollection = null;
 
 
-    /**
-     * The source data or the Query has changed.
-     * Signal that result has changed and needs recalculation.
-     */
-    private function acCollectionChange(e:Event):void {
-      dirty = true;
-      dispatchEvent(new Event(LIVE_QUERY_RECALC));
-    }
-
     //----------------------------------
     // query
     //----------------------------------
 
     public function set query(q:Query):void {
+      trace('LiveQuery: set query for', queryName);
       _query = q;
-      acCollectionChange(new Event(LIVE_QUERY_RECALC));
-      var r:ArrayCollection = result;
+      setDirty();
+      //var r:ArrayCollection = result;
     }
 
 
@@ -202,7 +195,7 @@ package org.juicekit.util.data {
     */
     public function set limit(v:int):void {
       _limit = v;
-      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+      setDirty();
     }
 
 
@@ -213,43 +206,75 @@ package org.juicekit.util.data {
     private var _limit:int = 0;
 
 
+
     //----------------------------------
-    // filter functions
+    // timer and dirty
     //----------------------------------
 
     /**
-     *
-     * @param v an ArrayCollection of functions with signature
-     * <code></code>
+     * Signal that result has changed and needs recalculation.
      */
-    public function set filterFunctions(v:ArrayCollection):void {
-      var fs:*;
-      if (filterFunctions) {
-        for each (fs in filterFunctions) {
-          fs.removeEventListener('filterChanged', acCollectionChange);
-        }
-      }
-
-      _filterFunctions = v;
-      for each (fs in filterFunctions) {
-        fs.addEventListener('filterChanged', acCollectionChange);
-      }
-      
-      acCollectionChange(new Event(LIVE_QUERY_RECALC));
+    public function setDirty(e:Event=null):void {
+      dirty = true;
     }
 
 
-    public function get filterFunctions():ArrayCollection {
-      return _filterFunctions;
+    /**
+    * The timer limits LiveQuery recalculations to 
+    * once per <code>updateFrequency</code> milliseconds.
+    * 
+    */ 
+    private var timer:Timer;
+    
+    /**
+    * Suppress dirty events while recalc is occurring
+    * 
+    * TODO: is this too aggressive?
+    */
+    private var recalcInProgress:Boolean = false;
+    
+    /**
+    * Called each tick of the timer
+    */
+    private function onTick(event:TimerEvent):void {
+      if (dirty && !recalcInProgress) {
+        recalcInProgress = true;
+        dispatchEvent(new Event(LIVE_QUERY_RECALC));
+      }
     }
-
-    private var _filterFunctions:ArrayCollection;
+    
+    /**
+    * Set whether the LiveQuery recalculates.
+    */
+    public function set enabled(v:Boolean):void {
+      if (v) {
+        timer.start();
+      } else {
+        timer.stop();
+      }
+    }
+    public function get enabled():Boolean {
+      return timer.running;
+    } 
+    
+    /**
+    * How frequently should this LiveQuery attempt to 
+    * recalculate in ms.
+    * 
+    * <p>The default recalculation period is 100ms.</p>
+    * 
+    */
+    public function set updateFrequency(v:int):void {
+      timer.delay = v;
+    }
 
     /**
      * Constructor
      */
     public function LiveQuery() {
-
+      timer = new Timer(100);
+      timer.addEventListener(TimerEvent.TIMER, onTick);
+      timer.start();      
     }
 
   }
