@@ -201,6 +201,16 @@ package org.juicekit.visual.controls {
     private var _layoutStyleChanged:Boolean = false;
 
 
+    /**
+     * Return the treemap leaf data as an ArrayCollection
+     */
+    [Bindable(event='dataRootChange')]
+    public function toArrayCollection():ArrayCollection {
+      if (vis && vis.data && vis.data.group('leaves')) {
+        return vis.data.group('leaves').toArrayCollection();
+      }
+      else return new ArrayCollection([]);
+    }
 
 
     /**
@@ -472,8 +482,8 @@ package org.juicekit.visual.controls {
           }
 
           if (dataRootChanged) {
-            dataRootChanged = false;
             updateTreemap = true;
+            dataRootChanged = false;
             dispatchEvent(new JuiceKitEvent(JuiceKitEvent.DATA_ROOT_CHANGE));
           }
 
