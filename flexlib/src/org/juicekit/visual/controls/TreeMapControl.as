@@ -32,17 +32,21 @@ package org.juicekit.visual.controls {
   import flare.vis.operator.encoder.Encoder;
   import flare.vis.operator.encoder.PropertyEncoder;
   import flare.vis.operator.layout.TreeMapLayout;
-
+  
+  import flash.events.Event;
   import flash.events.MouseEvent;
   import flash.filters.ColorMatrixFilter;
   import flash.geom.Rectangle;
   import flash.utils.Dictionary;
-
+  
+  import mx.collections.ArrayCollection;
+  
   import org.juicekit.events.JuiceKitEvent;
   import org.juicekit.flare.util.palette.ColorPalette;
   import org.juicekit.flare.vis.label.LabelFormat;
   import org.juicekit.flare.vis.label.Labels;
   import org.juicekit.util.helper.CSSUtil;
+  import org.juicekit.util.interfaces.iCSVToClipboard;
 
 
   include "../../../../../shared/styles/metadata/TextStyles.as";
@@ -151,9 +155,9 @@ package org.juicekit.visual.controls {
    *
    * @author Jon Buffington
    */
-  public class TreeMapControl extends FlareControlBase {
+  public class TreeMapControl extends FlareControlBase implements iCSVToClipboard {
 
-
+ 
     // Invoke the class constructor to initialize the CSS defaults.
     classConstructor();
 
@@ -200,7 +204,6 @@ package org.juicekit.visual.controls {
      */
     private var _layoutStyleChanged:Boolean = false;
 
-
     /**
      * Return the treemap leaf data as an ArrayCollection
      */
@@ -210,6 +213,11 @@ package org.juicekit.visual.controls {
         return vis.data.group('leaves').toArrayCollection();
       }
       else return new ArrayCollection([]);
+    }
+    
+    [Bindable(event='dataRootChange')]
+    public function CSVtoClipboard():* {
+      return toArrayCollection(); 
     }
 
 
