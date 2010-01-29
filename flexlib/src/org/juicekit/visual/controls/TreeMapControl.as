@@ -216,7 +216,7 @@ package org.juicekit.visual.controls {
     }
     
     [Bindable(event='dataRootChange')]
-    public function CSVtoClipboard():* {
+    public function CSVToClipboard():* {
       return toArrayCollection(); 
     }
 

@@ -11,6 +11,6 @@ package org.juicekit.util.interfaces
     * toClipboard should either return an ArrayCollection or String representation
     * of itself for placement onto the clipboard.
     */
-    function CSVtoClipboard():*;
+    function CSVToClipboard():*;
   }
 }
