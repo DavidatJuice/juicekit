@@ -3,6 +3,7 @@ package flare.vis.data
 	import flare.scale.LinearScale;
 	import flare.scale.LogScale;
 	import flare.scale.OrdinalScale;
+	import flare.scale.PersistentOrdinalScale;
 	import flare.scale.QuantileScale;
 	import flare.scale.QuantitativeScale;
 	import flare.scale.RootScale;
@@ -337,6 +338,9 @@ package flare.vis.data
 						case ScaleType.QUANTILE:
 							scale = new QuantileScale(_bins, stats.values, true, _format);
 							break;
+					  case ScaleType.PERSISTENT_ORDINAL:
+					    scale = PersistentOrdinalScale.getScale(vals, _flush, false, _format, _property);
+					    break;
 						default:
 							scale = new OrdinalScale(vals, _flush, false, _format);
 							break;

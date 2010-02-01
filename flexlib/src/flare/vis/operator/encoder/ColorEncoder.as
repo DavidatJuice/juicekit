@@ -78,7 +78,11 @@ package flare.vis.operator.encoder
 		protected function getDefaultPalette():ColorPalette
 		{
 			/// TODO: more intelligent color palette selection?
-			if (ScaleType.isOrdinal(_binding.scaleType))
+			if (ScaleType.PERSISTENT_ORDINAL == _binding.scaleType)
+      {
+        return ColorPalette.category(20);
+      }
+			else if (ScaleType.isOrdinal(_binding.scaleType))
 			{
 				return ColorPalette.category(_binding.length);
 			}

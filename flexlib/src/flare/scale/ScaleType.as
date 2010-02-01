@@ -12,6 +12,8 @@ package flare.scale
 		public static const CATEGORIES:String = "categories";
 		/** Constant indicating an ordinal scale. */
 		public static const ORDINAL:String = "ordinal";
+    /** Constant indicating a persistent ordinal scale. */
+    public static const PERSISTENT_ORDINAL:String = "persistent_ordinal";
 		/** Constant indicating a linear numeric scale. */
 		public static const LINEAR:String = "linear";
 		/** Constant indicating a linear numeric scale with the min and max at the 10th and 90th percentiles. */
@@ -39,7 +41,7 @@ package flare.scale
 		 */
 		public static function isOrdinal(type:String):Boolean
 		{
-			return type==ORDINAL || type==CATEGORIES;
+			return type==ORDINAL || type==CATEGORIES || type==PERSISTENT_ORDINAL;
 		}
 		
 		/**

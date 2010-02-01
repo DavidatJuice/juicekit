@@ -10,8 +10,8 @@ package flare.scale
 	 */
 	public class OrdinalScale extends Scale
 	{
-		private var _ordinals:Array;
-		private var _lookup:Dictionary;
+		protected var _ordinals:Array;
+		protected var _lookup:Dictionary = null;
 
 		/**
 		 * Creates a new OrdinalScale.
