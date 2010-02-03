@@ -324,6 +324,8 @@ package flare.vis.data
           if (clearExcessiveEdges) {
             //visit all connected nodes, and if they are not adjacent, break bonds
             a[i].visitEdges(function(e:EdgeSprite):void {
+              if (!e || e == null) return;
+              
               // return if we are one of the adjacent nodes
               if (e.other(a[i]) === a[i-1] || i == (a.length - 1) || e.other(a[i]) === a[i+1]) { 
                 return; 
