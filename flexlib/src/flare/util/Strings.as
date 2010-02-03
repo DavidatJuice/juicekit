@@ -576,6 +576,7 @@ package flare.util
 						--i;
 					}
 				}
+				i = p.length;
 				for (; --i >= sp;) {
 					if (p.charCodeAt(i) == _SEPR) {
 						if (adj) { x /= 1000; } else { group = true; break; }
