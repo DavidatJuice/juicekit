@@ -353,14 +353,23 @@ package flare.vis.data
 						case ScaleType.TIME:
 							scale = new TimeScale(stats.minDate, stats.maxDate, _flush, _format);
 							break;
+					  case ScaleType.PERSISTENT_ORDINAL:
+              scale = PersistentOrdinalScale.getScale(vals, _flush, false, _format, _property);
+              break;
 						default:
 							scale = new OrdinalScale(vals, _flush, false, _format);
 							break;
 					}
 					break;
 				default:
-					scale = new OrdinalScale(vals, _flush, false, _format);
-					break;
+				  switch (type) {
+				    case ScaleType.PERSISTENT_ORDINAL:
+              scale = PersistentOrdinalScale.getScale(vals, _flush, false, _format, _property);
+              break;
+				    default:
+					    scale = new OrdinalScale(vals, _flush, false, _format);
+					    break;
+				  }
 			}
 			
 			if (_pmin !== null) scale.min = _pmin;
