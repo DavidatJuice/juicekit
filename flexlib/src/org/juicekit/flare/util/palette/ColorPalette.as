@@ -404,8 +404,8 @@ package org.juicekit.flare.util.palette {
           'Set3': category_Set3,
           'gist_ncar': category_gist_ncar,
           'gist_rainbow': category_gist_rainbow,
-          'gist_stern': category_gist_stern
-//          'google': googleColors
+          'gist_stern': category_gist_stern,
+          'google': googleColors
       };
       name = lookup.hasOwnProperty(name) ? name : 'spectral';
       return lookup[name]();
