@@ -64,7 +64,9 @@ package flare.util
 		{
 			var neg:Boolean = (x < 0);
 			x = Math.abs(x);
-			var e:int = 1 + int(Math.log(x) / Math.LN10);
+			// Round to nearest 10000000th.  This is necessary because of the imprecision of 
+			// Math.LN10 and rounding error in Math.log  -Sal
+			var e:int = 1 + int(Math.ceil(10000000*Math.log(x) / Math.LN10)/10000000);
 			var s:String = String(x);
 			for (; e<digits; e++) { s = '0' + s; }
 			return neg ? "-"+s : s;
