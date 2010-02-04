@@ -3,6 +3,7 @@ package flare.vis.legend
 	import flare.animate.Transitioner;
 	import flare.display.RectSprite;
 	import flare.display.TextSprite;
+	import flare.scale.OrdinalScale;
 	import flare.scale.Scale;
 	import flare.scale.ScaleType;
 	import flare.util.Displays;
@@ -261,7 +262,12 @@ package flare.vis.legend
 					var f:Number = _scale.interpolate(vals[i]);
 					var color:uint = _defaultColor;
 					if (_colors && ScaleType.isOrdinal(type)) {
-						color = _colors.getColorByIndex(i);
+            if (_scale is OrdinalScale)
+               color = _colors.getColorByIndex((_scale as OrdinalScale).index(vals[i]));
+            else if (_scale is ScaleBinding)
+               color = _colors.getColorByIndex((_scale as ScaleBinding).index(vals[i]));
+            else
+						   color = _colors.getColorByIndex(i);
 					} else if (_colors) {
 						color = _colors.getColor(f);
 					}
