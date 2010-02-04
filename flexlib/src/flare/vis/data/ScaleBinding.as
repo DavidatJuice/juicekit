@@ -371,9 +371,11 @@ package flare.vis.data
 					    break;
 				  }
 			}
-			
-			if (_pmin !== null) scale.min = _pmin;
-			if (_pmax !== null) scale.max = _pmax;
+
+			if (!(scale is OrdinalScale)) {
+  			if (_pmin !== null) scale.min = _pmin;
+  			if (_pmax !== null) scale.max = _pmax;
+			}
 			if (_zeroBased) zeroAlignScale(scale);
 			
 			return scale;
