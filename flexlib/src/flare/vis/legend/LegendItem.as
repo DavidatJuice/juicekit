@@ -132,8 +132,10 @@ package flare.vis.legend
 			var g:Graphics = _icon.graphics;
 			g.clear();
 			if (draw != null) {
+			  g.beginFill(_color);
 				g.lineStyle(_iconLineWidth, _color, 1);
 				draw(g, _iconSize/2);
+				g.endFill();
 			} else {
 				g.beginFill(_color);
 				Shapes.drawCircle(g, _iconSize/2);
