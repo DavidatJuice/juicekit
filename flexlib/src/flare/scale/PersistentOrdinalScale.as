@@ -14,6 +14,7 @@ package flare.scale {
     static public function getScale(ordinals:Array = null, flush:Boolean = false, copy:Boolean = true, labelFormat:String = null, property:String = null):PersistentOrdinalScale {
       if (_scaleStore[property] === undefined) 
         _scaleStore[property] = new PersistentOrdinalScale(ordinals, flush, copy, labelFormat);
+      _scaleStore[property].ordinals = ordinals;
       return _scaleStore[property];
     }
 

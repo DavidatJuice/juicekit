@@ -3,6 +3,7 @@ package flare.vis.legend
 	import flare.animate.Transitioner;
 	import flare.display.RectSprite;
 	import flare.display.TextSprite;
+	import flare.scale.OrdinalScale;
 	import flare.scale.Scale;
 	import flare.scale.ScaleType;
 	import flare.util.Displays;
@@ -261,7 +262,12 @@ package flare.vis.legend
 					var f:Number = _scale.interpolate(vals[i]);
 					var color:uint = _defaultColor;
 					if (_colors && ScaleType.isOrdinal(type)) {
-						color = _colors.getColorByIndex(i);
+            if (_scale is OrdinalScale)
+               color = _colors.getColorByIndex((_scale as OrdinalScale).index(vals[i]));
+            else if (_scale is ScaleBinding)
+               color = _colors.getColorByIndex((_scale as ScaleBinding).index(vals[i]));
+            else
+						   color = _colors.getColorByIndex(i);
 					} else if (_colors) {
 						color = _colors.getColor(f);
 					}
@@ -410,23 +416,31 @@ package flare.vis.legend
 			_iw = _ih = 0;
 			for (i=0; i<_items.numChildren; ++i) {
 				j = rev ? _items.numChildren-i-1 : i;
-				// layout the item
 				item = _items.getChildAt(j) as LegendItem;
-				o = t.$(item);
-				o.x = x;
-				o.y = y;
-				o.w = isNaN(bw) ? item.innerWidth : bw;
-				
-				// increment spacing
-				if (vert) {
-					y += item.innerHeight + _spacing;
-					_iw = Math.max(_iw, item.innerWidth);
-				}
-				else {
-					x += item.innerWidth + _spacing;
-					_ih = Math.max(_ih, item.innerHeight);
-				}
+				_iw = Math.max(_iw, item.innerWidth);
+				_ih = Math.max(_ih, item.innerHeight);
 			}
+			
+			for (i=0; i<_items.numChildren; ++i) {
+        j = rev ? _items.numChildren-i-1 : i;
+        // layout the item
+        item = _items.getChildAt(j) as LegendItem;
+        o = t.$(item);
+        // Layout allows items to stack over into the next column or row  -Sal
+        o.x = vert ? x + _iw * Math.floor(y / (_ih * Math.floor(bounds.height / _ih))) : 
+                     x % (_iw * Math.floor(bounds.width / _iw)); 
+        o.y = vert ? y % (_ih * Math.floor(bounds.height / _ih)) :
+                     y + _ih * Math.floor(x / (_iw * Math.floor(bounds.width / _iw)));
+        o.w = isNaN(bw) ? item.innerWidth : bw;
+
+        if (vert) {
+          y += item.innerHeight + _spacing;
+        }
+        else {
+          x += item.innerWidth + _spacing;
+        }
+      }
+        
 			_iw = vert ? _iw : x-_spacing;
 			_ih = vert ? y-_spacing : _ih;
 		}
