@@ -16,18 +16,18 @@
 
 package org.juicekit.util.data {
   import flare.query.Query;
-  
+
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   import flash.utils.getTimer;
-  
+
   import mx.collections.ArrayCollection;
   import mx.events.CollectionEvent;
   import mx.utils.NameUtil;
 
-  
+
 
   /**
    * Dispatched when data has been loaded.
@@ -35,7 +35,7 @@ package org.juicekit.util.data {
    * @eventType flash.events.Event
    */
   [Event(name="complete", type="flash.events.Event")]
-  
+
 
   /**
    *
@@ -51,9 +51,9 @@ package org.juicekit.util.data {
    */
   [Bindable]
   public class LiveQuery extends EventDispatcher {
-    
+
     public static const QUERY_CALCULATED:String = 'complete';
-    
+
     /**
      * The number of accesses of <code>result</code>
      * for performance and debugging purposes.
@@ -74,7 +74,7 @@ package org.juicekit.util.data {
      * @default 'NA'
      */
     public var evalTime:String = 'NA';
-    
+
     public var queryName:String = NameUtil.createUniqueName(this);
 
 
@@ -83,8 +83,8 @@ package org.juicekit.util.data {
      * be recalculated.
      */
     private var dirty:Boolean = true;
-    
-    
+
+
     private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
 
 
@@ -98,8 +98,6 @@ package org.juicekit.util.data {
      *
      * <code>result<code> is bindable.
      */
-
-		 import flare.query.methods.*
     [Bindable(event='liveQueryRecalc')]
     public function get result():ArrayCollection {
       resultFetches += 1;
@@ -111,17 +109,27 @@ package org.juicekit.util.data {
           if (query) {
             var starttime:Number = getTimer();
             var r:Array = query.eval(dataProvider.source);
+
+            // create new variables on each row
+            if (postprocessRow != null) {
+              r.forEach(postprocessRow);
+            }
+            // restructure the entire array
+            if (postprocessArray != null) {
+              r = postprocessArray(r);
+            }
+
             evalTime = (getTimer() - starttime).toString() + 'ms';
             trace(queryName + ' ' + evalTime + ' ' + r.length.toString() + ' results');
             // Clear the dirty flag before setting _result.source
-            // since setting _result.source might cause more 
-            // attempts to fetch result.  
+            // since setting _result.source might cause more
+            // attempts to fetch result.
             dirty = false;
             recalcInProgress = false;
             if (_limit > 0) {
-              _result.source = r.slice(0, limit);              
+              _result.source = r.slice(0, limit);
             } else {
-              _result.source = r;              
+              _result.source = r;
             }
           } else {
             dirty = false;
@@ -183,6 +191,27 @@ package org.juicekit.util.data {
     private var _query:Query = null;
 
 
+
+    //----------------------------------
+    // postprocessing
+    //----------------------------------
+
+    /**
+     * A filter to run to calculate additional fields.
+     *
+     * <p>postprocessRow has the signature
+     * <code>function postprocessRow(element:Object, index:int, array:Array):void</code>.</p>
+     */
+    public var postprocessRow:Function = null;
+
+    /**
+     * A function to run to restructure the array.
+     *
+     * postprocessArray has the signature
+     * <code>function postprocessArray(inputArray:Array):Array</code>.
+     */
+    public var postprocessArray:Function = null;
+
     //----------------------------------
     // limit
     //----------------------------------
@@ -190,7 +219,7 @@ package org.juicekit.util.data {
     /**
     * Restrict the number of results. Zero
     * means return all results
-    * 
+    *
     * @default 0
     */
     public function set limit(v:int):void {
@@ -220,19 +249,19 @@ package org.juicekit.util.data {
 
 
     /**
-    * The timer limits LiveQuery recalculations to 
+    * The timer limits LiveQuery recalculations to
     * once per <code>updateFrequency</code> milliseconds.
-    * 
-    */ 
+    *
+    */
     private var timer:Timer;
-    
+
     /**
     * Suppress dirty events while recalc is occurring
-    * 
+    *
     * TODO: is this too aggressive?
     */
     private var recalcInProgress:Boolean = false;
-    
+
     /**
     * Called each tick of the timer
     */
@@ -242,7 +271,7 @@ package org.juicekit.util.data {
         dispatchEvent(new Event(LIVE_QUERY_RECALC));
       }
     }
-    
+
     /**
     * Set whether the LiveQuery recalculates.
     */
@@ -255,14 +284,14 @@ package org.juicekit.util.data {
     }
     public function get enabled():Boolean {
       return timer.running;
-    } 
-    
+    }
+
     /**
-    * How frequently should this LiveQuery attempt to 
+    * How frequently should this LiveQuery attempt to
     * recalculate in ms.
-    * 
+    *
     * <p>The default recalculation period is 100ms.</p>
-    * 
+    *
     */
     public function set updateFrequency(v:int):void {
       timer.delay = v;
@@ -274,7 +303,7 @@ package org.juicekit.util.data {
     public function LiveQuery() {
       timer = new Timer(100);
       timer.addEventListener(TimerEvent.TIMER, onTick);
-      timer.start();      
+      timer.start();
     }
 
   }

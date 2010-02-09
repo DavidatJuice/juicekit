@@ -21,6 +21,8 @@
 
 
 package org.juicekit.util.helper {
+  import flare.util.Strings;
+  
   import flash.display.IBitmapDrawable;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
@@ -31,11 +33,10 @@ package org.juicekit.util.helper {
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
   import flash.system.System;
-
+  
   import mx.collections.ArrayCollection;
   import mx.controls.DataGrid;
   import mx.graphics.ImageSnapshot;
-  import flare.util.Strings;
 
 
   /**
@@ -212,6 +213,9 @@ package org.juicekit.util.helper {
           }
           else if (val is Number) {
             tempArray.push(Number(val).toFixed(2).toString());
+          }
+          else if (val is Date) {
+            tempArray.push((val as Date).toString());
           }
           else if (val is String) {
             tempArray.push(val);
