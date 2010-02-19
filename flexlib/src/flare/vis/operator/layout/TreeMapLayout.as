@@ -206,7 +206,6 @@ package flare.vis.operator.layout
 	            // add item to the row list, ignore if negative area
 	            var item:NodeSprite = c[len-1];
 				var a:Number = item.props[AREA];
-	            if (a <= 0.0) {
 	            if (a <= 0.0 || isNaN(a)) {
 	            	var o:Object = _t.$(item);
 //	            	item.visible=false;
