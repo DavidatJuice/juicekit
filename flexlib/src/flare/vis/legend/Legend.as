@@ -427,9 +427,9 @@ package flare.vis.legend
         item = _items.getChildAt(j) as LegendItem;
         o = t.$(item);
         // Layout allows items to stack over into the next column or row  -Sal
-        o.x = vert ? x + _iw * Math.floor(y / (_ih * Math.floor(bounds.height / _ih))) : 
+        o.x = vert ? x + _iw * Math.floor(y / (_ih * Math.floor((bounds.height - _title.height) / _ih))) : 
                      x % (_iw * Math.floor(bounds.width / _iw)); 
-        o.y = vert ? y % (_ih * Math.floor(bounds.height / _ih)) :
+        o.y = vert ? y % (_ih * Math.floor((bounds.height - _title.height) / _ih)) :
                      y + _ih * Math.floor(x / (_iw * Math.floor(bounds.width / _iw)));
         o.w = isNaN(bw) ? item.innerWidth : bw;
 
