@@ -113,8 +113,8 @@ package flare.scale
 		{
 			if (!_flush) {
                 var step:Number = getStep(_dmin, _dmax);
-                _smin = step === 0 ? 0 : Math.floor(_dmin / step) * step;
-                _smax = step === 0 ? 0 : Math.ceil(_dmax / step) * step;
+                _smin = step === 0 ? 0 : Math.floor(_dmin / (step/4)) * step / 4;
+                _smax = step === 0 ? 0 : Math.ceil(_dmax / (step/4)) * step / 4;
             } else {
                 _smin = _dmin;
                 _smax = _dmax;
