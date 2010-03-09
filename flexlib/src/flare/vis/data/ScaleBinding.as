@@ -93,6 +93,22 @@ package flare.vis.data
 			}
 		}
 		
+		/** Get the scaleMin of the wrapped scale.
+		 *  Only Quantitative Scales have this value.
+		 */
+		public function get scaleMin():Object {
+		  if (scale is QuantitativeScale) return (scale as QuantitativeScale).scaleMin;
+		  else return null;
+		}
+		
+    /** Get the scaleMax of the wrapped scale.
+     *  Only Quantitative Scales have this value.
+     */
+    public function get scaleMax():Object {
+      if (scale is QuantitativeScale) return (scale as QuantitativeScale).scaleMax;
+      else return null;
+    }
+		
 		/** @inheritDoc */
 		public override function get max():Object { return scale.max; }
 		public override function set max(v:Object):void { scale.max = v; }
