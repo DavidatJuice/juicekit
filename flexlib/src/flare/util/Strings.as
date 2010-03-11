@@ -411,13 +411,46 @@ package flare.util
 			n: "#,##0.", // number
 			p: "%", // percent
 			//r: 0, // round-trip
-			x: 0  // hexadecimal
+			x: 0,  // hexadecimal
+			m: 0, // metric suffix
+			k: 0 // mil/k suffix
 		};
+		
+		private static const _STD_SUFFIX:Object = {
+		  24: 'Y',
+      21: 'Z',
+      18: 'E',
+      15: 'P',
+      12: 'T',
+      9: 'G',
+      6: 'M',
+      3: 'k',
+      2: 'h',
+      1: 'D',
+      0: '',
+      n1: 'd',
+      n2: 'c',
+      n3: 'm',
+      n6: 'μ',
+      n9: 'n',
+      n12: 'p',
+      n15: 'f',
+      n18: 'a',
+      n21: 'z',
+      n24: 'y'
+    };
+    
+    private static const _MIL_SUFFIX:Object = {
+      6: 'mil',
+      3: 'k',
+      0: ''
+    }
 		
 		private static function numberPattern(b:ByteArray, p:String, x:Number):void
 		{
 			var idx0:int, idx1:int, s:String = p.charAt(0).toLowerCase();
 			var upper:Boolean = s.charCodeAt(0) != p.charCodeAt(0);
+			var exp:Number;
 			
 			if (isNaN(x)) {
 				// handle NaN
@@ -451,7 +484,7 @@ package flare.util
 					b.writeUTFBytes(x.toFixed(digits));
 				}
 				else if (s == 'g') {
-					var exp:Number = Math.log(Math.abs(x)) / Math.LN10;
+					exp = Math.log(Math.abs(x)) / Math.LN10;
 					exp = (exp >= 0 ? int(exp) : int(exp-1));
 					digits = (p.length==1 ? 15 : digits);
 					if (exp < -4 || exp > digits) {
@@ -472,6 +505,30 @@ package flare.util
 					s = upper ? s.toUpperCase() : s.toLowerCase();
 					b.writeUTFBytes(s);
 				}
+				else if (s == 'm') {
+				  // Added by Sal Uryasev
+				  // This format appends metric suffix values for numbers
+				  exp = Math.round(1000000 * Math.log(Math.abs(x)) / Math.LN10)/1000000;
+				  exp = 3*(exp >= 0 ? int(exp/3) : int((exp/3)-1));
+				  exp = (exp > 24 ? 24 : exp);
+				  exp = (exp < -24 ? -24 : exp);
+				  // Append an 'n' for negative numbers for lookup
+				  var strExp:String = (exp >= 0 ? exp.toString() : 'n' + Math.abs(exp).toString());
+
+				  numberPattern(b, "0."+repeat("#",digits), x/Math.pow(10,exp));
+          b.writeUTFBytes(_STD_SUFFIX[strExp]);
+				}
+        else if (s == 'k') {
+          // Added by Sal Uryasev
+          // This format appends mil/k values for numbers
+          exp = Math.round(1000000 * Math.log(Math.abs(x)) / Math.LN10)/1000000;
+          exp = 3*(exp >= 0 ? int(exp/3) : int((exp/3)-1));
+          exp = (exp > 6 ? 6 : exp);
+          exp = (exp < 0 ? 0 : exp);
+          
+          numberPattern(b, "0."+repeat("#",digits), x/Math.pow(10,exp));
+          b.writeUTFBytes(_MIL_SUFFIX[exp.toString()]);
+        }
 				else {
 					throw new ArgumentError("Illegal standard format: "+p);
 				}
