@@ -510,8 +510,7 @@ package flare.util
 				  // This format appends metric suffix values for numbers
 				  exp = Math.round(1000000 * Math.log(Math.abs(x)) / Math.LN10)/1000000;
 				  exp = 3*(exp >= 0 ? int(exp/3) : int((exp/3)-1));
-				  exp = (exp > 24 ? 24 : exp);
-				  exp = (exp < -24 ? -24 : exp);
+				  exp = (exp > 24 ? 24 : (exp < -24 ? -24 : exp));
 				  // Append an 'n' for negative numbers for lookup
 				  var strExp:String = (exp >= 0 ? exp.toString() : 'n' + Math.abs(exp).toString());
 
@@ -523,8 +522,7 @@ package flare.util
           // This format appends mil/k values for numbers
           exp = Math.round(1000000 * Math.log(Math.abs(x)) / Math.LN10)/1000000;
           exp = 3*(exp >= 0 ? int(exp/3) : int((exp/3)-1));
-          exp = (exp > 6 ? 6 : exp);
-          exp = (exp < 0 ? 0 : exp);
+          exp = (exp > 6 ? 6 : (exp < 0 ? 0 : exp));
           
           numberPattern(b, "0."+repeat("#",digits), x/Math.pow(10,exp));
           b.writeUTFBytes(_MIL_SUFFIX[exp.toString()]);
