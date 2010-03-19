@@ -40,6 +40,8 @@ package flare.util
 		public static const POLYBLOB:String = "polyblob";
 		/** Constant indicating a vertical bar shape. */
 		public static const VERTICAL_BAR:String = "verticalBar";
+		/** Constant indicating a vertical box bar shape. */
+    public static const VERTICAL_BOXES_BAR:String = "verticalBoxesBar";
 		/** Constant indicating a horizontal bar shape. */
 		public static const HORIZONTAL_BAR:String = "horizontalBar";
 		/** Constant indicating a wedge shape. */

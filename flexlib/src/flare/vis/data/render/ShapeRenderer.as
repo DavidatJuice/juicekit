@@ -99,6 +99,34 @@ package flare.vis.data.render
             g.drawRect(-size/2+lw, -d.h-lw, size-lw*2, d.h+lw*2);
 	        }         
 					break;
+				case Shapes.VERTICAL_BOXES_BAR:
+				  // @author = Sal Uryasev
+				  // This is used in Column Charts to draw the column using squares
+				  g.clear();
+				  var c:Number;
+				  if (lw > 0) {
+            g.beginFill(d.lineColor, d.lineAlpha);
+            g.drawRect(-size/2, -d.h, size, d.h);
+          }
+				  if (d.h > 0) {
+				    c = -d.h + lw;
+				    while (c < 0 - lw) {
+              g.beginFill(d.fillColor, fillAlpha);
+              // size-2*lw designates a whole box
+              // (size-2*lw)*(0-c+lw)/size is the formula calculation for a partial box
+              g.drawRect(-size/2+lw, c-lw, size-lw*2, Math.min(size-2*lw,(size-2*lw)*(0-c+lw)/size));
+              c += size;
+				    }
+				  }
+				  else {
+				    c = -d.h - lw;
+				    while (c > 0 + lw) {
+              g.beginFill(d.fillColor, fillAlpha);
+              g.drawRect(-size/2+lw, c+lw, size-lw*2, Math.max(-size+2*lw,(size-2*lw)*(0-c-lw)/size));
+              c += -size;
+            }
+				  }
+					break;
 				case Shapes.HORIZONTAL_BAR:		
 				  g.clear();
 				  if (lw > 0) {
