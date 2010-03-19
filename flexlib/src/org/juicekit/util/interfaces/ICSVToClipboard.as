@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-
-package org.juicekit.flare.vis.label {
-import flare.vis.data.DataSprite;
+package org.juicekit.util.interfaces
+{
 
 /**
- * Inteface for LabelFormatters used by a LabelLayout. This interface
- * describes the callback protocol used to apply style attributes to labels.
+ * Interface for classes that want a version of themselves placed onto the clipboard.
+ * @author Sal Uryasev
  */
-public interface ILabelFormatter {
-
+public interface ICSVToClipboard
+{
   /**
-   * Returns a LabelFormat for a given data property object.
-   *
-   * @param data Reference to a DataSprite instance.
-   *
-   * @result A LabelFormat instance describing the rendering style
-   *  attributes of the text label or null if a label should not be
-   *  displayed.
+   * toClipboard should either return an ArrayCollection or String representation
+   * of itself for placement onto the clipboard.
    */
-  function labelFormat(dataSprite:DataSprite):LabelFormat;
+  function CSVToClipboard():*;
 }
 }
