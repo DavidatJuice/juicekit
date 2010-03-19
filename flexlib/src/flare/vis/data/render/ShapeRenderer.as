@@ -4,7 +4,6 @@ package flare.vis.data.render
 	import flare.vis.data.DataSprite;
 	
 	import flash.display.Graphics;
-	import flash.display.JointStyle;
 
 	/**
 	 * Renderer that draws shapes. The ShapeRender uses a ShapePalette instance
