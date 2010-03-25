@@ -49,7 +49,7 @@ public class PersistentOrdinalScale extends OrdinalScale {
    */
   private static var _scaleStore:Object = {};
 
-  private static var _ordinalCount:uint = 0;
+  private var _ordinalCount:uint = 0;
 
 
   static public function getScale(ordinals:Array = null, flush:Boolean = false, copy:Boolean = true, labelFormat:String = null, property:String = null):PersistentOrdinalScale {
