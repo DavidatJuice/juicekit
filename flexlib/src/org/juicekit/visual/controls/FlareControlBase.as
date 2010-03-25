@@ -34,32 +34,32 @@ import org.juicekit.util.helper.CSSUtil;
 import org.juicekit.visual.renderers.RendererBase;
 
 /**
- * Dispatched when the user clicks a pointing device over a
- * <code>TreemapControl</code> instance's rectangle.
+ * Dispatched when the user clicks a mouse on a
+ * Flare <code>NodeSprite</code> or <code>EdgeSprite</code>.
  *
  * @eventType org.juicekit.events.DataMouseEvent.CLICK
  */
 [Event(name="jkDataClick", type="org.juicekit.events.DataMouseEvent")]
 
 /**
- * Dispatched when the user clicks a pointing device over a
- * <code>TreemapControl</code> instance's rectangle.
+ * Dispatched when the user clicks on a
+ * Flare <code>NodeSprite</code> or <code>EdgeSprite</code>.
  *
  * @eventType org.juicekit.events.DataMouseEvent.DOUBLE_CLICK
  */
 [Event(name="jkDataDoubleClick", type="org.juicekit.events.DataMouseEvent")]
 
 /**
- * Dispatched when the user moves a pointing device away from
- * <code>TreemapControl</code> instance's rectangle.
+ * Dispatched when the user moves out of a
+ * Flare <code>NodeSprite</code> or <code>EdgeSprite</code>.
  *
  * @eventType org.juicekit.events.DataMouseEvent.MOUSE_OUT
  */
 [Event(name="jkDataMouseOut", type="org.juicekit.events.DataMouseEvent")]
 
 /**
- * Dispatched when the user moves a pointing device over a
- * <code>TreemapControl</code> instance's rectangle.
+ * Dispatched when the user moves over
+ * Flare <code>NodeSprite</code> or <code>EdgeSprite</code>.
  *
  * @eventType org.juicekit.events.DataMouseEvent.MOUSE_OVER
  */
@@ -94,9 +94,9 @@ include "../../../../../shared/styles/metadata/PaddingStyles.as";
 
 /**
  * The class <code>FlareControlBase</code> provides a common implementation
- * for visual com.ingenix.trendview.controls based upon the prefure.flare <code>Visualization</code>.
+ * for visual controls based upon the Flare <code>Visualization</code>.
  * The class is only intended to be used as a base implementation
- * for custom com.ingenix.trendview.controls and is not intended to be directly instantiated.
+ * for custom controls and is not intended to be directly instantiated.
  *
  * @author Jon Buffington
  */
