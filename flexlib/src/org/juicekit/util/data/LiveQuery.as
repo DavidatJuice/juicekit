@@ -35,28 +35,35 @@ import mx.utils.NameUtil;
 [Event(name="complete", type="flash.events.Event")]
 
 
+[Bindable]
 /**
+ * Allows an ArrayCollection of source data to be connected to a
+ * flare Query such that the result of the flare Query is
+ * continuously updated if the source data changes.    
  *
- * A LiveQuery allows an array of source data to be connected to a
- * summarization such that the result of the summarization is
- * continuously updated if the source data changes.
- *
- * A LiveQuery is defined by three inputs; an ArrayCollection,
+ * <p>A LiveQuery is defined by three inputs; an ArrayCollection,
  * a Flare Query, and an optional array of filterFunctions. The result
  * of the query can be found in <code>results</code>, a bindable
- * ArrayCollection that is lazily computed.
+ * ArrayCollection that is lazily computed.<p>
  *
  */
-[Bindable]
-public class
-LiveQuery extends EventDispatcher {
+public class LiveQuery extends EventDispatcher {
 
   public static const QUERY_CALCULATED:String = 'complete';
+  
+  /**
+   * Dispatched when a query recalculation needs to be performed.
+   */ 
+  private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
+
 
   /**
    * The number of accesses of <code>result</code>
    * for performance and debugging purposes.
    */
+  //TODO: move diagnostics out to a common module for all org.juicekit.util.data classes,
+  // see Green Threads: http://code.google.com/p/greenthreads/source/browse/trunk/src/org/greenthreads/ThreadStatistics.as  U
+
   public var resultFetches:int = 0;
  
   /**
@@ -83,8 +90,6 @@ LiveQuery extends EventDispatcher {
   private var dirty:Boolean = true;
 
 
-  private const LIVE_QUERY_RECALC:String = "liveQueryRecalc";
-
 
   //----------------------------------
   // result
@@ -108,6 +113,16 @@ LiveQuery extends EventDispatcher {
         if (query) {
           var starttime:Number = getTimer();
           var r:Array = query.eval(dataProvider.source);
+
+          // create new variables on each row
+          if (postprocessRow != null) {
+            r.forEach(postprocessRow);
+          }
+          // restructure the entire array
+          if (postprocessArray != null) {
+            r = postprocessArray(r);
+          }
+
           evalTime = (getTimer() - starttime).toString() + 'ms';
           trace(queryName + ' ' + evalTime + ' ' + r.length.toString() + ' results');
           // Clear the dirty flag before setting _result.source
