@@ -83,11 +83,11 @@ public class ShapeRenderer implements IRenderer
         break;
 
       case Shapes.TREEMAPBLOCK:
-        // This draws a rectangle inside of a rectangle.  
+        // This draws a rectangle inside of a rectangle.
         // This serves as a replacement for Shapes.BLOCK
-        // This behaves in an identical fashion to the original flash line border 
+        // This behaves in an identical fashion to the original flash line border
         // in that the borders are drawn on the outside of the shape.
-        // Shapes are scaled down by the amount of the linewidth area in the 
+        // Shapes are scaled down by the amount of the linewidth area in the
         // treemap layout to achieve smooth treemap nirvana.
         g.lineStyle(0.0, 0, 0);
         if (lineColor == 0xffffffff) {
@@ -133,36 +133,36 @@ public class ShapeRenderer implements IRenderer
           g.drawRect(-size / 2 + lw, -d.h - lw, size - lw * 2, d.h + lw * 2);
         }
         break;
-        
-				case Shapes.VERTICAL_BOXES_BAR:
-				  // @author = Sal Uryasev
-				  // This is used in Column Charts to draw the column using squares
-				  g.clear();
-				  var c:Number;
-				  if (lw > 0) {
+
+      case Shapes.VERTICAL_BOXES_BAR:
+        // @author = Sal Uryasev
+        // This is used in Column Charts to draw the column using squares
+        g.clear();
+        var c:Number;
+        if (lw > 0) {
           g.beginFill(d.lineColor, d.lineAlpha);
-          g.drawRect(-size/2, -d.h, size, d.h);
+          g.drawRect(-size / 2, -d.h, size, d.h);
         }
-				  if (d.h > 0) {
-				    c = -d.h + lw;
-				    while (c < 0 - lw) {
+        if (d.h > 0) {
+          c = -d.h + lw;
+          while (c < 0 - lw) {
             g.beginFill(d.fillColor, fillAlpha);
             // size-2*lw designates a whole box
             // (size-2*lw)*(0-c+lw)/size is the formula calculation for a partial box
-            g.drawRect(-size/2+lw, c-lw, size-lw*2, Math.min(size-2*lw,(size-2*lw)*(0-c+lw)/size));
+            g.drawRect(-size / 2 + lw, c - lw, size - lw * 2, Math.min(size - 2 * lw, (size - 2 * lw) * (0 - c + lw) / size));
             c += size;
-				    }
-				  }
-				  else {
-				    c = -d.h - lw;
-				    while (c > 0 + lw) {
+          }
+        }
+        else {
+          c = -d.h - lw;
+          while (c > 0 + lw) {
             g.beginFill(d.fillColor, fillAlpha);
-            g.drawRect(-size/2+lw, c+lw, size-lw*2, Math.max(-size+2*lw,(size-2*lw)*(0-c-lw)/size));
+            g.drawRect(-size / 2 + lw, c + lw, size - lw * 2, Math.max(-size + 2 * lw, (size - 2 * lw) * (0 - c - lw) / size));
             c += -size;
           }
-				  }
-					break;
-        
+        }
+        break;
+
       case Shapes.HORIZONTAL_BAR:
         g.clear();
         if (lw > 0) {
