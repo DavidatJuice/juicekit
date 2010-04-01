@@ -36,6 +36,12 @@ import flare.util.Filter;
 import flare.util.Property;
 import flare.util.Sort;
 
+import flash.events.Event;
+import flash.events.EventDispatcher;
+
+import mx.collections.ArrayCollection;
+import mx.events.CollectionEvent;
+
 /**
  * Performs query processing over a collection of ActionScript objects.
  * Queries can perform filtering, sorting, grouping, and aggregation
@@ -69,11 +75,12 @@ import flare.util.Sort;
  * // r == [{cat:"a", sum:3}, {cat:"b", sum:7}, {cat:"c", sum:11}]
  * </pre>
  */
-public class Query
+public class Query extends EventDispatcher
 {
   private var _select:Array;
   private var _orderby:Array;
   private var _groupby:Array;
+  private var _from:Object;
   private var _where:Function;
   private var _wheres:Array = [];
   private var _sort:Sort;
@@ -158,6 +165,21 @@ public class Query
     setSelect(terms);
     _update = true;
     return this;
+  }
+  
+  public function from(o:Object):Query {
+    if (_from == o) return this;
+    if (o is ArrayCollection) o.removeEventListener(CollectionEvent.COLLECTION_CHANGE, dispatchQueryUpdatedEvent);
+    if (o is Query) o.removeEventListener('queryUpdated', dispatchQueryUpdatedEvent);
+    _from = o;    
+    if (o is ArrayCollection) o.addEventListener(CollectionEvent.COLLECTION_CHANGE, dispatchQueryUpdatedEvent);
+    if (o is Query) o.addEventListener('queryUpdated', dispatchQueryUpdatedEvent);
+    dispatchEvent(new Event('queryUpdated'));
+    return this;
+  }
+  
+  private function dispatchQueryUpdatedEvent(e:Event=null):void {
+    dispatchEvent(new Event('queryUpdated')); 
   }
 
 
@@ -288,8 +310,14 @@ public class Query
    * @param input either an array of objects or a visitor function
    * @return an array of processed query results
    */
-  public function eval(input:*):Array
+  public function eval(input:*=null):Array
   {
+    if (input==null) {
+      if (_from is Array) input = _from;
+      else if (_from is ArrayCollection) input = _from.source;
+      else if (_from is Query) input = _from.eval()
+      else throw new Error('Incorrect Query Input');
+    }
     // check for initialization
     if (_sort == null) _sort = sorter();
     if (_aggrs == null) _aggrs = aggregates();
