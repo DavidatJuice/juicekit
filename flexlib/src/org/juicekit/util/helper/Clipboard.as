@@ -194,10 +194,14 @@ public final class Clipboard {
     }
     retVal += RECORD_SEPARATOR;
 
+    // Use elements from the first row to ensure that the data is pasted in the correct
+    // order for all rows.  If dimensions are passed in, use dimensions instead.
+    var first_row:Object = dimensions ? dimensions : arr.getItemAt(0);
+
     for (rowIx = 0; rowIx < arr.length; rowIx++) {
       var row:Object = arr.getItemAt(rowIx);
       tempArray = [];
-      for (elem in row) {
+      for (elem in first_row) {
         if (elem == 'mx_internal_uid') {
           //Ignore ArrayCollection's internal elements
           continue;
