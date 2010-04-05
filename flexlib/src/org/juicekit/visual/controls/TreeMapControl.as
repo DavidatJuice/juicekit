@@ -289,6 +289,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
    * Runs the emphasizer effect.
    */
   public function updateEmphasizer():void {
+    if (vis==null || vis.data==null) return;
     var emphasizer_default:DataList = new DataList('emphasizer_default');
     vis.data.nodes.visit(function(d:DataSprite):void {
       for (var elem:String in emphasizeList) {
@@ -296,7 +297,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
           if (emphasizeList[elem](d)) {
             emphasizer_default.add(d);
           }
-        } else if (((d as NodeSprite).depth > 0) && d.data.name.toLowerCase().indexOf(elem.toLowerCase()) != -1)
+        } else if (((d as NodeSprite).depth > 0) && (d.data.name !== undefined) && d.data.name.toLowerCase().indexOf(elem.toLowerCase()) != -1)
           emphasizer_default.add(d);
 
         //Add all nodes whose parent nodes are emphasized
