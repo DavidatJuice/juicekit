@@ -212,6 +212,9 @@ public final class Clipboard {
         else if (val is String) {
           tempArray.push(val);
         }
+        else if (val is Date) {
+          tempArray.push(Strings.format('{0:MM/dd/yyyy}', val));
+        }
         else {
           //Add nothing
           tempArray.push("");
