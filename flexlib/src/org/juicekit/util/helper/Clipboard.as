@@ -166,11 +166,11 @@ public final class Clipboard {
    *
    * Example formatVars: {'name': '{0}', 'percent': '{0:0.0%}', 'average value' : '{0:0.00}'}
    */
-  public static function putArrayCollection(arr:ArrayCollection, formatVars:Object = null, delimiter:String = '\t'):void {
+  public static function putArrayCollection(arr:ArrayCollection, formatVars:Object = null, dimensions:Array = null, delimiter:String = '\t'):void {
 
     var rowIx:uint, colIx:uint; // Looping indexes.
     var retVal:String = "";
-    var elem:String;
+    var e:String, elem:String;
     var tempArray:Array = [];
 
     if (formatVars == null)
@@ -179,11 +179,15 @@ public final class Clipboard {
     if (arr.length < 1)
       return;
 
+    // Use elements from the first row to ensure that the data is pasted in the correct
+    // order for all rows.  If dimensions are passed in, use dimensions instead.
+    var first_row:Object = dimensions ? dimensions : arr.getItemAt(0);
+
     //Add on header row
-    for (elem in arr.getItemAt(0)) {
+    for (elem in first_row) {
       if (elem != 'mx_internal_uid') {
         //Ignore ArrayCollection's internal elements
-        tempArray.push(elem);
+        tempArray.push((first_row is Array) ? first_row[elem] : elem);
       }
     }
     for (colIx = 0; colIx < tempArray.length; colIx++) {
@@ -194,14 +198,12 @@ public final class Clipboard {
     }
     retVal += RECORD_SEPARATOR;
 
-    // Use elements from the first row to ensure that the data is pasted in the correct
-    // order for all rows.  If dimensions are passed in, use dimensions instead.
-    var first_row:Object = dimensions ? dimensions : arr.getItemAt(0);
-
     for (rowIx = 0; rowIx < arr.length; rowIx++) {
       var row:Object = arr.getItemAt(rowIx);
       tempArray = [];
-      for (elem in first_row) {
+      for (e in first_row) {
+        // Account for the first_row being either an array or an object
+        elem = (first_row is Array) ? first_row[e] : e;
         if (elem == 'mx_internal_uid') {
           //Ignore ArrayCollection's internal elements
           continue;
