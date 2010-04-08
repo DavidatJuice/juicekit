@@ -173,27 +173,27 @@ public class Dates
     var d:Date = t;
     if (span > YEARS) {
       d = new Date(t.fullYear, 0);
-      if (roundUp) d = addYears(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addYears(d, 1);
     } else if (span == MONTHS) {
       d = new Date(t.fullYear, t.month);
-      if (roundUp) d = addMonths(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addMonths(d, 1);
     } else if (span == DAYS) {
       d = new Date(t.fullYear, t.month, t.date);
-      if (roundUp) d = addDays(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addDays(d, 1);
     } else if (span == HOURS) {
       d = new Date(t.fullYear, t.month, t.date, t.hours);
-      if (roundUp) d = addHours(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addHours(d, 1);
     } else if (span == MINUTES) {
       d = new Date(t.fullYear, t.month, t.date, t.hours, t.minutes);
-      if (roundUp) d = addMinutes(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addMinutes(d, 1);
     } else if (span == SECONDS) {
       d = new Date(t.fullYear, t.month, t.date, t.hours, t.minutes, t.seconds);
-      if (roundUp) d = addSeconds(d, 1);
+      if (roundUp && (d.getTime() != t.getTime())) d = addSeconds(d, 1);
     } else if (span == MILLISECONDS) {
       d = new Date(d.time + (roundUp ? 1 : -1));
     } else if (span == WEEKS) {
       d = new Date(t.fullYear, t.month, t.date);
-      if (roundUp) {
+      if (roundUp && (d.getTime() != t.getTime())) {
         d = addDays(d, 7 - d.day);
       } else {
         d = addDays(d, -d.day);
