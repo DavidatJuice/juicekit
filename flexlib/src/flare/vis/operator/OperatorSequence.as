@@ -43,7 +43,7 @@ import flare.util.Arrays;
  * and constructs a single animated transition across all sub-operators.
  * Instead, an OperatorSequence runs each operator separately, providing
  * each with a different Transitioner. The result is a multi-stage
- * animation, in which each operator in the seqeunce get its own
+ * animation, in which each operator in the sequence get its own
  * sub-transition.
  *
  * <p>The <code>add</code> method is not supported by this class. Instead,
