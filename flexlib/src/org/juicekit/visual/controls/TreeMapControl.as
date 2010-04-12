@@ -17,6 +17,7 @@
 
 package org.juicekit.visual.controls {
 import flare.scale.ScaleType;
+import flare.util.palette.ColorPalette;
 import flare.vis.data.Data;
 import flare.vis.data.DataList;
 import flare.vis.data.DataSprite;
@@ -36,7 +37,6 @@ import flash.utils.Dictionary;
 import mx.collections.ArrayCollection;
 
 import org.juicekit.events.JuiceKitEvent;
-import flare.util.palette.ColorPalette;
 import org.juicekit.flare.vis.label.Labels;
 import org.juicekit.util.helper.CSSUtil;
 import org.juicekit.util.interfaces.ICSVToClipboard;
@@ -415,6 +415,14 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
 
         updateTreemap = true;
       }
+      
+      if (_maxDepthUpdated) {
+        _maxDepthUpdated = false;
+        
+        treeMapLayout.maxDepth = maxDepth;
+        
+        updateTreemap = true;
+      }
 
       if (_labelEncodingUpdated) {
         _labelEncodingUpdated = false;
@@ -637,10 +645,10 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
       //This is a bugfix that prevents nodes from lingering on screen when the
       //size field changes from one with a value to one with zero.
         d.visible = false;
-      else if (nodeDepth == _maxDepth || (nodeDepth < _maxDepth && (d as NodeSprite).childDegree == 0)) {
+      else if (nodeDepth == maxDepth || (nodeDepth < maxDepth && (d as NodeSprite).childDegree == 0)) {
         leaves.add(d);
         fallenLeaves.add(d);
-      } else if (nodeDepth < _maxDepth)
+      } else if (nodeDepth < maxDepth)
         branches.add(d);
       else
         d.visible = false;
@@ -799,14 +807,16 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
    * Maximum depth for visibility in treemap
    */
   private var _maxDepth:int = 100;
+  private var _maxDepthUpdated:Boolean = false;
 
 
   [Inspectable(category="General")]
   [Bindable]
   public function set maxDepth(value:int):void {
     _maxDepth = value;
+    _maxDepthUpdated = true;
     if (vis && vis.data != null) {
-      _leavesChanged = true;
+      _leavesChanged = true;      
       invalidateProperties();
     }
   }
@@ -1227,7 +1237,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
 
 
   private function createTreeMapLayout():Operator {
-    return new TreeMapLayout(asFlareProperty(sizeEncodingField));
+    return new TreeMapLayout(asFlareProperty(sizeEncodingField), maxDepth);
   }
 
 

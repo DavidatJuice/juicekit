@@ -81,6 +81,9 @@ public class TreeMapLayout extends Layout
   public function set sizeField(s:String):void {
     _size = Property.$(s);
   }
+  
+  /** The max depth to which do a layout of the tree.  -1 lays out all nodes **/
+  public var maxDepth:int;
 
   // --------------------------------------------------------------------
 
@@ -89,8 +92,9 @@ public class TreeMapLayout extends Layout
    * @param sizeField the data property from which to access the size
    *  value for leaf nodes. The default is the "size" property.
    */
-  public function TreeMapLayout(sizeField:String = "size") {
+  public function TreeMapLayout(sizeField:String = "size", maxDepth:int = -1) {
     this.sizeField = sizeField;
+    this.maxDepth = maxDepth;
   }
 
   /** @inheritDoc */
@@ -184,9 +188,19 @@ public class TreeMapLayout extends Layout
     for (i = 0; i < p.childDegree; ++i) {
       c = p.getChildNode(i);
       updateArea(c, r);
-      if (c.childDegree > 0) {
-
+      // Do not layout anyone past maxDepth
+      if (c.childDegree > 0  && (maxDepth == -1 || maxDepth > (c as NodeSprite).depth - (layoutRoot as NodeSprite).depth)) {
         doLayout(c, r);
+      }
+      else if (c.childDegree > 0) {
+        // Place any children one layer past maxDepth into the center of this node
+        for (var j:uint = 0; j < c.childDegree; ++j) {
+          var o:Object = _t.$(c.getChildNode(j));
+          o.u = r.x;
+          o.v = r.y;
+          o.w = r.width;
+          o.h = r.height;
+        }
       }
     }
   }
@@ -215,7 +229,6 @@ public class TreeMapLayout extends Layout
       var item:NodeSprite = c[len - 1];
       var a:Number = item.props[AREA];
       if (a <= 0.0 || isNaN(a)) {
-        var o:Object = _t.$(item);
         c.pop();
         continue;
       }
@@ -269,7 +282,6 @@ public class TreeMapLayout extends Layout
 
     // set node positions and dimensions
     for each (n in row) {
-      var p:NodeSprite = n.parentNode;
       var nw:Number = n.props[AREA] / hh;
 
       var o:Object = _t.$(n);
