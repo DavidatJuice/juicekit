@@ -650,6 +650,8 @@ public class Data extends EventDispatcher
    */
   public function get tree():Tree
   {
+    if (this is Tree) return this;
+    
     if (_tree == null) { // build tree if necessary
       if (_root == null) _span.root = _nodes[0];
       _span.calculate(this, _span.root);
