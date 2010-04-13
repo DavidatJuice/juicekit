@@ -362,7 +362,8 @@ public class Labels extends Operator {
 
   /**
    * Sets the visibility for labels of the <code>root</code> and its
-   * children.
+   * children.  Resets the labels to a default x and y so that it maps
+   * to its NodeSprite parent if it becomes used in the future.
    *
    * @param root Refers to the root <code>NodeSprite</code> of
    * a <code>Tree</code>.
@@ -370,13 +371,15 @@ public class Labels extends Operator {
    * @param visible Sets the visibility of each <code>NodeSprite</code>
    * in a <code>Tree</code>.
    */
-  public function setLabelVisible(root:NodeSprite, visible:Boolean):void {
+  public function setLabelVisible(root:NodeSprite, visible:Boolean, maxDepth:int = -1):void {
     root.visitTreeDepthFirst(function(ns:NodeSprite):void {
       const label:TextSprite = getLabelFor(ns, false);
       if (label) {
         label.visible = visible;
+        label.x = 0;
+        label.y = 0;
       }
-    });
+    }, false, maxDepth);
   }
 
 

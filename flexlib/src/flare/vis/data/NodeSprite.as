@@ -540,14 +540,18 @@ public class NodeSprite extends DataSprite
    *  returns true, the visitation is ended with an early exit.
    * @param preorder if true, nodes are visited in a pre-order traversal;
    *  if false, they are visited in a post-order traversal
+   * @param depth determines how deep into the tree to traverse;
+   *  if -1, the entire tree is traversed
    * @return true if the visitation was interrupted with an early exit
    */
-  public function visitTreeDepthFirst(f:Function, preorder:Boolean = false):Boolean
+  public function visitTreeDepthFirst(f:Function, preorder:Boolean = false, depth:int = -1):Boolean
   {
     if (preorder && (f(this) as Boolean)) return true;
-    for (var i:uint = 0; i < childDegree; ++i) {
-      if (getChildNode(i).visitTreeDepthFirst(f, preorder))
-        return true;
+    if (depth != 0) {
+      for (var i:uint = 0; i < childDegree; ++i) {
+        if (getChildNode(i).visitTreeDepthFirst(f, preorder, depth == -1 ? depth : depth - 1))
+          return true;
+      }
     }
     if (!preorder && (f(this) as Boolean)) return true;
     return false;
