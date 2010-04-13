@@ -428,6 +428,7 @@ public class GraphUtil {
     } else {
       tree = new Tree();
       rootNode = tree.addRoot();
+      tree.selectedRoot = rootNode;
       // All TreeMap nodes must have Shapes.TREEMAPBLOCK
       rootNode.shape = Shapes.TREEMAPBLOCK;
       rootNode.data['name'] = 'All';

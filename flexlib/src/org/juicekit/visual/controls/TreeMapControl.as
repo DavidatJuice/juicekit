@@ -551,14 +551,12 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
       }
 
       vis.tree.nodes.setProperty("visible", false);
-      labels.setLabelVisible(vis.tree.root, false);
-      labels.ignoreRemovals = true;
-      vis.tree.clear();
-      // the tree must be empty to set a root
-      vis.tree.root = nodeSprite;
-      vis.tree.nodes.setProperty("visible", true);
-      labels.setLabelVisible(vis.tree.root, true);
-      labels.ignoreRemovals = false;
+      // Set the old labels invisible
+      labels.setLabelVisible(dataRoot, false, maxDepth);
+      vis.tree.selectedRoot = nodeSprite;
+      // Make the new labels visible
+      labels.setLabelVisible(dataRoot, true, maxDepth);
+
       dataRootChanged = true;
       _leavesChanged = true;
       _labelDepthUpdated = true;
@@ -574,7 +572,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
    */
   public function get dataRoot():NodeSprite {
     if (vis && vis.data) {
-      return vis.data.root;
+      return vis.tree.selectedRoot;
     }
     return null;
   }
@@ -633,11 +631,13 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
    * Leaves are displayed while branches are hidden.
    */
   private function calculateLeaves():void {
-    var fallenLeaves:DataList = new DataList('fallen_leaves');
     var leaves:DataList = new DataList('leaves');
     var branches:DataList = new DataList('branches');
-    vis.data.nodes.visit(function(d:DataSprite):void {
-      var nodeDepth:int = (d as NodeSprite).depth - vis.tree.root.depth;
+    var visible_nodes:DataList = new DataList('visible_nodes');
+
+    vis.tree.nodes.setProperty("visible", false);
+    (vis.data as Tree).selectedRoot.visitTreeDepthFirst(function(d:DataSprite):void {
+      var nodeDepth:int = int((d as NodeSprite).depth) - int(dataRoot.depth);
       d.visible = true;
       if (nodeDepth < 0)
         d.visible = false;
@@ -646,16 +646,18 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
       //size field changes from one with a value to one with zero.
         d.visible = false;
       else if (nodeDepth == maxDepth || (nodeDepth < maxDepth && (d as NodeSprite).childDegree == 0)) {
-        leaves.add(d);
-        fallenLeaves.add(d);
-      } else if (nodeDepth < maxDepth)
+        leaves.add(d);;
+        visible_nodes.add(d);
+      } else if (nodeDepth < maxDepth) {
         branches.add(d);
+        visible_nodes.add(d);
+      }
       else
         d.visible = false;
-    });
-    vis.data.addGroup('fallen_leaves', fallenLeaves);
+    }, false, maxDepth);
     vis.data.addGroup('leaves', leaves);
     vis.data.addGroup('branches', branches);
+    vis.data.addGroup('visible_nodes', visible_nodes);
     updateEmphasizer();
   }
 
@@ -1232,7 +1234,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
 
 
   private function createColorEncoder():ColorEncoder {
-    return new ColorEncoder(asFlareProperty(_colorEncodingField), freezeColorsOnDataRootChange ? 'fallen_leaves' : 'leaves', "fillColor", ScaleType.LINEAR_PERCENTILE10, colorPalette);
+    return new ColorEncoder(asFlareProperty(_colorEncodingField), freezeColorsOnDataRootChange ? 'leaves' : 'leaves', "fillColor", ScaleType.LINEAR_PERCENTILE10, colorPalette);
   }
 
 
@@ -1243,7 +1245,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
 
   private function createLabelLayout():Operator {
     const lfr:PLabelFormatter = new PLabelFormatter(this, _minLabelDepth + (dataRoot != null ? dataRoot.depth : 0), _maxLabelDepth + (dataRoot != null ? dataRoot.depth : 0));
-    return new Labels(asFlareProperty(_labelEncodingField), Data.NODES, lfr, _truncateToFit, getStyle('labelColorStrategy'));
+    return new Labels(asFlareProperty(_labelEncodingField), 'visible_nodes', lfr, _truncateToFit, getStyle('labelColorStrategy'));
   }
 
 }
