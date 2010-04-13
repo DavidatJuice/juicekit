@@ -18,6 +18,7 @@
 package org.juicekit.flare.vis.label {
 import flare.animate.Transitioner;
 import flare.display.TextSprite;
+import flare.util.Colors;
 import flare.util.Property;
 import flare.vis.data.Data;
 import flare.vis.data.DataSprite;
@@ -34,7 +35,6 @@ import flash.text.AntiAliasType;
 import flash.text.TextField;
 import flash.text.TextLineMetrics;
 
-import flare.util.Colors;
 import org.juicekit.util.helper.CSSUtil;
 
 /**
@@ -279,18 +279,30 @@ public class Labels extends Operator {
           const spriteH:Number = t.getValue(ds, "h");
 
           var labelX:Number, labelY:Number;
+          
+          label = getLabelFor(ds);
 
           // Accomodate layouts (e.g., TreeMapLayout) that use the u an v properties.
           if (!isNaN(spriteU) && !isNaN(spriteV)) {
+            // Apply a default label starting value if the value is (0,0) -Sal
+            if (label.x == 0 && label.y == 0) {
+              label.x = ds.u;
+              label.y = ds.v;
+            }
+            
             labelX = spriteU - spriteX;
             labelY = spriteV - spriteY;
           }
           else {
+            // Apply a default label starting value if the value is (0,0) -Sal
+            if (label.x == 0 && label.y == 0) {
+              label.x = ds.x;
+              label.y = ds.y;
+            }
+            
             labelX = spriteX;
             labelY = spriteY;
           }
-
-          label = getLabelFor(ds);
 
           if (fmt) {
             label.textFormat = fmt;
