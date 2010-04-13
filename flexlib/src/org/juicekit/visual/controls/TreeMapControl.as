@@ -572,7 +572,10 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
    */
   public function get dataRoot():NodeSprite {
     if (vis && vis.data) {
-      return vis.tree.selectedRoot;
+      if (vis.tree.selectedRoot)
+        return vis.tree.selectedRoot;
+      else
+        return vis.tree.root;
     }
     return null;
   }
