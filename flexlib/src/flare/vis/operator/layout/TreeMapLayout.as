@@ -101,7 +101,8 @@ public class TreeMapLayout extends Layout
   protected override function layout():void
   {
     // setup
-    var root:NodeSprite = layoutRoot as NodeSprite;
+//    var root:NodeSprite = layoutRoot as NodeSprite;
+    var root:NodeSprite = visualization.data.tree.selectedRoot;
     var b:Rectangle = layoutBounds;
     _r.x = b.x;
     _r.y = b.y;
@@ -189,7 +190,7 @@ public class TreeMapLayout extends Layout
       c = p.getChildNode(i);
       updateArea(c, r);
       // Do not layout anyone past maxDepth
-      if (c.childDegree > 0  && (maxDepth == -1 || maxDepth > (c as NodeSprite).depth - (layoutRoot as NodeSprite).depth)) {
+      if (c.childDegree > 0  && (maxDepth == -1 || maxDepth > (c as NodeSprite).depth - visualization.data.tree.selectedRoot.depth)) {
         doLayout(c, r);
       }
       else if (c.childDegree > 0) {
@@ -229,6 +230,8 @@ public class TreeMapLayout extends Layout
       var item:NodeSprite = c[len - 1];
       var a:Number = item.props[AREA];
       if (a <= 0.0 || isNaN(a)) {
+        //TODO: determine if it is necessary to create a transitioner for this item
+//        var o:Object = _t.$(item);
         c.pop();
         continue;
       }

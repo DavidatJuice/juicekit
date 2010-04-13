@@ -57,6 +57,11 @@ public class Tree extends Data
                               "If you want to set an entirely new root, call clear() first.");
     }
   }
+  
+  /**
+   * Selected root node of a spanning tree.
+   */ 
+  public var selectedRoot:NodeSprite = null;
 
   /** This property simply points back to this object. */
   public override function get tree():Tree {
