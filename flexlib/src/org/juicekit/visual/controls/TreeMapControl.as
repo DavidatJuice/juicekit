@@ -820,6 +820,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
   public function set maxDepth(value:int):void {
     _maxDepth = value;
     _maxDepthUpdated = true;
+    _colorEncodingUpdated = true;
     if (vis && vis.data != null) {
       _leavesChanged = true;      
       invalidateProperties();
