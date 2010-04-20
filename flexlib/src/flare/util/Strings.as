@@ -556,7 +556,7 @@ public class Strings
         // Append an 'n' for negative numbers for lookup
         var strExp:String = (exp >= 0 ? exp.toString() : 'n' + Math.abs(exp).toString());
 
-        numberPattern(b, "0." + repeat("#", digits), x / Math.pow(10, exp));
+        numberPattern(b, "0." + repeat("0", digits), x / Math.pow(10, exp));
         b.writeUTFBytes(_STD_SUFFIX[strExp]);
       }
       else if (s == 'k') {
@@ -566,7 +566,7 @@ public class Strings
         exp = 3 * (exp >= 0 ? int(exp / 3) : int((exp / 3) - 1));
         exp = (exp > 6 ? 6 : (exp < 0 ? 0 : exp));
 
-        numberPattern(b, "0." + repeat("#", digits), x / Math.pow(10, exp));
+        numberPattern(b, "0." + repeat("0", digits), x / Math.pow(10, exp));
         b.writeUTFBytes(_MIL_SUFFIX[exp.toString()]);
       }
 
