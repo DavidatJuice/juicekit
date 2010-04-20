@@ -261,6 +261,14 @@ public class Strings
   public static var AM1:String = "A";
   /** Full string indicating "AM" time. */
   public static var AM2:String = "AM";
+  /** Abbreviated string indicating "PM" time. */
+  public static var lPM1:String = "p";
+  /** Full string indicating "PM" time. */
+  public static var lPM2:String = "pm";
+  /** Abbreviated string indicating "AM" time. */
+  public static var lAM1:String = "a";
+  /** Full string indicating "AM" time. */
+  public static var lAM2:String = "am";
   /** String indicating "AD" time. */
   public static var AD:String = "AD";
   /** String indicating "BC" time. */
@@ -275,7 +283,8 @@ public class Strings
   private static const _MINS:Number = 'm'.charCodeAt(0);
   private static const _MOS:Number = 'M'.charCodeAt(0);
   private static const _SECS:Number = 's'.charCodeAt(0);
-  private static const _AMPM:Number = 't'.charCodeAt(0);
+  private static const _LAMPM:Number = 't'.charCodeAt(0);
+  private static const _AMPM:Number = 'T'.charCodeAt(0);
   private static const _YEAR:Number = 'y'.charCodeAt(0);
   private static const _ZONE:Number = 'z'.charCodeAt(0);
 
@@ -372,6 +381,10 @@ public class Strings
         s = d.hours > 11 ? (n == 2 ? PM2 : PM1) : (n == 2 ? AM2 : AM1);
         b.writeUTFBytes(s);
       }
+      else if (c == _LAMPM) {
+        s = d.hours > 11 ? (n == 2 ? lPM2 : lPM1) : (n == 2 ? lAM2 : lAM1);
+        b.writeUTFBytes(s);
+      } 
       else if (c == _YEAR) {
         if (n == 1) {
           b.writeUTFBytes(String(int(d.fullYear) % 100));
