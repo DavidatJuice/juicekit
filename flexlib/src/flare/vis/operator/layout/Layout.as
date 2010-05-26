@@ -234,7 +234,7 @@ public class Layout extends Operator
   protected function minAngle(a1:Number, a2:Number):Number
   {
     var inc:Number = 2 * Math.PI * (a1 > a2 ? 1 : -1);
-    for (; Math.abs(a1 - a2) > Math.PI; a2 += inc);
+    for (; Math.abs(a1 - a2) > Math.PI; a2 += inc) {}
     return a2;
   }
 

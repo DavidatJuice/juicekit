@@ -1999,7 +1999,7 @@ public class ColorPalette extends Palette implements IEventDispatcher {
       // try to determine the color given a string
       var s:String = v as String;
 
-      var c:uint = StyleManager.getColorName(s);
+      var c:uint = StyleManager.getStyleManager(null).getColorName(s);
       if (c != StyleManager.NOT_A_COLOR) {
         if (Colors.a(c) == 0) c = Colors.setAlpha(c, 255);
         _colorPalette = fromColor(c);

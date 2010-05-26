@@ -962,9 +962,11 @@ public class Colors {
    * @param colorAdjustmentFunction a function with signature f(color:uint):uint that adjusts the color
    * @result a runtime adjustment of a css property
    */
+  [Deprecated(replacement="adjustStyle has not been updated for use with Flex4",
+                since="4.0")]   
   public static function adjustStyle(cssSelector:String, cssProperty:String, colorAdjustmentFunction:Function):void {
-    const styleDecl:CSSStyleDeclaration = StyleManager.getStyleDeclaration(cssSelector);
-    const selectors:Array = StyleManager.selectors;
+    const styleDecl:CSSStyleDeclaration = StyleManager.getStyleManager(null).getStyleDeclaration(cssSelector);
+    const selectors:Array = StyleManager.getStyleManager(null).selectors;
     if (styleDecl != null) {
       var colorProp:Object = styleDecl.getStyle(cssProperty);
       if (colorProp is uint) {
