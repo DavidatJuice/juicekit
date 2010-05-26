@@ -313,7 +313,7 @@ public class TreeMapZoomControl extends HBox
   /**
    * This function returns the depth (number of LinkButtons) of this control.
    */
-  public function get depth():uint {
+  public function get zoomDepth():uint {
     return buttons.length;
   }
 }

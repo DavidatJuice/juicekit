@@ -78,7 +78,7 @@ public class HPercentRenderer extends NumberRendererBase {
   classConstructor();
 
   private static function classConstructor():void {
-    CSSUtil.setDefaultsFor("HPercentRenderer",
+	CSSUtil.setDefaultsFor("org.juicekit.visual.renderers.HPercentRenderer",
     { color: 0x000000
       , percentColor: 0x8DB3DF
       , remainderColor: 0xCCCCCC

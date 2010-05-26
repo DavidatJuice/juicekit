@@ -27,6 +27,7 @@ import flash.text.AntiAliasType;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
+import flash.text.TextFormatAlign;
 
 import org.juicekit.util.helper.CSSUtil;
 import org.juicekit.visual.flash.controls.USMap;
@@ -48,8 +49,9 @@ public class USMapControl extends MovieClipControlBase {
   classConstructor();
 
   private static function classConstructor():void {
-    CSSUtil.setDefaultsFor("USMapControl",
-    { fontColor: 0
+	CSSUtil.setDefaultsFor("org.juicekit.visual.controls.USMapControl",
+    { fontColor: 0, 
+	  textAlign: TextFormatAlign.LEFT
     }
             );
   }

@@ -107,7 +107,7 @@ public class FlareControlBase extends RendererBase {
   classConstructor();
 
   private static function classConstructor():void {
-    CSSUtil.setDefaultsFor("FlareControlBase",
+	CSSUtil.setDefaultsFor("org.juicekit.visual.controls.FlareControlBase",
     { paddingLeft: 0
       , paddingRight: 0
       , paddingTop: 0
@@ -417,7 +417,7 @@ public class FlareControlBase extends RendererBase {
     g.clear();
 
     const backgroundColor:* = getStyle("backgroundColor");
-    const hasBgColor:Boolean = StyleManager.isValidStyleValue(backgroundColor);
+	const hasBgColor:Boolean = StyleManager.getStyleManager(moduleFactory).isValidStyleValue(backgroundColor);
 
     // Draw a background?
     if (hasBgColor) {

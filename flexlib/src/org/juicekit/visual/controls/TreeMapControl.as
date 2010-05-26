@@ -154,7 +154,7 @@ public class TreeMapControl extends FlareControlBase implements ICSVToClipboard 
 
 
   private static function classConstructor():void {
-    CSSUtil.setDefaultsFor("TreeMapControl", {fontColor: 0x000000, textPosition: "top", strokeAlphas: [1.0], strokeColors: [0x000000], strokeThicknesses: [0], encodedColorAlpha: 1.0, minEncodedColor: 0xFF0000, midEncodedColor: 0x000000, maxEncodedColor: 0x00FF00, labelColorStrategy: 'glow'});
+	CSSUtil.setDefaultsFor("org.juicekit.visual.controls.TreeMapControl", {fontColor: 0x000000, textPosition: "top", strokeAlphas: [1.0], strokeColors: [0x000000], strokeThicknesses: [0], encodedColorAlpha: 1.0, minEncodedColor: 0xFF0000, midEncodedColor: 0x000000, maxEncodedColor: 0x00FF00, labelColorStrategy: 'glow'});
   }
 
 
